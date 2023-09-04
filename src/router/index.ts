@@ -6,11 +6,11 @@ const router = createRouter({
     routes: [
         { 
             path: '/', 
-            component: () => import("../components/MainPage.vue")
+            component: () => import("../components/index.vue")
         },
         { 
-            path: '/Index', 
-            component: () => import("../components/Index.vue")
+            path: '/ServList', 
+            component: () => import("../components/ServList/index.vue")
         },
     ], // `routes: routes` 的缩写
 })

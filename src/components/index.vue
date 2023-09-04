@@ -19,7 +19,7 @@ const startTimer = () => {
     timerId = setInterval(() => {
         if (mins.value == 1) {
             console.log("跳转到程序列表界面");
-            router.push('/Index');
+            router.push('/ServList');
             return;
         }
         mins.value--;
