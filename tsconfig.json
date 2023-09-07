@@ -20,8 +20,20 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     /* element-plus */
-    "types": ["element-plus/global"]
+    "types": ["element-plus/global.d.ts","node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*":["./src/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "electron"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src/**/*.ts", 
+    "src/**/*.d.ts", 
+    "src/**/*.tsx", 
+    "src/**/*.vue", 
+    "electron"
+  ],
+  "references": [
+    { "path": "./tsconfig.node.json" }
+  ]
 }

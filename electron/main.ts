@@ -24,6 +24,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
+      contextIsolation: false, // 解决渲染进程中无法使用nodejs/electron函数方法
       webSecurity: false, // 禁用 Web 安全策略
     },
   })
@@ -42,7 +43,7 @@ function createWindow() {
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
 
-  ipcMain.on('execute-command', (event, command) => {
+  ipcMain.on('execute-command', (_event, command) => {
     // 在主进程中执行命令，并将结果返回到渲染进程
     exec(command, (error, stdout, stderr) => {
       if (error) {

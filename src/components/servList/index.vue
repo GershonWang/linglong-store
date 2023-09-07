@@ -18,8 +18,9 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
-// import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
+import { getList } from '../../api/service';
+import { ElMessageBox } from 'element-plus'
 
 const items = ref<Card[]>([]); // 用于存储所有卡片对象
 const displayedItems = ref<Card[]>([]); // 用于存储当前显示的卡片对象
@@ -37,28 +38,21 @@ interface Card {
     version: string;
 }
 
-const instance = axios.create({
-    baseURL: 'https://mirror-repo-linglong.deepin.com', // 根据您的实际 API 地址进行设置
-    timeout: 10000, // 设置请求超时时间
-    headers: {
-        'Access-Control-Allow-Origin': '*', // 设置允许的域名
-        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
-    }
-});
-
 const fetchData = async (pageNo: number, pageSize: number) => {
-    try {
-        const response = await instance.get('/api/v0/web-store/apps?page=' + pageNo + '&size=' + pageSize);
-        const temp = response.data.data.list;
+    const data = {
+        page: pageNo,
+        size: pageSize
+    }
+    getList(data).then(res => {
+        console.log('res :>>', res);
+        const temp = res.data.list;
         if (temp != null) {
             temp.forEach((item: { appId: string; arch: string; description: string; icon: string; id: string; name: string; version: string; }) => {
                 items.value.push(item);
                 displayedItems.value.push(item);
             });
         }
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
+    });
 }
 
 // 返回默认图片路径，如果图片地址为空或加载失败
@@ -72,10 +66,16 @@ const setDefault = (item: { icon: string; }) => {
 // 安装程序
 const installServ = (item: any) => {
     console.log(item.appId);
-    // ipcRenderer.send('execute-command', 'ls'); // 发送命令到主进程
+    ipcRenderer.send('execute-command', 'll-cli install ' + item.appId);
+    ipcRenderer.on('command-result', (_event, data) => {
+        console.log(data);
+        ElMessageBox.alert('安装成功');
+    })
 }
 
-onMounted(() => fetchData(pageNo, pageSize));
+onMounted(() => {
+    fetchData(pageNo, pageSize);
+});
 
 // 监听滚动事件以触发加载更多
 window.addEventListener('scroll', () => {
@@ -177,4 +177,5 @@ window.addEventListener('scroll', () => {
 .loading {
     text-align: center;
     padding: 10px;
-}</style>
+}
+</style>
