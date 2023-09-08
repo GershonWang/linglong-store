@@ -10,7 +10,7 @@ export function getList(data: Pagination): AxiosPromise<any> {
   return request({
     url: '/api/v0/web-store/apps',
     method: 'get',
-    data: data,
+    params: data,
   });
 }
 

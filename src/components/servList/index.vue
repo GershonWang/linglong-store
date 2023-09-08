@@ -9,7 +9,7 @@
                     <div class="bottom">
                         <p class="desc">{{ item.description }}</p>
                         <p class="time">{{ item.arch }}</p>
-                        <el-button text class="button" @click="installServ(item)">安装</el-button>
+                        <el-button text class="installBtn" @click="installServ(item)">安装</el-button>
                     </div>
                 </div>
             </el-card>
@@ -37,7 +37,48 @@ interface Card {
     name: string;
     version: string;
 }
-
+/**
+ * 获取已经安装的玲珑程序
+ */
+function getInstalled() {
+    ipcRenderer.send('execute-command', 'll-cli list');
+    ipcRenderer.on('command-result', (_event, data) => {
+        const apps = data.split("\n");
+        // 第0条是分类项不是应用，需要剔除
+        for (let index = 1; index < apps.length; index++) {
+            const element = apps[index];
+            if (element == null) return
+            // 使用正则表达式来分割数据行
+            const dataArray = element.match(/'[^']+'|\S+/g);
+            // 现在 dataArray 包含了每个字段的值，包括可能包含空格的字段
+            const appId = dataArray[0].replace(/'/g, ''); // 去除可能包含的单引号
+            const name = dataArray[1].replace(/'/g, ''); // 去除可能包含的单引号
+            const version = dataArray[2].replace(/'/g, ''); // 去除可能包含的单引号
+            const arch = dataArray[3];
+            const channel = dataArray[4];
+            const module = dataArray[5];
+            const description = dataArray[6];
+            const item = {
+                appId: appId,
+                arch: arch,
+                description: description,
+                icon: null,
+                id: null,
+                name: name,
+                version: version,
+                channel: channel,
+                module: module
+            }
+            console.log('当前'+ index +'的item',item);
+            
+        }
+    })
+}
+/**
+ * 根据分页条件查询网络玲珑应用
+ * @param pageNo 页数
+ * @param pageSize 每页条数
+ */
 const fetchData = async (pageNo: number, pageSize: number) => {
     const data = {
         page: pageNo,
@@ -47,7 +88,7 @@ const fetchData = async (pageNo: number, pageSize: number) => {
         console.log('res :>>', res);
         const temp = res.data.list;
         if (temp != null) {
-            temp.forEach((item: { appId: string; arch: string; description: string; icon: string; id: string; name: string; version: string; }) => {
+            temp.forEach((item: Card) => {
                 items.value.push(item);
                 displayedItems.value.push(item);
             });
@@ -74,6 +115,7 @@ const installServ = (item: any) => {
 }
 
 onMounted(() => {
+    getInstalled();
     fetchData(pageNo, pageSize);
 });
 

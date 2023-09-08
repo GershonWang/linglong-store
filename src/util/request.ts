@@ -29,6 +29,7 @@ service.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token')
     config.headers.set('token', token);
   }
+  console.log('config :>>',config);
   return config;
 }, (error: any) => {
   return Promise.reject(error);
