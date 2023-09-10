@@ -24,6 +24,7 @@ import { ElMessageBox } from 'element-plus'
 
 const items = ref<Card[]>([]); // 用于存储所有卡片对象
 const displayedItems = ref<Card[]>([]); // 用于存储当前显示的卡片对象
+const installedItems = ref<Card[]>([]); // 用于存储当前系统已安装的卡片对象
 
 let pageNo = 1;
 let pageSize = 12;
@@ -44,33 +45,25 @@ function getInstalled() {
     ipcRenderer.send('execute-command', 'll-cli list');
     ipcRenderer.on('command-result', (_event, data) => {
         const apps = data.split("\n");
-        // 第0条是分类项不是应用，需要剔除
-        for (let index = 1; index < apps.length; index++) {
+        // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
+        for (let index = 1; index < apps.length -1; index++) {
             const element = apps[index];
-            if (element == null) return
+            console.log('element :>>',element);
             // 使用正则表达式来分割数据行
             const dataArray = element.match(/'[^']+'|\S+/g);
             // 现在 dataArray 包含了每个字段的值，包括可能包含空格的字段
-            const appId = dataArray[0].replace(/'/g, ''); // 去除可能包含的单引号
-            const name = dataArray[1].replace(/'/g, ''); // 去除可能包含的单引号
-            const version = dataArray[2].replace(/'/g, ''); // 去除可能包含的单引号
-            const arch = dataArray[3];
-            const channel = dataArray[4];
-            const module = dataArray[5];
-            const description = dataArray[6];
             const item = {
-                appId: appId,
-                arch: arch,
-                description: description,
-                icon: null,
-                id: null,
-                name: name,
-                version: version,
-                channel: channel,
-                module: module
+                appId: dataArray[0].replace(/'/g, ''), // 去除可能包含的单引号
+                arch: dataArray[3],
+                description: dataArray[6],
+                icon: "",
+                id: "",
+                name: dataArray[1].replace(/'/g, ''), // 去除可能包含的单引号
+                version: dataArray[2].replace(/'/g, ''), // 去除可能包含的单引号
+                channel: dataArray[4],
+                module: dataArray[5]
             }
-            console.log('当前'+ index +'的item',item);
-            
+            installedItems.value.push(item);
         }
     })
 }
