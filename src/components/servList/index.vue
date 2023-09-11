@@ -1,15 +1,20 @@
 <template>
     <el-row>
         <el-col v-for="(item, index) in displayedItems" :key="index" :span="6">
-            <el-card :body-style="{ padding: '0px' }">
+            <el-card :body-style="{ padding: '0px' }" style="position: relative;">
                 <img class="image" :src="itemImageUrl(item.icon)" @error="setDefault(item)" alt="Image" />
                 <div style="padding: 14px">
-                    <span>{{ item.name }}{{ item.version }}</span>
-                    <hr>
-                    <div class="bottom">
+                    <span>{{ item.name }}</span>
+                    <span class="version">{{ item.version }}</span>
+                    <div class="bottom" v-if="item.isInstalled">
                         <p class="desc">{{ item.description }}</p>
                         <p class="time">{{ item.arch }}</p>
-                        <el-button text class="installBtn" @click="installServ(item)">安装</el-button>
+                        <el-button class="uninstallBtn" @click="uninstallServ(item)">卸载</el-button>
+                    </div>
+                    <div class="bottom" v-else>
+                        <p class="desc">{{ item.description }}</p>
+                        <p class="time">{{ item.arch }}</p>
+                        <el-button class="installBtn" @click="installServ(item)">安装</el-button>
                     </div>
                 </div>
             </el-card>
@@ -17,14 +22,14 @@
     </el-row>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted, reactive } from 'vue';
+import { ElNotification } from 'element-plus'
 import { ipcRenderer } from 'electron';
 import { getList } from '../../api/service';
-import { ElMessageBox } from 'element-plus'
 
-const items = ref<Card[]>([]); // 用于存储所有卡片对象
-const displayedItems = ref<Card[]>([]); // 用于存储当前显示的卡片对象
-const installedItems = ref<Card[]>([]); // 用于存储当前系统已安装的卡片对象
+const items = reactive<Card[]>([]); // 用于存储所有卡片对象
+const displayedItems = reactive<Card[]>([]); // 用于存储当前显示的卡片对象
+const installedItems = reactive<Card[]>([]); // 用于存储当前系统已安装的卡片对象
 
 let pageNo = 1;
 let pageSize = 12;
@@ -37,6 +42,7 @@ interface Card {
     id: string;
     name: string;
     version: string;
+    isInstalled: boolean;
 }
 /**
  * 获取已经安装的玲珑程序
@@ -48,7 +54,6 @@ function getInstalled() {
         // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
         for (let index = 1; index < apps.length -1; index++) {
             const element = apps[index];
-            console.log('element :>>',element);
             // 使用正则表达式来分割数据行
             const dataArray = element.match(/'[^']+'|\S+/g);
             // 现在 dataArray 包含了每个字段的值，包括可能包含空格的字段
@@ -61,9 +66,10 @@ function getInstalled() {
                 name: dataArray[1].replace(/'/g, ''), // 去除可能包含的单引号
                 version: dataArray[2].replace(/'/g, ''), // 去除可能包含的单引号
                 channel: dataArray[4],
-                module: dataArray[5]
+                module: dataArray[5],
+                isInstalled: true
             }
-            installedItems.value.push(item);
+            installedItems.push(item);
         }
     })
 }
@@ -73,17 +79,25 @@ function getInstalled() {
  * @param pageSize 每页条数
  */
 const fetchData = async (pageNo: number, pageSize: number) => {
-    const data = {
-        page: pageNo,
-        size: pageSize
-    }
-    getList(data).then(res => {
-        console.log('res :>>', res);
+    getList({page: pageNo, size: pageSize}).then(res => {
         const temp = res.data.list;
         if (temp != null) {
             temp.forEach((item: Card) => {
-                items.value.push(item);
-                displayedItems.value.push(item);
+                item.isInstalled = false; // 设置标识为false
+                let count = 0;
+                installedItems.forEach((it: Card) => {
+                    if(item.appId == it.appId) {
+                        count ++;
+                        items.push(it);
+                        displayedItems.push(it);
+                        return;
+                    }
+                })
+                if(count > 0) {
+                    return;
+                }
+                items.push(item);
+                displayedItems.push(item);
             });
         }
     });
@@ -98,20 +112,36 @@ const setDefault = (item: { icon: string; }) => {
     item.icon = '/logo.png';
 }
 // 安装程序
-const installServ = (item: any) => {
-    console.log(item.appId);
-    ipcRenderer.send('execute-command', 'll-cli install ' + item.appId);
-    ipcRenderer.on('command-result', (_event, data) => {
+const installServ = (item: Card) => {
+    item.isInstalled = !item.isInstalled;
+    ipcRenderer.send('install-command', 'll-cli install ' + item.appId);
+    ipcRenderer.on('install-result', (_event, data) => {
         console.log(data);
-        ElMessageBox.alert('安装成功');
+        ElNotification({
+            title: '安装成功',
+            message: '成功安装 ' + item.name,
+            type: 'success',
+        })
     })
 }
-
+// 卸载程序
+const uninstallServ = (item: Card) => {
+    item.isInstalled = !item.isInstalled;
+    ipcRenderer.send('uninstall-command', 'll-cli uninstall ' + item.appId);
+    ipcRenderer.on('uninstall-result', (_event, data) => {
+        console.log(data);
+        ElNotification({
+            title: '卸载成功',
+            message: '成功卸载 ' + item.name,
+            type: 'success',
+        })
+    })
+}
+// 初始化加载
 onMounted(() => {
-    getInstalled();
-    fetchData(pageNo, pageSize);
+    getInstalled(); // 初始加载当前系统已经安装的玲珑程序
+    fetchData(pageNo, pageSize); // 分页查询第一页程序
 });
-
 // 监听滚动事件以触发加载更多
 window.addEventListener('scroll', () => {
     const scrollPosition = window.scrollY;
@@ -131,6 +161,11 @@ window.addEventListener('scroll', () => {
 .el-card {
     height: 100%;
     width: 90%;
+}
+
+.image {
+    width: 80%;
+    margin: 10px;
 }
 
 .desc {
@@ -189,6 +224,15 @@ window.addEventListener('scroll', () => {
     color: #999;
 }
 
+.version {
+    position: absolute;
+    top: 30px;
+    right: -80px;
+    transform: rotate(45deg);
+    background-color: red;
+    width: 100%;
+}
+
 .bottom {
     margin-top: 13px;
     line-height: 12px;
@@ -204,9 +248,8 @@ window.addEventListener('scroll', () => {
     min-height: auto;
 }
 
-.image {
-    width: 80%;
-    margin: 10px;
+.uninstallBtn {
+    background-color: red;
 }
 
 .loading {

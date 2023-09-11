@@ -42,22 +42,40 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
-
-  ipcMain.on('execute-command', (_event, command) => {
+  // 安装命令
+  ipcMain.on('install-command', (_event, command) => {
     // 在主进程中执行命令，并将结果返回到渲染进程
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error(`执行命令出错: ${error.message}`);
-        win?.webContents.send('command-result', error.message);
+        win?.webContents.send('install-result', error.message);
         return;
       }
       if (stderr) {
         console.error(`命令执行错误: ${stderr}`);
-        win?.webContents.send('command-result', stderr);
+        win?.webContents.send('install-result', stderr);
         return;
       }
       console.log(`命令执行结果: ${stdout}`);
-      win?.webContents.send('command-result', stdout);
+      win?.webContents.send('install-result', stdout);
+    });
+  });
+  // 卸载命令
+  ipcMain.on('uninstall-command', (_event, command) => {
+    // 在主进程中执行命令，并将结果返回到渲染进程
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`执行命令出错: ${error.message}`);
+        win?.webContents.send('uninstall-result', error.message);
+        return;
+      }
+      if (stderr) {
+        console.error(`命令执行错误: ${stderr}`);
+        win?.webContents.send('uninstall-result', stderr);
+        return;
+      }
+      console.log(`命令执行结果: ${stdout}`);
+      win?.webContents.send('uninstall-result', stdout);
     });
   });
 }
