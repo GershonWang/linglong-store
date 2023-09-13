@@ -22,7 +22,7 @@
     </el-row>
 </template>
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue';
+import { onBeforeUnmount, onMounted, reactive } from 'vue';
 import { ElNotification } from 'element-plus'
 import { ipcRenderer } from 'electron';
 import { getList } from '../../api/service';
@@ -48,11 +48,11 @@ interface Card {
  * 获取已经安装的玲珑程序
  */
 function getInstalled() {
-    ipcRenderer.send('execute-command', 'll-cli list');
-    ipcRenderer.on('command-result', (_event, data) => {
+    ipcRenderer.send('installed-command', 'll-cli list');
+    ipcRenderer.on('installed-result', (_event, data) => {
         const apps = data.split("\n");
         // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-        for (let index = 1; index < apps.length -1; index++) {
+        for (let index = 1; index < apps.length - 1; index++) {
             const element = apps[index];
             // 使用正则表达式来分割数据行
             const dataArray = element.match(/'[^']+'|\S+/g);
@@ -79,21 +79,21 @@ function getInstalled() {
  * @param pageSize 每页条数
  */
 const fetchData = async (pageNo: number, pageSize: number) => {
-    getList({page: pageNo, size: pageSize}).then(res => {
+    getList({ page: pageNo, size: pageSize }).then(res => {
         const temp = res.data.list;
         if (temp != null) {
             temp.forEach((item: Card) => {
                 item.isInstalled = false; // 设置标识为false
                 let count = 0;
                 installedItems.forEach((it: Card) => {
-                    if(item.appId == it.appId) {
-                        count ++;
+                    if (item.appId == it.appId) {
+                        count++;
                         items.push(it);
                         displayedItems.push(it);
                         return;
                     }
                 })
-                if(count > 0) {
+                if (count > 0) {
                     return;
                 }
                 items.push(item);
@@ -113,34 +113,43 @@ const setDefault = (item: { icon: string; }) => {
 }
 // 安装程序
 const installServ = (item: Card) => {
-    item.isInstalled = !item.isInstalled;
     ipcRenderer.send('install-command', 'll-cli install ' + item.appId);
-    ipcRenderer.on('install-result', (_event, data) => {
-        console.log(data);
-        ElNotification({
-            title: '安装成功',
-            message: '成功安装 ' + item.name,
-            type: 'success',
-        })
-    })
+    item.isInstalled = !item.isInstalled;
 }
 // 卸载程序
 const uninstallServ = (item: Card) => {
-    item.isInstalled = !item.isInstalled;
     ipcRenderer.send('uninstall-command', 'll-cli uninstall ' + item.appId);
-    ipcRenderer.on('uninstall-result', (_event, data) => {
-        console.log(data);
-        ElNotification({
-            title: '卸载成功',
-            message: '成功卸载 ' + item.name,
-            type: 'success',
-        })
-    })
+    item.isInstalled = !item.isInstalled;
 }
-// 初始化加载
+
+// 添加事件监听器
+const installListener = (_event: any, data: any) => {
+    console.log(data);
+    ElNotification({
+        title: '安装成功',
+        message: '成功安装',
+        type: 'success',
+    });
+};
+const uninstallListener = (_event: any, data: any) => {
+    console.log(data);
+    ElNotification({
+        title: '卸载成功',
+        message: '成功卸载',
+        type: 'success',
+    });
+};
+// 组件初始化时加载
 onMounted(() => {
     getInstalled(); // 初始加载当前系统已经安装的玲珑程序
     fetchData(pageNo, pageSize); // 分页查询第一页程序
+    ipcRenderer.on('install-result', installListener);
+    ipcRenderer.on('uninstall-result', uninstallListener);
+});
+// 在组件销毁时移除事件监听器
+onBeforeUnmount(() => {
+  ipcRenderer.removeListener('install-result', installListener);
+  ipcRenderer.removeListener('uninstall-result', uninstallListener);
 });
 // 监听滚动事件以触发加载更多
 window.addEventListener('scroll', () => {

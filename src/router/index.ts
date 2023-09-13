@@ -9,8 +9,16 @@ const router = createRouter({
             component: () => import("../components/index.vue")
         },
         { 
-            path: '/servList', 
-            component: () => import("../components/servList/index.vue")
+            path: '/main_view', 
+            component: () => import("../components/mainView/index.vue")
+        },
+        { 
+            path: '/all_serv_menu', 
+            component: () => import("../pages/allServMenu/index.vue")
+        },
+        { 
+            path: '/installed_menu', 
+            component: () => import("../pages/installedMenu/index.vue")
         },
     ], // `routes: routes` 的缩写
 })

@@ -35,13 +35,31 @@ function createWindow() {
   })
 
   if (VITE_DEV_SERVER_URL) {
-    console.log("dev环境的配置地址",VITE_DEV_SERVER_URL);
-    win.webContents.openDevTools({'mode':'detach'});
+    console.log("dev环境的配置地址", VITE_DEV_SERVER_URL);
+    win.webContents.openDevTools({ 'mode': 'detach' });
     win.loadURL(VITE_DEV_SERVER_URL)
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
+  // 查询已安装玲珑软件命令
+  ipcMain.on('installed-command', (_event, command) => {
+    // 在主进程中执行命令，并将结果返回到渲染进程
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`执行命令出错: ${error.message}`);
+        win?.webContents.send('installed-result', error.message);
+        return;
+      }
+      if (stderr) {
+        console.error(`命令执行错误: ${stderr}`);
+        win?.webContents.send('installed-result', stderr);
+        return;
+      }
+      console.log(`命令执行结果: ${stdout}`);
+      win?.webContents.send('installed-result', stdout);
+    });
+  });
   // 安装命令
   ipcMain.on('install-command', (_event, command) => {
     // 在主进程中执行命令，并将结果返回到渲染进程

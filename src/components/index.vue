@@ -19,7 +19,7 @@ const startTimer = () => {
     timerId = setInterval(() => {
         if (mins.value == 1) {
             console.log("跳转到程序列表界面");
-            router.push('/servList');
+            router.push('/main_view');
             return;
         }
         mins.value--;
@@ -28,7 +28,6 @@ const startTimer = () => {
 
 onMounted(() => {
     startTimer();
-    // ipcRenderer.send('execute-command', 'ls'); // 发送命令到主进程
 });
 
 onBeforeUnmount(() => {
