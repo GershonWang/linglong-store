@@ -1,11 +1,11 @@
 <template>
-    <div>
+    <div class="containner">
         <a href="https://linglong.dev/" target="_blank">
             <img src="/logo.svg" class="logo vue" alt="玲珑商店" />
         </a>
+        <h1>玲珑应用商店</h1>
+        <h4>正在进入商店：{{ mins }}秒</h4>
     </div>
-    <h1>玲珑应用商店</h1>
-    <h4>正在进入商店：{{ mins }}秒</h4>
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
@@ -37,18 +37,28 @@ onBeforeUnmount(() => {
 });
 </script>
 <style scoped>
+.containner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
 .logo {
     height: 6em;
     padding: 1.5em;
     will-change: filter;
     transition: filter 300ms;
 }
-
 .logo:hover {
     filter: drop-shadow(0 0 2em #646cffaa);
 }
-
 .logo.vue:hover {
     filter: drop-shadow(0 0 2em #42b883aa);
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
 }
 </style>

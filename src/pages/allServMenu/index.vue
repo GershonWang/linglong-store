@@ -1,28 +1,30 @@
 <template>
-    <el-row>
-        <el-col v-for="(item, index) in displayedItems" :key="index" :span="6">
-            <el-card :body-style="{ padding: '0px' }" style="position: relative;">
-                <img class="image" :src="itemImageUrl(item.icon)" @error="setDefault(item)" alt="Image" />
-                <div style="padding: 14px">
-                    <span>{{ item.name }}</span>
-                    <span class="version">{{ item.version }}</span>
-                    <div class="bottom" v-if="item.isInstalled">
-                        <p class="desc">{{ item.description }}</p>
-                        <p class="time">{{ item.arch }}</p>
-                        <el-button class="uninstallBtn" @click="uninstallServ(item)">卸载</el-button>
+    <div class="row" ref="rowRef" @scroll="handleScroll">
+        <el-row>
+            <el-col v-for="(item, index) in displayedItems" :key="index" :span="num">
+                <el-card :body-style="{ padding: '0px' }">
+                    <img class="image" :src="itemImageUrl(item.icon)" @error="setDefault(item)" alt="Image" />
+                    <div style="padding: 14px">
+                        <span>{{ item.name }}</span>
+                        <span class="version">{{ item.version }}</span>
+                        <div class="bottom" v-if="item.isInstalled">
+                            <p class="desc">{{ item.description }}</p>
+                            <p class="time">{{ item.arch }}</p>
+                            <el-button class="uninstallBtn" @click="uninstallServ(item)">卸载</el-button>
+                        </div>
+                        <div class="bottom" v-else>
+                            <p class="desc">{{ item.description }}</p>
+                            <p class="time">{{ item.arch }}</p>
+                            <el-button class="installBtn" @click="installServ(item)">安装</el-button>
+                        </div>
                     </div>
-                    <div class="bottom" v-else>
-                        <p class="desc">{{ item.description }}</p>
-                        <p class="time">{{ item.arch }}</p>
-                        <el-button class="installBtn" @click="installServ(item)">安装</el-button>
-                    </div>
-                </div>
-            </el-card>
-        </el-col>
-    </el-row>
+                </el-card>
+            </el-col>
+        </el-row>
+    </div>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { ElNotification } from 'element-plus'
 import { ipcRenderer } from 'electron';
 import { getList } from '../../api/service';
@@ -31,6 +33,9 @@ const items = reactive<Card[]>([]); // 用于存储所有卡片对象
 const displayedItems = reactive<Card[]>([]); // 用于存储当前显示的卡片对象
 const installedItems = reactive<Card[]>([]); // 用于存储当前系统已安装的卡片对象
 
+const rowRef = ref<HTMLElement | null>();
+
+const num = ref(4);
 let pageNo = 1;
 let pageSize = 12;
 
@@ -43,6 +48,23 @@ interface Card {
     name: string;
     version: string;
     isInstalled: boolean;
+}
+/**
+ * 根据分辨率计算栅格行卡片数量
+ */
+function calculateSpan() {
+    // 根据屏幕宽度动态计算 span 值
+    const screenWidth = window.innerWidth;
+    if (screenWidth > 1366) {
+        num.value = 4; // 大屏幕，一行显示 6 个卡片
+        pageSize = 18;
+    } else if (screenWidth <= 1366 && screenWidth > 768) {
+        num.value = 6; // 中等屏幕，一行显示 4 个卡片
+        pageSize = 12;
+    } else {
+        num.value = 8; // 小屏幕，一行显示 3 个卡片
+        pageSize = 9;
+    }
 }
 /**
  * 获取已经安装的玲珑程序
@@ -141,6 +163,7 @@ const uninstallListener = (_event: any, data: any) => {
 };
 // 组件初始化时加载
 onMounted(() => {
+    calculateSpan();
     getInstalled(); // 初始加载当前系统已经安装的玲珑程序
     fetchData(pageNo, pageSize); // 分页查询第一页程序
     ipcRenderer.on('install-result', installListener);
@@ -148,28 +171,58 @@ onMounted(() => {
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
-  ipcRenderer.removeListener('install-result', installListener);
-  ipcRenderer.removeListener('uninstall-result', uninstallListener);
+    ipcRenderer.removeListener('install-result', installListener);
+    ipcRenderer.removeListener('uninstall-result', uninstallListener);
+});
+// 监听窗口大小变化，实时更新 span 值
+window.addEventListener("resize", () => {
+    calculateSpan();
 });
 // 监听滚动事件以触发加载更多
-window.addEventListener('scroll', () => {
-    const scrollPosition = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    if (scrollPosition != 0 && (documentHeight - scrollPosition) % windowHeight == 0) {
-        pageNo += 1;
-        fetchData(pageNo, pageSize);
+// document.addEventListener('scroll', () => {
+// const scrollPosition = window.scrollY;
+// const windowHeight = window.innerHeight;
+// const documentHeight = document.documentElement.scrollHeight;
+// if (scrollPosition != 0 && (documentHeight - scrollPosition) % windowHeight == 0) {
+//     pageNo += 1;
+//     fetchData(pageNo, pageSize);
+// }
+// });
+
+function handleScroll() {
+    if (rowRef.value) {
+        const scrollPosition = rowRef.value.scrollTop; // 获取滚动位置
+        const windowHeight = rowRef.value.clientHeight; // 获取窗口高度
+        const contentHeight = rowRef.value.scrollHeight; // 获取内容高度
+        const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
+
+        console.log('滚动位置:', scrollPosition);
+        console.log('窗口高度:', windowHeight);
+        console.log('内容高度:', contentHeight);
+        console.log('滚动条长度:', scrollbarHeight);
+        if (scrollPosition != 0 && scrollPosition == windowHeight - scrollbarHeight) {
+
+            pageNo += 1;
+            fetchData(pageNo, pageSize);
+        }
     }
-});
+}
 </script>
 <style>
+.row {
+    height: 100%;
+    overflow-y: scroll;
+}
+
 .el-col {
-    margin-bottom: 15px;
+    text-align: center;
+    padding: 18px;
 }
 
 .el-card {
     height: 100%;
-    width: 90%;
+    width: 100%;
+    position: relative;
 }
 
 .image {
