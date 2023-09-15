@@ -71,29 +71,6 @@ function calculateSpan() {
  */
 function getInstalled() {
     ipcRenderer.send('installed-command', 'll-cli list');
-    ipcRenderer.on('installed-result', (_event, data) => {
-        const apps = data.split("\n");
-        // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-        for (let index = 1; index < apps.length - 1; index++) {
-            const element = apps[index];
-            // 使用正则表达式来分割数据行
-            const dataArray = element.match(/'[^']+'|\S+/g);
-            // 现在 dataArray 包含了每个字段的值，包括可能包含空格的字段
-            const item = {
-                appId: dataArray[0].replace(/'/g, ''), // 去除可能包含的单引号
-                arch: dataArray[3],
-                description: dataArray[6],
-                icon: "",
-                id: "",
-                name: dataArray[1].replace(/'/g, ''), // 去除可能包含的单引号
-                version: dataArray[2].replace(/'/g, ''), // 去除可能包含的单引号
-                channel: dataArray[4],
-                module: dataArray[5],
-                isInstalled: true
-            }
-            installedItems.push(item);
-        }
-    })
 }
 /**
  * 根据分页条件查询网络玲珑应用
@@ -143,8 +120,49 @@ const uninstallServ = (item: Card) => {
     ipcRenderer.send('uninstall-command', 'll-cli uninstall ' + item.appId);
     item.isInstalled = !item.isInstalled;
 }
-
+// 滚动条监听事件
+const handleScroll = () => {
+    if (rowRef.value) {
+        const scrollPosition = rowRef.value.scrollTop; // 获取滚动位置
+        const windowHeight = rowRef.value.clientHeight; // 获取窗口高度
+        const contentHeight = rowRef.value.scrollHeight; // 获取内容高度
+        const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
+        if (scrollPosition != 0 && scrollbarHeight != 0 && scrollPosition == scrollbarHeight) {
+            console.log('滚动位置:', scrollPosition);
+            console.log('窗口高度:', windowHeight);
+            console.log('内容高度:', contentHeight);
+            console.log('滚动条长度:', scrollbarHeight);
+            pageNo += 1;
+            fetchData(pageNo, pageSize);
+        }
+    }
+}
 // 添加事件监听器
+const installedResListener = (_event: any, data: string) => {
+    const apps = data.split("\n");
+    // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
+    for (let index = 1; index < apps.length - 1; index++) {
+        const element = apps[index];
+        // 使用正则表达式来分割数据行
+        const dataArray = element.match(/'[^']+'|\S+/g);
+        // 现在 dataArray 包含了每个字段的值，包括可能包含空格的字段
+        if (dataArray != null && 'x86_64' == dataArray[3]) {
+            const item = {
+                appId: dataArray[0].replace(/'/g, ''), // 去除可能包含的单引号
+                arch: dataArray[3],
+                description: dataArray[6],
+                icon: "",
+                id: "",
+                name: dataArray[1].replace(/'/g, ''), // 去除可能包含的单引号
+                version: dataArray[2].replace(/'/g, ''), // 去除可能包含的单引号
+                channel: dataArray[4],
+                module: dataArray[5],
+                isInstalled: true
+            }
+            installedItems.push(item);
+        }
+    }
+}
 const installListener = (_event: any, data: any) => {
     console.log(data);
     ElNotification({
@@ -166,11 +184,13 @@ onMounted(() => {
     calculateSpan();
     getInstalled(); // 初始加载当前系统已经安装的玲珑程序
     fetchData(pageNo, pageSize); // 分页查询第一页程序
+    ipcRenderer.on('installed-result', installedResListener);
     ipcRenderer.on('install-result', installListener);
     ipcRenderer.on('uninstall-result', uninstallListener);
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
+    ipcRenderer.removeListener('installed-result', installedResListener);
     ipcRenderer.removeListener('install-result', installListener);
     ipcRenderer.removeListener('uninstall-result', uninstallListener);
 });
@@ -178,40 +198,11 @@ onBeforeUnmount(() => {
 window.addEventListener("resize", () => {
     calculateSpan();
 });
-// 监听滚动事件以触发加载更多
-// document.addEventListener('scroll', () => {
-// const scrollPosition = window.scrollY;
-// const windowHeight = window.innerHeight;
-// const documentHeight = document.documentElement.scrollHeight;
-// if (scrollPosition != 0 && (documentHeight - scrollPosition) % windowHeight == 0) {
-//     pageNo += 1;
-//     fetchData(pageNo, pageSize);
-// }
-// });
-
-function handleScroll() {
-    if (rowRef.value) {
-        const scrollPosition = rowRef.value.scrollTop; // 获取滚动位置
-        const windowHeight = rowRef.value.clientHeight; // 获取窗口高度
-        const contentHeight = rowRef.value.scrollHeight; // 获取内容高度
-        const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
-
-        console.log('滚动位置:', scrollPosition);
-        console.log('窗口高度:', windowHeight);
-        console.log('内容高度:', contentHeight);
-        console.log('滚动条长度:', scrollbarHeight);
-        if (scrollPosition != 0 && scrollPosition == windowHeight - scrollbarHeight) {
-
-            pageNo += 1;
-            fetchData(pageNo, pageSize);
-        }
-    }
-}
 </script>
 <style>
 .row {
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .el-col {
@@ -243,42 +234,6 @@ function handleScroll() {
     /* 可根据需要设置为nowrap来禁用折行 */
     max-width: 50%;
     /* 可根据需要设置最大宽度 */
-}
-
-.desc:hover::after {
-    /* 显示完整内容的浮框 */
-    content: attr(data-fulltext);
-    display: block;
-    position: absolute;
-    top: 100%;
-    /* 定位在文本下方 */
-    left: 0;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 5px;
-    visibility: visible;
-    white-space: normal;
-    /* 显示全部文本，禁用折行 */
-    z-index: 1;
-    /* 使浮框位于其他元素之上 */
-}
-
-.desc::after {
-    /* 默认隐藏浮框 */
-    content: attr(data-fulltext);
-    display: none;
-    position: absolute;
-    top: 100%;
-    /* 定位在文本下方 */
-    left: 0;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 5px;
-    visibility: hidden;
-    white-space: normal;
-    /* 显示全部文本，禁用折行 */
-    z-index: 1;
-    /* 使浮框位于其他元素之上 */
 }
 
 .time {
