@@ -71,7 +71,7 @@ const installedResListener = (_event: any, data: string) => {
                 appId: dataArray[0].replace(/'/g, ''), // 去除可能包含的单引号
                 arch: dataArray[3],
                 description: dataArray[6],
-                icon: "",
+                icon: "/logo.png",
                 id: "",
                 name: dataArray[1].replace(/'/g, ''), // 去除可能包含的单引号
                 version: dataArray[2].replace(/'/g, ''), // 去除可能包含的单引号
