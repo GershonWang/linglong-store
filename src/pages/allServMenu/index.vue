@@ -127,7 +127,7 @@ const handleScroll = () => {
         const windowHeight = rowRef.value.clientHeight; // 获取窗口高度
         const contentHeight = rowRef.value.scrollHeight; // 获取内容高度
         const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
-        if (scrollPosition != 0 && scrollbarHeight != 0 && scrollPosition == scrollbarHeight) {
+        if (scrollPosition != 0 && scrollbarHeight != 0 && scrollbarHeight >= scrollPosition && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
             console.log('滚动位置:', scrollPosition);
             console.log('窗口高度:', windowHeight);
             console.log('内容高度:', contentHeight);
