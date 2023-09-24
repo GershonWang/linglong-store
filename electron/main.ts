@@ -47,16 +47,13 @@ function createWindow() {
     // 在主进程中执行命令，并将结果返回到渲染进程
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.error(`执行命令出错: ${error.message}`);
         win?.webContents.send('installed-result', error.message);
         return;
       }
       if (stderr) {
-        console.error(`命令执行错误: ${stderr}`);
         win?.webContents.send('installed-result', stderr);
         return;
       }
-      console.log(`命令执行结果: ${stdout}`);
       win?.webContents.send('installed-result', stdout);
     });
   });
