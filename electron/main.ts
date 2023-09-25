@@ -2,7 +2,7 @@ import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
 import { exec } from "child_process";
 import {join} from "node:path";
 
-process.env.DIST_ELECTRON = join(__dirname, '..')
+process.env.DIST_ELECTRON = join(__dirname, '../dist-electron')
 process.env.DIST = join(__dirname, "../dist");
 process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELECTRON, '../public') : process.env.DIST
 
