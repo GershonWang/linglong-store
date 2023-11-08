@@ -5,6 +5,11 @@
   "description": "简易式玲珑商店客户端",
   "author": "Jokul <986432015@qq.com>",
   "private": true,
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:3344/"
+    }
+  },
   "scripts": {
     "dev": "vite --mode development",
     "pro": "vite --mode production",

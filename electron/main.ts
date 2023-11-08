@@ -34,7 +34,7 @@ function createWindow() {
     win.webContents.openDevTools({ mode: "detach" });
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
-    console.log("pro环境的配置地址", VITE_DEV_SERVER_URL);
+    console.log("pro环境的配置地址", indexHtml);
     win.loadFile(indexHtml);
   }
   // Test active push message to Renderer-process.

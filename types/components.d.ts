@@ -9,9 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    Chat: typeof import('./../src/components/chat/index.vue')['default']
     Components: typeof import('./../src/components/index.vue')['default']
-    Demo: typeof import('./../src/components/demo/index.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
@@ -24,11 +22,7 @@ declare module '@vue/runtime-core' {
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElMain: typeof import('element-plus/es')['ElMain']
-    HelloWorld: typeof import('./../src/components/demo/helloWorld.vue')['default']
-    IEpChatDotRound: typeof import('~icons/ep/chat-dot-round')['default']
-    IEpEdit: typeof import('~icons/ep/edit')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Test_mark: typeof import('./../src/components/demo/test_mark.vue')['default']
   }
 }
