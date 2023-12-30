@@ -1,36 +1,45 @@
 <template>
     <el-card class="container">
-        <img class="image" src="@/assets/vue.svg" alt="Image" />
+        <img class="image" src="@/assets/logo.png" alt="Image" />
         <span class="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
         <div class="btm">
             <p class="desc">{{ description }}</p>
             <p class="os">{{ arch }}</p>
-            <el-button class="uninstallBtn" v-if="isInstalled" @click="">卸载</el-button>
+            <el-button class="uninstallBtn" v-if="isInstalled" @click="uninstallServ(appId,version)">卸载</el-button>
             <el-button class="installBtn" v-else @click="">安装</el-button>
         </div>
     </el-card>
 </template>
 
 <script setup lang="ts">
-
+import { ipcRenderer } from "electron";
 interface Props {
+    iconUrl?: string,
     name?: string,
     version?: string,
     description?: string,
     arch?: string,
-    isInstalled?: boolean
+    isInstalled?: boolean,
+    appId?: string
 }
 withDefaults(
     defineProps<Props>(),
     {
+        iconUrl: "",
         name: "程序名称",
         version: "0.0.1",
         description: "描述说明",
         arch: "X86_64",
-        isInstalled: true
+        isInstalled: true,
+        appId: ""
     }
 )
+
+// 卸载程序
+const uninstallServ = (appId: string,verion: string) => {
+    ipcRenderer.send('uninstall-command', 'll-cli uninstall ' + appId + '/' + verion);
+}
 </script>
 
 <style scoped>
@@ -50,6 +59,10 @@ withDefaults(
     justify-content: center;
     color: #36D;
     font-weight: bold;
+    white-space: nowrap;
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
+    /* max-width: 150px; */
 }
 .version {
     background-color: #999;

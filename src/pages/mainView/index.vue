@@ -7,7 +7,7 @@
                         <el-icon color="#D3D3D3"><HomeFilled /></el-icon>
                         <span>全部程序</span>
                     </el-menu-item>
-                    <el-menu-item index="2" @click="toPage('/installed_menu')">
+                    <el-menu-item index="2" @click="toPage('/installed_page')">
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>已安装程序</span>
                     </el-menu-item>
@@ -23,9 +23,9 @@
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>卡片组件</span>
                     </el-menu-item>
-                    <el-menu-item index="6" @click="toPage('/installed_page')">
+                    <el-menu-item index="6" @click="toPage('/installed_menu')">
                         <el-icon><GobletSquareFull /></el-icon>
-                        <span>已安装程序(新)</span>
+                        <span>已安装程序(旧)</span>
                     </el-menu-item>
                     <el-menu-item index="999" @click="toPage('/')">
                         <el-icon><Loading /></el-icon>
