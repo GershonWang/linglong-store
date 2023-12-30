@@ -6,29 +6,37 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            component: () => import("../components/index.vue")
+            component: () => import("../pages/index.vue")
         },
         {
             path: '/main_view',
             redirect: '/all_serv_menu',
-            component: () => import("../components/mainView/index.vue"),
+            component: () => import("../pages/mainView/index.vue"),
             children: [
                 {
                     path: '/all_serv_menu',
-                    component: () => import("../pages/allServMenu/index.vue")
+                    component: () => import("../pages/mainView/allServMenu/index.vue")
                 },
                 {
                     path: '/installed_menu',
-                    component: () => import("../pages/installedMenu/index.vue")
+                    component: () => import("../pages/mainView/installedMenu/index.vue")
                 },
                 {
                     path: '/config_menu',
-                    component: () => import("../pages/configMenu/index.vue")
+                    component: () => import("../pages/mainView/configMenu/index.vue")
                 },
                 {
                     path: '/about_menu',
-                    component: () => import("../pages/aboutMenu/index.vue")
+                    component: () => import("../pages/mainView/aboutMenu/index.vue")
                 },
+                {
+                    path: '/card_comp',
+                    component: () => import("../components/Card.vue")
+                },
+                {
+                    path: '/installed_page',
+                    component: () => import("../pages/mainView/InstalledPage/index.vue")
+                }
             ],
         },
     ], // `routes: routes` 的缩写

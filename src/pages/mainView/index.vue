@@ -3,25 +3,33 @@
         <el-container>
             <el-aside>
                 <el-menu default-active="1">
-                    <el-menu-item index="1">
+                    <el-menu-item index="1" @click="toPage('/all_serv_menu')">
                         <el-icon color="#D3D3D3"><HomeFilled /></el-icon>
-                        <span><router-link to="/all_serv_menu">全部程序</router-link></span>
+                        <span>全部程序</span>
                     </el-menu-item>
-                    <el-menu-item index="2">
+                    <el-menu-item index="2" @click="toPage('/installed_menu')">
                         <el-icon><GobletSquareFull /></el-icon>
-                        <span><router-link to="/installed_menu">已安装程序</router-link></span>
+                        <span>已安装程序</span>
                     </el-menu-item>
-                    <el-menu-item index="3">
+                    <el-menu-item index="3" @click="toPage('/config_menu')">
                         <el-icon><setting /></el-icon>
-                        <span><router-link to="/config_menu">基础设置</router-link></span>
+                        <span>基础设置</span>
                     </el-menu-item>
-                    <el-menu-item index="4">
+                    <el-menu-item index="4" @click="toPage('/about_menu')">
                         <el-icon><InfoFilled /></el-icon>
-                        <span><router-link to="/about_menu">关于程序</router-link></span>
+                        <span>关于程序</span>
                     </el-menu-item>
-                    <el-menu-item index="5">
+                    <el-menu-item index="5" @click="toPage('/card_comp')">
+                        <el-icon><GobletSquareFull /></el-icon>
+                        <span>卡片组件</span>
+                    </el-menu-item>
+                    <el-menu-item index="6" @click="toPage('/installed_page')">
+                        <el-icon><GobletSquareFull /></el-icon>
+                        <span>已安装程序(新)</span>
+                    </el-menu-item>
+                    <el-menu-item index="999" @click="toPage('/')">
                         <el-icon><Loading /></el-icon>
-                        <span><router-link to="/">返回首页</router-link></span>
+                        <span>返回首页</span>
                     </el-menu-item>
                 </el-menu>
                 <!-- 更多菜单项 -->
@@ -34,7 +42,12 @@
     </div>
 </template>
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+function toPage(url:string) {
+    router.push(url);
+}
 </script>
 <style>
 .common-layout {
@@ -56,6 +69,8 @@
     overflow-y: hidden;
 }
 .el-menu-item {
+    color: white;
+    font-weight: bold;
     border-radius: 15px;
     background-color: #6E6E6E;
     text-align: center;

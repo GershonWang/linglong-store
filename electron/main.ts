@@ -75,6 +75,7 @@ app.on('activate', () => {
 ipcMain.on("installed-command", (_event, command) => {
   // 在主进程中执行命令，并将结果返回到渲染进程
   exec(command, (error, stdout, stderr) => {
+    console.log('执行了查询已安装命令')
     if (error) {
       win?.webContents.send("installed-result", error.message);
       return;
