@@ -10,16 +10,16 @@ const router = createRouter({
         },
         {
             path: '/main_view',
-            redirect: '/all_serv_menu',
+            redirect: '/all_serv_page',
             component: () => import("../pages/mainView/index.vue"),
             children: [
                 {
-                    path: '/all_serv_menu',
-                    component: () => import("../pages/mainView/allServMenu/index.vue")
+                    path: '/all_serv_page',
+                    component: () => import("../pages/mainView/AllServPage/index.vue")
                 },
                 {
-                    path: '/installed_menu',
-                    component: () => import("../pages/mainView/installedMenu/index.vue")
+                    path: '/installed_page',
+                    component: () => import("../pages/mainView/InstalledPage/index.vue")
                 },
                 {
                     path: '/config_menu',
@@ -33,14 +33,6 @@ const router = createRouter({
                     path: '/card_comp',
                     component: () => import("../components/Card.vue")
                 },
-                {
-                    path: '/installed_page',
-                    component: () => import("../pages/mainView/InstalledPage/index.vue")
-                },
-                {
-                    path: '/all_serv_page',
-                    component: () => import("../pages/mainView/AllServPage/index.vue")
-                }
             ],
         },
     ], // `routes: routes` 的缩写
