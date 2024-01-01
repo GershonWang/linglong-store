@@ -1,4 +1,11 @@
 <template>
+    <div class="search" style="margin: 10px auto;text-align: center;">
+        <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @keydown.enter="submit">
+            <template #prefix>
+            <el-icon class="el-input__icon"><search /></el-icon>
+            </template>
+        </el-input>
+    </div>
     <div class="container" ref="containRef" @scroll="handleScroll">
         <el-row>
             <el-col style="padding:10px" v-for="(item, index) in displayedItems" :key="index" :span="num">
@@ -20,6 +27,7 @@ import Card from "@/components/Card.vue";
 const displayedItems = reactive<CardFace[]>([]); // 用于存储当前显示的卡片对象
 const installedItems = reactive<CardFace[]>([]); // 用于存储当前系统已安装的卡片对象
 const containRef = ref<HTMLElement | null>();
+const searchName = ref('');
 const num = ref(6);
 let pageNo = 1;
 let pageSize = 12;
@@ -56,6 +64,13 @@ function calculateSpan() {
     // 分页查询第一页程序
     fetchData(pageNo, pageSize);
 }
+function submit() {
+    ElNotification({
+        title: '操作错误',
+        message: '功能暂未实现',
+        type: 'error',
+    });
+}
 // 滚动条监听事件
 const handleScroll = () => {
     if (containRef.value) {
@@ -63,7 +78,9 @@ const handleScroll = () => {
         const windowHeight = containRef.value.clientHeight; // 获取窗口高度
         const contentHeight = containRef.value.scrollHeight; // 获取内容高度
         const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
-        if (scrollPosition != 0 && scrollbarHeight != 0 && scrollbarHeight >= scrollPosition && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
+        if (scrollPosition != 0 && scrollbarHeight != 0 
+                    && scrollbarHeight >= scrollPosition 
+                    && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
             console.log('滚动位置:', scrollPosition);
             console.log('窗口高度:', windowHeight);
             console.log('内容高度:', contentHeight);
@@ -103,7 +120,6 @@ const installedResListener = (_event: any, data: string) => {
 }
 const installListener = (_event: any, data: any) => {
     console.log(data);
-    calculateSpan();
     ElNotification({
         title: '安装成功',
         message: '成功安装',
@@ -112,7 +128,6 @@ const installListener = (_event: any, data: any) => {
 };
 const uninstallListener = (_event: any, data: any) => {
     console.log(data);
-    calculateSpan();
     ElNotification({
         title: '卸载成功',
         message: '成功卸载',
