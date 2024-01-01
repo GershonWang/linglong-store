@@ -20,20 +20,19 @@
                         <el-icon><InfoFilled /></el-icon>
                         <span>关于程序</span>
                     </el-menu-item>
-                    <hr>
-                    <el-menu-item index="5" @click="toPage('/card_comp')">
+                    <el-menu-item index="5" @click="toPage('/card_comp')" style="display: none;">
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>卡片组件</span>
                     </el-menu-item>
-                    <el-menu-item index="6" @click="toPage('/all_serv_menu')">
+                    <el-menu-item index="6" @click="toPage('/all_serv_menu')" style="display: none;">
                         <el-icon color="#D3D3D3"><HomeFilled /></el-icon>
                         <span>全部程序(旧)</span>
                     </el-menu-item>
-                    <el-menu-item index="7" @click="toPage('/installed_menu')">
+                    <el-menu-item index="7" @click="toPage('/installed_menu')" style="display: none;">
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>已安装程序(旧)</span>
                     </el-menu-item>
-                    <el-menu-item index="999" @click="toPage('/')">
+                    <el-menu-item index="999" @click="toPage('/')" style="display: none;">
                         <el-icon><Loading /></el-icon>
                         <span>返回首页</span>
                     </el-menu-item>
