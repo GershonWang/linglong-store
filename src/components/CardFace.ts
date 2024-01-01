@@ -7,5 +7,7 @@ export interface CardFace {
     arch?: string,
     isInstalled?: boolean,
     appId?: string,
-    id?: string
+    id?: string,
+    channel?: string,
+    module?: string
 }
