@@ -8,7 +8,8 @@
                     :arch="item.arch"
                     :isInstalled="true"
                     :appId="item.appId"
-                    :icon="item.icon"/>
+                    :icon="item.icon"
+                    :index="index"/>
             </el-col>
         </el-row>
     </div>
@@ -64,29 +65,42 @@ const installedResListener = (_event: any, data: string) => {
         }
     }
 }
-// installedItems.splice(index, 1);
-const uninstallListener = (_event: any, data: any) => {
-    console.log(data);
-    ElNotification({
-        title: '卸载成功',
-        message: '成功卸载',
-        type: 'success',
-    });
-};
+// 命令执行返回结果
+const commandResult = (event: any, data: any) => {
+    if ('stdout' != data.code) {
+        ElNotification({
+            title: '请求错误',
+            message: '命令执行异常！',
+            type: 'error',
+        });
+        return;
+    }
+    // 查询已安装命令
+    if (data.data.command == 'll-cli list') {
+        installedResListener(event, data.result);
+    }
+    // 卸载命令
+    if (data.data.command.startsWith('ll-cli uninstall')) {
+        installedItems.splice(data.data.index, 1);
+        ElNotification({
+            title: '卸载成功',
+            message: '成功卸载',
+            type: 'success',
+        });
+    }
+}
 // 组件初始化时加载
 onMounted(() => {
     // 监听窗口大小变化，实时更新 span 值
     window.addEventListener("resize", () => calculateSpan);
     // 初始加载当前系统已经安装的玲珑程序
-    ipcRenderer.send('installed-command', 'll-cli list');
-    ipcRenderer.on('installed-result', installedResListener);
-    ipcRenderer.on('uninstall-result', uninstallListener);
+    ipcRenderer.send('command', {name: '查询已安装程序列表',command: 'll-cli list'});
+    ipcRenderer.on('command-result', commandResult);
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
     window.removeEventListener("resize", () => calculateSpan);
-    ipcRenderer.removeListener('installed-result', installedResListener);
-    ipcRenderer.removeListener('uninstall-result', uninstallListener);
+    ipcRenderer.removeListener('command-result', commandResult)
 });
 </script>
 

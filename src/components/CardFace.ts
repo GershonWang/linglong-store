@@ -9,5 +9,6 @@ export interface CardFace {
     appId?: string,
     id?: string,
     channel?: string,
-    module?: string
+    module?: string,
+    index?: number
 }

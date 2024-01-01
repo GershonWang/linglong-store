@@ -6,8 +6,8 @@
         <div class="btm">
             <p class="desc">{{ description }}</p>
             <p class="os">{{ arch }}</p>
-            <el-button class="uninstallBtn" v-if="isInstalled" @click="uninstallServ(appId,version)">卸载</el-button>
-            <el-button class="installBtn" v-else @click="installServ(appId,version)">安装</el-button>
+            <el-button class="uninstallBtn" v-if="isInstalled" @click="uninstallServ(index,{icon,name,version,description,arch,isInstalled,appId})">卸载</el-button>
+            <el-button class="installBtn" v-else @click="installServ(index,{icon,name,version,description,arch,isInstalled,appId})">安装</el-button>
         </div>
     </el-card>
 </template>
@@ -24,16 +24,39 @@ withDefaults(
         description: "描述说明",
         arch: "X86_64",
         isInstalled: true,
-        appId: ""
+        appId: "",
+        index: 0
     }
 )
 // 卸载程序
-const uninstallServ = (appId: string,verion: string) => {
-    ipcRenderer.send('uninstall-command', 'll-cli uninstall ' + appId + '/' + verion);
+const uninstallServ = (index: number,item: CardFace) => {
+    const params = {
+        icon: item.icon,
+        name: item.name,
+        version: item.version,
+        description: item.description,
+        arch: item.arch,
+        isInstalled: item.isInstalled,
+        appId: item.appId,
+        command: 'll-cli uninstall ' + item.appId + '/' + item.version, 
+        index
+    };
+    ipcRenderer.send('command', params);
 }
 // 安装程序
-const installServ = (appId: string,verion: string) => {
-    ipcRenderer.send('install-command', 'll-cli install ' + appId + '/' + verion);
+const installServ = (index: number,item: CardFace) => {
+    const params = {
+        icon: item.icon,
+        name: item.name,
+        version: item.version,
+        description: item.description,
+        arch: item.arch,
+        isInstalled: item.isInstalled,
+        appId: item.appId,
+        command: 'll-cli install ' + item.appId + '/' + item.version, 
+        index
+    };
+    ipcRenderer.send('command', params);
 }
 </script>
 

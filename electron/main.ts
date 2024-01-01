@@ -1,6 +1,6 @@
 import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
 import { exec } from "child_process";
-import {join} from "node:path";
+import { join } from "node:path";
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron')
 process.env.DIST = join(__dirname, "../dist");
@@ -70,55 +70,21 @@ app.on('activate', () => {
   }
 })
 
-
-// 查询已安装玲珑软件命令
-ipcMain.on("installed-command", (_event, command) => {
+// 执行脚本命令
+ipcMain.on("command",(_event,data) => {
   // 在主进程中执行命令，并将结果返回到渲染进程
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      win?.webContents.send("installed-result", error.message);
-      return;
-    }
-    if (stderr) {
-      win?.webContents.send("installed-result", stderr);
-      return;
-    }
-    win?.webContents.send("installed-result", stdout);
-  });
-});
-// 安装命令
-ipcMain.on("install-command", (_event, command) => {
-  // 在主进程中执行命令，并将结果返回到渲染进程
-  exec(command, (error, stdout, stderr) => {
+  exec(data.command, (error, stdout, stderr) => {
     if (error) {
       console.error(`执行命令出错: ${error.message}`);
-      win?.webContents.send("install-result", error.message);
+      win?.webContents.send("command-result", {code: 'error',data: data,result: error.message});
       return;
     }
     if (stderr) {
       console.error(`命令执行错误: ${stderr}`);
-      win?.webContents.send("install-result", stderr);
+      win?.webContents.send("command-result", {code: 'stderr',data: data,result: stderr});
       return;
     }
     console.log(`命令执行结果: ${stdout}`);
-    win?.webContents.send("install-result", stdout);
+    win?.webContents.send("command-result", {code: 'stdout',data: data,result: stdout});
   });
-});
-// 卸载命令
-ipcMain.on("uninstall-command", (_event, command) => {
-  // 在主进程中执行命令，并将结果返回到渲染进程
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`执行命令出错: ${error.message}`);
-      win?.webContents.send("uninstall-result", error.message);
-      return;
-    }
-    if (stderr) {
-      console.error(`命令执行错误: ${stderr}`);
-      win?.webContents.send("uninstall-result", stderr);
-      return;
-    }
-    console.log(`命令执行结果: ${stdout}`);
-    win?.webContents.send("uninstall-result", stdout);
-  });
-});
+})

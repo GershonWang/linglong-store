@@ -2,7 +2,9 @@
     <div class="search" style="margin: 10px auto;text-align: center;">
         <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @keydown.enter="submit">
             <template #prefix>
-            <el-icon class="el-input__icon"><search /></el-icon>
+                <el-icon class="el-input__icon">
+                    <search />
+                </el-icon>
             </template>
         </el-input>
     </div>
@@ -17,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from 'vue';
 import { ipcRenderer } from 'electron';
 import { ElNotification } from 'element-plus'
 import { getList } from "@/api/service";
@@ -78,9 +80,9 @@ const handleScroll = () => {
         const windowHeight = containRef.value.clientHeight; // 获取窗口高度
         const contentHeight = containRef.value.scrollHeight; // 获取内容高度
         const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
-        if (scrollPosition != 0 && scrollbarHeight != 0 
-                    && scrollbarHeight >= scrollPosition 
-                    && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
+        if (scrollPosition != 0 && scrollbarHeight != 0
+            && scrollbarHeight >= scrollPosition
+            && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
             console.log('滚动位置:', scrollPosition);
             console.log('窗口高度:', windowHeight);
             console.log('内容高度:', contentHeight);
@@ -118,38 +120,62 @@ const installedResListener = (_event: any, data: string) => {
         }
     }
 }
-const installListener = (_event: any, data: any) => {
-    console.log(data);
-    ElNotification({
-        title: '安装成功',
-        message: '成功安装',
-        type: 'success',
-    });
-};
-const uninstallListener = (_event: any, data: any) => {
-    console.log(data);
-    ElNotification({
-        title: '卸载成功',
-        message: '成功卸载',
-        type: 'success',
-    });
-};
+const commandResult = (event: any, data: any) => {
+    if ('stdout' != data.code) {
+        ElNotification({
+            title: '请求错误',
+            message: '命令执行异常！',
+            type: 'error',
+        });
+        return;
+    }
+    if (data.data.command == 'll-cli list') {
+        installedResListener(event, data.result);
+    }
+    if (data.data.command.startsWith('ll-cli install')) {
+        const newCode = {
+            icon: data.data.icon,
+            name: data.data.name,
+            version: data.data.version,
+            description: data.data.description,
+            arch: data.data.arch,
+            isInstalled: true,
+            appId: data.data.appId,
+        }
+        displayedItems.splice(data.data.index, 1, newCode);
+        ElNotification({
+            title: '安装成功',
+            message: '成功安装',
+            type: 'success',
+        });
+    }
+    if (data.data.command.startsWith('ll-cli uninstall')) {
+        const newCode = {
+            icon: data.data.icon,
+            name: data.data.name,
+            version: data.data.version,
+            description: data.data.description,
+            arch: data.data.arch,
+            isInstalled: false,
+            appId: data.data.appId,
+        }
+        displayedItems.splice(data.data.index, 1,newCode);
+        ElNotification({
+            title: '卸载成功',
+            message: '成功卸载',
+            type: 'success',
+        });
+    }
+}
 // 组件初始化时加载
 onMounted(() => {
     window.addEventListener("resize", () => calculateSpan)
     fetchData(pageNo, pageSize);
-    // 初始加载当前系统已经安装的玲珑程序
-    ipcRenderer.send('installed-command', 'll-cli list');
-    ipcRenderer.on('installed-result', installedResListener);
-    ipcRenderer.on('install-result', installListener);
-    ipcRenderer.on('uninstall-result', uninstallListener);
+    ipcRenderer.send('command', {name: '查询已安装程序列表',command: 'll-cli list'});
+    ipcRenderer.on('command-result', commandResult);
 });
 // 在组件销毁时移除事件监听器
-onBeforeUnmount(() => {
-    ipcRenderer.removeListener('installed-result', installedResListener);
-    ipcRenderer.removeListener('install-result', installListener);
-    ipcRenderer.removeListener('uninstall-result', uninstallListener);
-});
+onBeforeUnmount(() => ipcRenderer.removeListener('command-result', commandResult));
 </script>
 
 <style scoped>
