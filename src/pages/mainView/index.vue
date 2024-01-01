@@ -7,7 +7,6 @@
                         <el-icon color="#D3D3D3"><HomeFilled /></el-icon>
                         <span>全部程序</span>
                     </el-menu-item>
-                    
                     <el-menu-item index="2" @click="toPage('/installed_page')">
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>已安装程序</span>
