@@ -30,11 +30,11 @@ function createWindow() {
   Menu.setApplicationMenu(null);
   // 根据是否存在开发服务地址判断加载模式
   if (process.env.VITE_DEV_SERVER_URL) {
-    console.log("dev环境的配置地址", VITE_DEV_SERVER_URL);
+    // console.log("dev环境的配置地址", VITE_DEV_SERVER_URL);
     win.webContents.openDevTools({ mode: "detach" });
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
-    console.log("pro环境的配置地址", indexHtml);
+    // console.log("pro环境的配置地址", indexHtml);
     win.loadFile(indexHtml);
   }
   // Test active push message to Renderer-process.
@@ -75,16 +75,16 @@ ipcMain.on("command",(_event,data) => {
   // 在主进程中执行命令，并将结果返回到渲染进程
   exec(data.command, (error, stdout, stderr) => {
     if (error) {
-      console.error(`执行命令出错: ${error.message}`);
+      // console.error(`执行命令出错: ${error.message}`);
       win?.webContents.send("command-result", {code: 'error',data: data,result: error.message});
       return;
     }
     if (stderr) {
-      console.error(`命令执行错误: ${stderr}`);
+      // console.error(`命令执行错误: ${stderr}`);
       win?.webContents.send("command-result", {code: 'stderr',data: data,result: stderr});
       return;
     }
-    console.log(`命令执行结果: ${stdout}`);
+    // console.log(`命令执行结果: ${stdout}`);
     win?.webContents.send("command-result", {code: 'stdout',data: data,result: stdout});
   });
 })

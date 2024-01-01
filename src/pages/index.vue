@@ -9,6 +9,8 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ipcRenderer } from "electron";
+import { ElNotification } from 'element-plus'
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -28,6 +30,20 @@ const startTimer = () => {
 
 onMounted(() => {
     startTimer();
+    ipcRenderer.send('command',{command:'ll-cli'});
+    ipcRenderer.on('command-result',(_event,data) =>{
+        if('stdout' != data.code) {
+            ElNotification({
+                title: '系统异常',
+                message: '当前系统不支持玲珑',
+                type: 'error',
+            });
+            if (timerId !== null) {
+                clearInterval(timerId);
+            }
+            return;
+        }
+    })
 });
 
 onBeforeUnmount(() => {
