@@ -3,11 +3,12 @@
         <el-row>
             <el-col style="padding:10px" v-for="(item,index) in installedItems" :key="index" :span="num">
                 <Card :name="item.name" 
-                    :version="item.verion"
+                    :version="item.version"
                     :description="item.description"
                     :arch="item.arch"
                     :isInstalled="true"
-                    :appId="item.appId"/>
+                    :appId="item.appId"
+                    :icon="item.icon"/>
             </el-col>
         </el-row>
     </div>
@@ -17,19 +18,12 @@
 import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import { ElNotification } from 'element-plus'
 import { ipcRenderer } from 'electron';
+import { CardFace } from "@/components/CardFace";
 import Card from "@/components/Card.vue";
 
-let installedItems = reactive<Card[]>([]); // 用于存储当前系统已安装的卡片对象
+let installedItems = reactive<CardFace[]>([]); // 用于存储当前系统已安装的卡片对象
 const num = ref(6);
-interface Card {
-    appId: string;
-    arch: string;
-    description: string;
-    icon: string;
-    id: string;
-    name: string;
-    version: string;
-}
+
 // 根据分辨率计算栅格行卡片数量
 function calculateSpan() {
     // 根据屏幕宽度动态计算 span 值
@@ -41,10 +35,6 @@ function calculateSpan() {
     } else {
         num.value = 8; // 小屏幕，一行显示 3 个卡片
     }
-}
-// 获取已经安装的玲珑程序
-function getInstalled() {
-    ipcRenderer.send('installed-command', 'll-cli list');
 }
 const installedResListener = (_event: any, data: string) => {
     const apps = data.split("\n");
@@ -63,11 +53,12 @@ const installedResListener = (_event: any, data: string) => {
             const item = {
                 appId: element.substring(appIdNum,nameNum).trim(),
                 name: element.substring(nameNum,versionNum).trim() ? element.substring(nameNum,versionNum).trim() : '-',
-                verion: element.substring(versionNum,archNum).trim(),
+                version: element.substring(versionNum,archNum).trim(),
                 arch: element.substring(archNum,channelNum).trim(),
                 channel: element.substring(channelNum,moduleNum).trim(),
                 module: element.substring(moduleNum,descriptionNum).trim(),
-                description: element.substring(descriptionNum,element.length)
+                description: element.substring(descriptionNum,element.length),
+                icon: "https://linglong.dev/asset/logo.svg"
             }
             installedItems.push(item);
         }
@@ -76,26 +67,24 @@ const installedResListener = (_event: any, data: string) => {
 // installedItems.splice(index, 1);
 const uninstallListener = (_event: any, data: any) => {
     console.log(data);
-    getInstalled();
     ElNotification({
         title: '卸载成功',
         message: '成功卸载',
         type: 'success',
     });
 };
-// 监听窗口大小变化，实时更新 span 值
-window.addEventListener("resize", () => {
-    calculateSpan();
-});
 // 组件初始化时加载
 onMounted(() => {
-    calculateSpan();
-    getInstalled(); // 初始加载当前系统已经安装的玲珑程序
+    // 监听窗口大小变化，实时更新 span 值
+    window.addEventListener("resize", () => calculateSpan);
+    // 初始加载当前系统已经安装的玲珑程序
+    ipcRenderer.send('installed-command', 'll-cli list');
     ipcRenderer.on('installed-result', installedResListener);
     ipcRenderer.on('uninstall-result', uninstallListener);
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
+    window.removeEventListener("resize", () => calculateSpan);
     ipcRenderer.removeListener('installed-result', installedResListener);
     ipcRenderer.removeListener('uninstall-result', uninstallListener);
 });

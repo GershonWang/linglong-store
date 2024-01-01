@@ -36,6 +36,10 @@ const router = createRouter({
                 {
                     path: '/installed_page',
                     component: () => import("../pages/mainView/InstalledPage/index.vue")
+                },
+                {
+                    path: '/all_serv_page',
+                    component: () => import("../pages/mainView/AllServPage/index.vue")
                 }
             ],
         },

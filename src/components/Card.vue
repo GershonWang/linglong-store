@@ -1,32 +1,24 @@
 <template>
     <el-card class="container">
-        <img class="image" src="@/assets/logo.png" alt="Image" />
+        <img class="image" :src="icon" alt="Image" />
         <span class="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
         <div class="btm">
             <p class="desc">{{ description }}</p>
             <p class="os">{{ arch }}</p>
             <el-button class="uninstallBtn" v-if="isInstalled" @click="uninstallServ(appId,version)">卸载</el-button>
-            <el-button class="installBtn" v-else @click="">安装</el-button>
+            <el-button class="installBtn" v-else @click="installServ(appId,version)">安装</el-button>
         </div>
     </el-card>
 </template>
 
 <script setup lang="ts">
 import { ipcRenderer } from "electron";
-interface Props {
-    iconUrl?: string,
-    name?: string,
-    version?: string,
-    description?: string,
-    arch?: string,
-    isInstalled?: boolean,
-    appId?: string
-}
+import { CardFace } from "./CardFace";
+
 withDefaults(
-    defineProps<Props>(),
-    {
-        iconUrl: "",
+    defineProps<CardFace>(),{
+        icon: "https://linglong.dev/asset/logo.svg",
         name: "程序名称",
         version: "0.0.1",
         description: "描述说明",
@@ -35,10 +27,13 @@ withDefaults(
         appId: ""
     }
 )
-
 // 卸载程序
 const uninstallServ = (appId: string,verion: string) => {
     ipcRenderer.send('uninstall-command', 'll-cli uninstall ' + appId + '/' + verion);
+}
+// 安装程序
+const installServ = (appId: string,verion: string) => {
+    ipcRenderer.send('install-command', 'll-cli install ' + appId + '/' + verion);
 }
 </script>
 
