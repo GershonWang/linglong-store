@@ -3,8 +3,10 @@
         <h1>关于页面</h1>
         当前系统版本: 1.0.3<br>
         开发作者：Jokul<br>
+        玲珑官网：<a href="https://linglong.dev/" target="_blank">https://linglong.dev/</a><br>
+        玲珑网页版商店：<a href="https://store.linglong.dev/" target="_blank">https://store.linglong.dev/</a><br>
         github地址：<a href="https://github.com/GershonWang/linglong_store" target="_blank">https://github.com/GershonWang/linglong_store</a><br>
-        个人介绍：本人是一个菜的不能再菜的菜鸟，当前是Java开发工程师;electron+vite构建该玲珑app商店纯属个人激情，前端vue3是从0.5学起，所以整个项目BUG多多～
+        个人介绍：本人是一个菜的不能再菜的菜鸟，当前是Java开发工程师;electron+vite构建该玲珑app商店纯属个人激情，前端vue3是从0.1学起，所以整个项目BUG多多，请指正～
     </div>
 </template>
 <style scoped>

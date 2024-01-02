@@ -1,5 +1,9 @@
 <template>
-    <el-card class="container">
+    <el-card class="container" v-loading="loading"
+        element-loading-text="Loading..."
+        element-loading-svg-view-box="-10, -10, 50, 50"
+        element-loading-background="rgba(122, 122, 122, 0.8)"
+        style="width: 100%">
         <img class="image" :src="icon" alt="Image" />
         <span class="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
@@ -15,6 +19,9 @@
 <script setup lang="ts">
 import { ipcRenderer } from "electron";
 import { CardFace } from "./CardFace";
+import { ref } from "vue";
+
+const loading = ref(false);
 
 withDefaults(
     defineProps<CardFace>(),{

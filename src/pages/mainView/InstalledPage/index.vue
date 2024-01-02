@@ -51,17 +51,20 @@ const installedResListener = (_event: any, data: string) => {
         // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
         for (let index = 1; index < apps.length - 1; index++) {
             const element = apps[index];
-            const item = {
-                appId: element.substring(appIdNum,nameNum).trim(),
-                name: element.substring(nameNum,versionNum).trim() ? element.substring(nameNum,versionNum).trim() : '-',
-                version: element.substring(versionNum,archNum).trim(),
-                arch: element.substring(archNum,channelNum).trim(),
-                channel: element.substring(channelNum,moduleNum).trim(),
-                module: element.substring(moduleNum,descriptionNum).trim(),
-                description: element.substring(descriptionNum,element.length),
-                icon: "https://linglong.dev/asset/logo.svg"
+            const appId = element.substring(appIdNum,nameNum).trim();
+            if (appId != 'org.deepin.Runtime') { // 去除运行时服务
+                const item = {
+                    appId: appId,
+                    name: element.substring(nameNum,versionNum).trim() ? element.substring(nameNum,versionNum).trim() : '-',
+                    version: element.substring(versionNum,archNum).trim(),
+                    arch: element.substring(archNum,channelNum).trim(),
+                    channel: element.substring(channelNum,moduleNum).trim(),
+                    module: element.substring(moduleNum,descriptionNum).trim(),
+                    description: element.substring(descriptionNum,element.length),
+                    icon: "https://linglong.dev/asset/logo.svg"
+                }
+                installedItems.push(item);
             }
-            installedItems.push(item);
         }
     }
 }
