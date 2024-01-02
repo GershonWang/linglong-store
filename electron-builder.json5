@@ -29,6 +29,14 @@
     ],
     "artifactName": "${productName}_${version}.${ext}"
   },
+  "linux": {
+    "target": [
+      "AppImage",
+      "deb"
+    ],
+    "category": "Network;WebBrowser;",
+    // "icon": "public/logo_320.png",
+  },
   "nsis": {
     "oneClick": false,
     "perMachine": false,
