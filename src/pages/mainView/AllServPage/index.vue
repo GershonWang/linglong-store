@@ -19,13 +19,13 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { ipcRenderer } from 'electron';
 import { ElNotification } from 'element-plus'
-import { getList } from "@/api/service";
 import { CardFace } from "@/components/CardFace";
 import Card from "@/components/Card.vue";
 
+const allItems = sessionStorage.getItem('allItems'); // 存储在session里源内所有程序数组
 const displayedItems = reactive<CardFace[]>([]); // 用于存储当前显示的卡片对象
 const installedItems = reactive<CardFace[]>([]); // 用于存储当前系统已安装的卡片对象
 const containRef = ref<HTMLElement | null>();
@@ -40,15 +40,16 @@ let pageSize = 12;
  * @param pageSize 每页条数
  */
 const fetchData = async (pageNo: number, pageSize: number) => {
-    getList({ page: pageNo, size: pageSize }).then(res => {
-        const element = res.data.list;
-        if (element != null) {
-            element.forEach((item: CardFace) => {
-                item.isInstalled = installedItems.some(it => it.appId == item.appId && it.version == item.version);
-                displayedItems.push(item);
-            });
+    let startNum = pageNo == 1 ? 0 : pageNo * pageSize;
+    let endNum = startNum + pageSize;
+    if (allItems != null) {
+        const all = JSON.parse(allItems);
+        for (let index = startNum; index < endNum; index++) {
+            const element = all[index];
+            element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
+            displayedItems.push(element);
         }
-    });
+    }
 }
 // 根据分辨率计算栅格行卡片数量
 function calculateSpan() {
@@ -67,11 +68,22 @@ function calculateSpan() {
     fetchData(pageNo, pageSize);
 }
 function submit() {
-    ElNotification({
-        title: '操作错误',
-        message: '功能暂未实现',
-        type: 'error',
-    });
+    const msg = searchName.value;
+    if (msg == '') {
+        fetchData(pageNo,pageSize);
+        return;
+    }
+    displayedItems.splice(0,displayedItems.length);
+    if(allItems != null) {
+        const all = JSON.parse(allItems);
+        for (let index = 0; index < all.length; index++) {
+            const element: CardFace = all[index];
+            const name = element.name;
+            if (name != undefined && name.includes(msg)) {
+                displayedItems.push(element);
+            }
+        }
+    }
 }
 // 滚动条监听事件
 const handleScroll = () => {

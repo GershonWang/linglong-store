@@ -1,7 +1,7 @@
 <template>
     <div>
         <h1>关于页面</h1>
-        当前系统版本: 1.0.3<br>
+        当前系统版本: 1.0.4<br>
         开发作者：Jokul<br>
         玲珑官网：<a href="https://linglong.dev/" target="_blank">https://linglong.dev/</a><br>
         玲珑网页版商店：<a href="https://store.linglong.dev/" target="_blank">https://store.linglong.dev/</a><br>

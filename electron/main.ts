@@ -23,7 +23,7 @@ function createWindow() {
       preload,
       nodeIntegration: true,
       contextIsolation: false, // 解决渲染进程中无法使用nodejs/electron函数方法
-      webSecurity: false, // 禁用 Web 安全策略
+      // webSecurity: false, // 禁用 Web 安全策略
     },
   });
   // 禁用菜单，一般情况下，不需要禁用
