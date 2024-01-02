@@ -87,4 +87,22 @@ ipcMain.on("command",(_event,data) => {
     // console.log(`命令执行结果: ${stdout}`);
     win?.webContents.send("command-result", {code: 'stdout',data: data,result: stdout});
   });
-})
+});
+ipcMain.on("network",(_event,data) => {
+  // 执行网络请求，工具类使用src/util/request.ts
+  fetch(data.url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    // 处理网络请求结果
+    win?.webContents.send("network-result", {code: 'network',data: data,result: '请求成功！'});
+  })
+  .catch(error => {
+    // 处理网络请求错误
+    win?.webContents.send("network-result", {code: 'network-error',data: data,result: error.message});
+  });
+});

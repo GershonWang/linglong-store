@@ -1,16 +1,16 @@
 <template>
     <div class="containner">
         <a href="https://linglong.dev/" target="_blank">
-            <img src="/logo.svg" class="logo vue" alt="玲珑商店" />
+            <img src="/logo.svg" class="logo" alt="玲珑商店" />
         </a>
         <h1>玲珑应用商店</h1>
         <h4>正在进入商店：{{ mins }}秒</h4>
         <div style="text-align: left;">
-            <a style="color: chocolate;">PS注意：</a>
-          <p>1.刚程序运行时，会检测当前系统是否满足玲珑环境，不满足，倒计时加载会卡住不动并弹出提示，程序不会进入到后续界面;这里需要您手动安装玲珑环境方可使用。</p> 
-          <p>2.点击安装时，受网速和程序大小的影响，程序安装比较缓慢甚至可能会没反应，此时无需操作耐心等待程序安装成功提示即可。</p>
-          <p>3.卸载程序时，第一次点击会提示异常，可以再次点击卸载即可卸载成功。</p>
-          <p>4.玲珑程序搜索功能，暂时未做。</p>
+            <h3 style="color: chocolate;">PS注意：</h3>
+            <p>1.刚程序运行时，会检测当前系统是否满足玲珑环境，不满足，倒计时加载会卡住不动并弹出提示，程序不会进入到后续界面;这里需要您手动安装玲珑环境方可使用。</p>
+            <p>2.点击安装时，受网速和程序大小的影响，程序安装比较缓慢甚至可能会没反应，此时无需操作耐心等待程序安装成功提示即可。</p>
+            <p>3.卸载程序时，第一次点击会提示异常，可以再次点击卸载即可卸载成功。</p>
+            <p>4.玲珑程序搜索功能，暂时未做。</p>
         </div>
     </div>
 </template>
@@ -22,9 +22,9 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const mins = ref(10);
-let timerId: NodeJS.Timer | null = null; // 使用NodeJS.Timer类型
+let timerId: NodeJS.Timeout; // 使用NodeJS.Timer类型
 
-const startTimer = () => {
+onMounted(() => {
     timerId = setInterval(() => {
         if (mins.value == 1) {
             console.log("跳转到程序列表界面");
@@ -33,31 +33,25 @@ const startTimer = () => {
         }
         mins.value--;
     }, 1000); // 1秒钟执行一次
-};
-
-onMounted(() => {
-    startTimer();
-    ipcRenderer.send('command',{command:'ll-cli'});
-    ipcRenderer.on('command-result',(_event,data) =>{
-        if('stdout' != data.code) {
+    ipcRenderer.send('command', { command: 'll-cli' });
+    ipcRenderer.on('command-result', (_event, data) => {
+        if ('stdout' != data.code) {
+            // 当非正常返回时，弹出提示框并停止倒计时
             ElNotification({
                 title: '系统异常',
                 message: '当前系统不支持玲珑',
                 type: 'error',
             });
-            if (timerId !== null) {
-                clearInterval(timerId);
-            }
-            return;
+            clearInterval(timerId);
         }
-    })
+    });
+    ipcRenderer.send('network', {url:'https://mirror-repo-linglong.deepin.com/api/v0/web-store/apps'});
+    ipcRenderer.on('network-result', (_event, data) => {
+        console.log(data);
+    });
 });
 
-onBeforeUnmount(() => {
-    if (timerId !== null) {
-        clearInterval(timerId);
-    }
-});
+onBeforeUnmount(() => clearInterval(timerId));
 </script>
 <style scoped>
 .containner {
@@ -75,13 +69,5 @@ onBeforeUnmount(() => {
 }
 .logo:hover {
     filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-    filter: drop-shadow(0 0 2em #42b883aa);
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
 }
 </style>

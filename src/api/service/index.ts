@@ -1,4 +1,4 @@
-import request from '../../util/request';
+import request from '@/util/request';
 import { AxiosPromise } from 'axios';
 
 /**
@@ -10,19 +10,6 @@ export function getList(data: Pagination): AxiosPromise<any> {
   return request({
     url: '/api/v0/web-store/apps',
     method: 'get',
-    params: data,
-  });
-}
-
-/**
- * 注册用户API
- * @param data {LoginData}用户信息
- * @returns 
- */
-export function registApi(data: Pagination): AxiosPromise<any> {
-  return request({
-    url: '/user/addUser',
-    method: 'post',
     params: data,
   });
 }
