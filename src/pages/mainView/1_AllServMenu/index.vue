@@ -24,13 +24,18 @@ import { ipcRenderer } from 'electron';
 import { ElNotification } from 'element-plus'
 import { CardFace } from "@/components/CardFace";
 import Card from "@/components/Card.vue";
+// 存储在session里源内所有程序数组
+const allItems = sessionStorage.getItem('allItems');
+// 用于存储当前显示的卡片对象
+const displayedItems = reactive<CardFace[]>([]);
+// 用于存储当前系统已安装的卡片对象
+const installedItems = reactive<CardFace[]>([]); 
 
-const allItems = sessionStorage.getItem('allItems'); // 存储在session里源内所有程序数组
-const displayedItems = reactive<CardFace[]>([]); // 用于存储当前显示的卡片对象
-const installedItems = reactive<CardFace[]>([]); // 用于存储当前系统已安装的卡片对象
 const containRef = ref<HTMLElement | null>();
 const searchName = ref('');
 const num = ref(6);
+// 记录是否启用滚动条查询
+let isScrollQuery = ref(true);
 let pageNo = 1;
 let pageSize = 12;
 
@@ -67,40 +72,49 @@ function calculateSpan() {
     // 分页查询第一页程序
     fetchData(pageNo, pageSize);
 }
+// 搜索框回车事件
 function submit() {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
     // 获取输入框输入的内容，判空则默认搜索结果
     const msg = searchName.value;
     if (msg != '' && allItems != null) {
+        isScrollQuery.value = false;
         const all = JSON.parse(allItems);
         for (let index = 0; index < all.length; index++) {
             const element: CardFace = all[index];
             const name = element.name;
             if (name != undefined && name.includes(msg)) {
+                element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
                 displayedItems.push(element);
             }
         }
     } else {
+        isScrollQuery.value = true;
+        // 重置分页查询
+        pageNo = 1;
+        pageSize = 12;
         fetchData(pageNo, pageSize);
     }
 }
 // 滚动条监听事件
 const handleScroll = () => {
-    if (containRef.value) {
-        const scrollPosition = containRef.value.scrollTop; // 获取滚动位置
-        const windowHeight = containRef.value.clientHeight; // 获取窗口高度
-        const contentHeight = containRef.value.scrollHeight; // 获取内容高度
-        const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
-        if (scrollPosition != 0 && scrollbarHeight != 0
-            && scrollbarHeight >= scrollPosition
-            && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
-            console.log('滚动位置:', scrollPosition);
-            console.log('窗口高度:', windowHeight);
-            console.log('内容高度:', contentHeight);
-            console.log('滚动条长度:', scrollbarHeight);
-            pageNo += 1;
-            fetchData(pageNo, pageSize);
+    if (isScrollQuery.value) {
+        if (containRef.value) {
+            const scrollPosition = containRef.value.scrollTop; // 获取滚动位置
+            const windowHeight = containRef.value.clientHeight; // 获取窗口高度
+            const contentHeight = containRef.value.scrollHeight; // 获取内容高度
+            const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
+            if (scrollPosition != 0 && scrollbarHeight != 0
+                && scrollbarHeight >= scrollPosition
+                && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
+                // console.log('滚动位置:', scrollPosition);
+                // console.log('窗口高度:', windowHeight);
+                // console.log('内容高度:', contentHeight);
+                // console.log('滚动条长度:', scrollbarHeight);
+                pageNo += 1;
+                fetchData(pageNo, pageSize);
+            }
         }
     }
 }
