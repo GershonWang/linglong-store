@@ -31,7 +31,7 @@
                 </el-menu>
                 <!-- 更多菜单项 -->
             </el-aside>
-            <el-main>
+            <el-main class="views">
                 <!-- 这里将动态显示不同的功能页面 -->
                 <router-view></router-view>
             </el-main>
@@ -81,11 +81,12 @@ a {
 a:hover {
   color: #2D2F2F;
 }
-.el-main {
+.views {
     background-color: #2D2F2F;
     overflow: hidden;
     border-radius: 15px;
     margin: 12px;
     padding: 12px;
+    position: relative;
 }
 </style>

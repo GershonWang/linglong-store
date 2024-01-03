@@ -1,12 +1,20 @@
 <template>
-    <div class="search" style="margin: 10px auto;text-align: center;">
-        <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @keydown.enter="searchSoft">
-            <template #prefix>
-                <el-icon class="el-input__icon">
-                    <search />
-                </el-icon>
-            </template>
-        </el-input>
+    <div class="search">
+        <transition name="el-zoom-in-bottom">
+            <div v-show="show" class="transition-box">
+                <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @input="searchSoft"
+                    @keydown.enter="searchSoft">
+                    <template #prefix>
+                        <el-icon class="el-input__icon">
+                            <search />
+                        </el-icon>
+                    </template>
+                </el-input>
+            </div>
+        </transition>
+        <div class="search_image">
+            <img src="@/assets/search.svg" @click="show = !show">
+        </div>
     </div>
     <div class="container" ref="containRef" @scroll="handleScroll">
         <el-row>
@@ -31,13 +39,17 @@ const displayedItems = reactive<CardFace[]>([]);
 // 用于存储当前系统已安装的卡片对象
 const installedItems = reactive<CardFace[]>([]);
 
-const containRef = ref<HTMLElement | null>();
+const containRef = ref<HTMLElement>();
+const show = ref(false);
 const searchName = ref('');
+// 栅格数
 const num = ref(6);
+// 重试次数
+let retryNum = ref(0);
 // 记录是否启用滚动条查询
 let isScrollQuery = ref(true);
-let pageNo = 1;
-let pageSize = 12;
+let pageNo = ref(1);
+let pageSize = ref(12);
 
 /**
  * 根据分页条件查询网络玲珑应用
@@ -74,31 +86,29 @@ const searchSoft = () => {
             }
         }
     } else {
-        isScrollQuery.value = true;
         // 重置分页查询
-        pageNo = 1;
-        pageSize = 12;
-        fetchData(pageNo, pageSize);
+        pageNo.value = 1;
+        pageSize.value = 12;
+        // 开启滚动条监听事件
+        isScrollQuery.value = true;
+        fetchData(pageNo.value, pageSize.value);
     }
 }
 // 滚动条监听事件
 const handleScroll = () => {
-    if (isScrollQuery.value) {
-        if (containRef.value) {
-            const scrollPosition = containRef.value.scrollTop; // 获取滚动位置
-            const windowHeight = containRef.value.clientHeight; // 获取窗口高度
-            const contentHeight = containRef.value.scrollHeight; // 获取内容高度
-            const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
-            if (scrollPosition != 0 && scrollbarHeight != 0
-                && scrollbarHeight >= scrollPosition
-                && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
-                // console.log('滚动位置:', scrollPosition);
-                // console.log('窗口高度:', windowHeight);
-                // console.log('内容高度:', contentHeight);
-                // console.log('滚动条长度:', scrollbarHeight);
-                pageNo += 1;
-                fetchData(pageNo, pageSize);
-            }
+    if (isScrollQuery.value && containRef.value) {
+        const scrollPosition = containRef.value.scrollTop; // 获取滚动位置
+        const windowHeight = containRef.value.clientHeight; // 获取窗口高度
+        const contentHeight = containRef.value.scrollHeight; // 获取内容高度
+        const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
+        if (scrollPosition != 0 && scrollbarHeight != 0 && scrollbarHeight >= scrollPosition
+            && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
+            // console.log('滚动位置:', scrollPosition);
+            // console.log('窗口高度:', windowHeight);
+            // console.log('内容高度:', contentHeight);
+            // console.log('滚动条长度:', scrollbarHeight);
+            pageNo.value += 1;
+            fetchData(pageNo.value, pageSize.value);
         }
     }
 }
@@ -107,29 +117,36 @@ function calculateSpan() {
     const screenWidth = window.innerWidth;
     if (screenWidth > 1366) {
         num.value = 4; // 大屏幕，一行显示 6 个卡片
-        pageSize = 18;
+        pageSize.value = 18;
     } else if (screenWidth <= 1366 && screenWidth > 768) {
         num.value = 6; // 中等屏幕，一行显示 4 个卡片
-        pageSize = 12;
+        pageSize.value = 12;
     } else {
         num.value = 8; // 小屏幕，一行显示 3 个卡片
-        pageSize = 9;
+        pageSize.value = 9;
     }
     // 分页查询第一页程序
-    fetchData(pageNo, pageSize);
+    fetchData(pageNo.value, pageSize.value);
 }
 // 命令执行结束返回结果
 const commandResult = (_event: any, res: any) => {
-    if ('stdout' != res.code) {
-        ElNotification({
-            title: '请求错误',
-            message: '命令执行异常！',
-            type: 'error',
-        });
-        return;
-    }
     const params = res.param;
     const result = res.result;
+    const code = res.code;
+    if ('stdout' != code) {
+        if (retryNum.value <= 3) {
+            retryNum.value++;
+            ipcRenderer.send('command', params);
+        } else {
+            retryNum.value = 0;
+            ElNotification({
+                title: '请求错误',
+                message: '命令执行异常！',
+                type: 'error',
+            });
+        }
+        return;
+    }
     // 返回结果 - 查询当前已安装的玲珑应用列表
     if (params.command == 'll-cli list') {
         const apps = result.split("\n");
@@ -208,8 +225,36 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.search {
+    margin: 10px auto;
+    position: fixed;
+    z-index: 999;
+    bottom: 20px;
+    right: 50px;
+}
+
+.transition-box {
+    margin-bottom: 60px;
+    border-radius: 10px;
+    background-color: #999999;
+    text-align: center;
+    color: #fff;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    margin-right: 10px;
+}
+
+.search_image {
+    height: 48px;
+    position: fixed;
+    bottom: 30px;
+    right: 60px;
+    border-radius: 15px;
+    background-color: #999999;
+    padding: 5px;
+}
+
 .container {
     height: 100%;
     overflow-y: auto;
-}
-</style>
+}</style>

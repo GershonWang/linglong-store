@@ -1,42 +1,54 @@
 <template>
-    <el-card class="container" v-loading="loading"
-        element-loading-text="Loading..."
-        element-loading-svg-view-box="-10, -10, 50, 50"
-        element-loading-background="rgba(122, 122, 122, 0.8)"
+    <el-card class="container" v-loading="loading" element-loading-text="Loading..."
+        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)"
         style="width: 100%">
-        <img class="image" :src="icon" alt="Image" />
+        <img class="image" :src="icon || defaultImage" @error="setDefaultImage" alt="Image" />
         <span class="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
         <div class="btm">
             <p class="desc">{{ description }}</p>
             <p class="os">{{ arch }}</p>
-            <el-button class="uninstallBtn" v-if="isInstalled" @click="uninstallServ(index,{icon,name,version,description,arch,isInstalled,appId})">卸载</el-button>
-            <el-button class="installBtn" v-else @click="installServ(index,{icon,name,version,description,arch,isInstalled,appId})">安装</el-button>
+            <el-button class="uninstallBtn" v-if="isInstalled"
+                @click="uninstallServ(index, { icon, name, version, description, arch, isInstalled, appId })">卸载</el-button>
+            <el-button class="installBtn" v-else
+                @click="installServ(index, { icon, name, version, description, arch, isInstalled, appId })">安装</el-button>
         </div>
     </el-card>
 </template>
 
 <script setup lang="ts">
 import { ipcRenderer } from "electron";
+import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
 import { ref } from "vue";
+import defaultImage from '@/assets/logo.svg'
 
 const loading = ref(false);
 
 withDefaults(
-    defineProps<CardFace>(),{
-        icon: "https://linglong.dev/asset/logo.svg",
-        name: "程序名称",
-        version: "0.0.1",
-        description: "描述说明",
-        arch: "X86_64",
-        isInstalled: true,
-        appId: "",
-        index: 0
-    }
+    defineProps<CardFace>(), {
+    // icon: "https://linglong.dev/asset/logo.svg",
+    icon: "",
+    name: "程序名称",
+    version: "0.0.1",
+    description: "描述说明",
+    arch: "X86_64",
+    isInstalled: true,
+    appId: "",
+    index: 0
+}
 )
+const setDefaultImage = (e: any) => {
+    e.target.src = defaultImage;
+}
 // 卸载程序
-const uninstallServ = (index: number,item: CardFace) => {
+const uninstallServ = (index: number, item: CardFace) => {
+    ElNotification({
+        title: '提示',
+        message: '正在卸载' + item.name + '(' + item.version + ')',
+        type: 'info',
+        duration: 1000,
+    });
     const params = {
         icon: item.icon,
         name: item.name,
@@ -45,13 +57,19 @@ const uninstallServ = (index: number,item: CardFace) => {
         arch: item.arch,
         isInstalled: item.isInstalled,
         appId: item.appId,
-        command: 'll-cli uninstall ' + item.appId + '/' + item.version, 
+        command: 'll-cli uninstall ' + item.appId + '/' + item.version,
         index
     };
     ipcRenderer.send('command', params);
 }
 // 安装程序
-const installServ = (index: number,item: CardFace) => {
+const installServ = (index: number, item: CardFace) => {
+    ElNotification({
+        title: '提示',
+        message: '正在安装' + item.name + '(' + item.version + ')',
+        type: 'info',
+        duration: 1000,
+    });
     const params = {
         icon: item.icon,
         name: item.name,
@@ -60,7 +78,7 @@ const installServ = (index: number,item: CardFace) => {
         arch: item.arch,
         isInstalled: item.isInstalled,
         appId: item.appId,
-        command: 'll-cli install ' + item.appId + '/' + item.version, 
+        command: 'll-cli install ' + item.appId + '/' + item.version,
         index
     };
     ipcRenderer.send('command', params);
@@ -74,11 +92,13 @@ const installServ = (index: number,item: CardFace) => {
     position: relative;
     /* background-color: #999; */
 }
+
 .image {
     width: 150px;
     margin: 0 auto;
     display: block;
 }
+
 .name {
     display: flex;
     justify-content: center;
@@ -89,11 +109,14 @@ const installServ = (index: number,item: CardFace) => {
     /* text-overflow: ellipsis; */
     /* max-width: 150px; */
 }
+
 .version {
-    background-color: #999;
+    background-color: #f5c7bf;
     display: flex;
     justify-content: center;
+    border-radius: 5px;
 }
+
 .btm {
     margin-top: 10px;
     line-height: 12px;
@@ -101,6 +124,7 @@ const installServ = (index: number,item: CardFace) => {
     justify-content: space-between;
     align-items: center;
 }
+
 .desc {
     font-size: 12px;
     color: #999;
@@ -115,16 +139,19 @@ const installServ = (index: number,item: CardFace) => {
     max-width: 50%;
     /* 可根据需要设置最大宽度 */
 }
+
 .os {
     font-size: 12px;
     color: #999;
 }
+
 .installBtn {
     background-color: blue;
     color: white;
     padding: 5px;
     min-height: auto;
 }
+
 .uninstallBtn {
     background-color: red;
     color: white;

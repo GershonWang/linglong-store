@@ -15,10 +15,14 @@ import { ElNotification } from 'element-plus'
 import { ipcRenderer } from 'electron';
 import { CardFace } from "@/components/CardFace";
 import Card from "@/components/Card.vue";
-
-let installedItems = reactive<CardFace[]>([]); // 用于存储当前系统已安装的卡片对象
+// 存储在session里源内所有程序数组
+let allItems = sessionStorage.getItem('allItems');
+// 用于存储当前系统已安装的卡片对象
+let installedItems = reactive<CardFace[]>([]);
+// 栅格数
 const num = ref(6);
-
+// 重试次数
+let retryNum = ref(0);
 // 根据分辨率计算栅格行卡片数量
 function calculateSpan() {
     // 根据屏幕宽度动态计算 span 值
@@ -32,17 +36,24 @@ function calculateSpan() {
     }
 }
 // 命令执行返回结果
-const commandResult = (_event: any, data: any) => {
-    if ('stdout' != data.code) {
-        ElNotification({
-            title: '请求错误',
-            message: '命令执行异常！',
-            type: 'error',
-        });
+const commandResult = (_event: any, res: any) => {
+    const params = res.param;
+    const result = res.result;
+    const code = res.code;
+    if ('stdout' != code) {
+        if (retryNum.value <= 3) {
+            retryNum.value++;
+            ipcRenderer.send('command', params);
+        } else {
+            retryNum.value = 0;
+            ElNotification({
+                title: '请求错误',
+                message: '命令执行异常！',
+                type: 'error',
+            });
+        }
         return;
     }
-    const params = data.param;
-    const result = data.result;
     // 查询已安装命令
     if (params.command == 'll-cli list') {
         const apps = result.split("\n");
@@ -59,18 +70,31 @@ const commandResult = (_event: any, data: any) => {
             for (let index = 1; index < apps.length - 1; index++) {
                 const element = apps[index];
                 const appId = element.substring(appIdNum, nameNum).trim();
+                const name = element.substring(nameNum, versionNum).trim();
+                const version = element.substring(versionNum, archNum).trim();
+                const arch = element.substring(archNum, channelNum).trim();
+                const channel = element.substring(channelNum, moduleNum).trim();
+                const module = element.substring(moduleNum, descriptionNum).trim();
+                const description = element.substring(descriptionNum, element.length);
+                let icon = "";
                 if (appId != 'org.deepin.Runtime') { // 去除运行时服务
-                    const item = {
-                        appId: appId,
-                        name: element.substring(nameNum, versionNum).trim() ? element.substring(nameNum, versionNum).trim() : '-',
-                        version: element.substring(versionNum, archNum).trim(),
-                        arch: element.substring(archNum, channelNum).trim(),
-                        channel: element.substring(channelNum, moduleNum).trim(),
-                        module: element.substring(moduleNum, descriptionNum).trim(),
-                        description: element.substring(descriptionNum, element.length),
-                        icon: "https://linglong.dev/asset/logo.svg"
+                    if (allItems != null && allItems.length > 0) {
+                        const all = JSON.parse(allItems);
+                        const its = all.find((it: CardFace) => it.appId == appId && it.version == version)
+                        if (its) {
+                            icon = its.icon;
+                        }
                     }
-                    installedItems.push(item);
+                    installedItems.push({
+                        appId: appId,
+                        name: name ? name : '-',
+                        version: version,
+                        arch: arch,
+                        channel: channel,
+                        module: module,
+                        description: description,
+                        icon: icon
+                    });
                 }
             }
         }
