@@ -51,10 +51,10 @@ onMounted(() => {
     });
     // 发送网络命令，获取源内所有应用，并返回结果存储到session中
     ipcRenderer.send('network', {url: sessionStorage.getItem('sourceUrl') + '/api/v0/web-store/apps??page=1&size=100000'});
-    ipcRenderer.on('network-result', (_event, data) => {
+    ipcRenderer.on('network-result', (_event, res) => {
         let allItems = '[';
-        if(data.code == 'network') {
-            const array = data.data.data.list;
+        if(res.code == '200') {
+            const array = res.data.list;
             for (let i = 0; i < array.length; i++) {
                 if(i != 0) allItems += ',';
                 allItems += JSON.stringify(array[i]);

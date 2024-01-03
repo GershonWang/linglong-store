@@ -29,7 +29,7 @@ const allItems = sessionStorage.getItem('allItems');
 // 用于存储当前显示的卡片对象
 const displayedItems = reactive<CardFace[]>([]);
 // 用于存储当前系统已安装的卡片对象
-const installedItems = reactive<CardFace[]>([]); 
+const installedItems = reactive<CardFace[]>([]);
 
 const containRef = ref<HTMLElement | null>();
 const searchName = ref('');
@@ -47,7 +47,7 @@ let pageSize = 12;
 const fetchData = async (pageNo: number, pageSize: number) => {
     let startNum = pageNo == 1 ? 0 : pageNo * pageSize;
     let endNum = startNum + pageSize;
-    if (allItems != null) {
+    if (allItems != null && allItems.length > 0) {
         const all = JSON.parse(allItems);
         for (let index = startNum; index < endNum; index++) {
             const element = all[index];
@@ -55,22 +55,6 @@ const fetchData = async (pageNo: number, pageSize: number) => {
             displayedItems.push(element);
         }
     }
-}
-// 根据分辨率计算栅格行卡片数量
-function calculateSpan() {
-    const screenWidth = window.innerWidth;
-    if (screenWidth > 1366) {
-        num.value = 4; // 大屏幕，一行显示 6 个卡片
-        pageSize = 18;
-    } else if (screenWidth <= 1366 && screenWidth > 768) {
-        num.value = 6; // 中等屏幕，一行显示 4 个卡片
-        pageSize = 12;
-    } else {
-        num.value = 8; // 小屏幕，一行显示 3 个卡片
-        pageSize = 9;
-    }
-    // 分页查询第一页程序
-    fetchData(pageNo, pageSize);
 }
 // 搜索框回车事件
 function submit() {
@@ -118,35 +102,24 @@ const handleScroll = () => {
         }
     }
 }
-// 添加事件监听器
-const installedResListener = (_event: any, data: string) => {
-    const apps = data.split("\n");
-    if (apps.length > 1) {
-        const header = apps[0].split('[1m[38;5;214m')[1];
-        const appIdNum = header.indexOf('appId');
-        const nameNum = header.indexOf('name');
-        const versionNum = header.indexOf('version');
-        const archNum = header.indexOf('arch');
-        const channelNum = header.indexOf('channel');
-        const moduleNum = header.indexOf('module');
-        const descriptionNum = header.indexOf('description');
-        // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-        for (let index = 1; index < apps.length - 1; index++) {
-            const element = apps[index];
-            const item: CardFace = {
-                appId: element.substring(appIdNum, nameNum).trim(),
-                name: element.substring(nameNum, versionNum).trim() ? element.substring(nameNum, versionNum).trim() : '-',
-                version: element.substring(versionNum, archNum).trim(),
-                arch: element.substring(archNum, channelNum).trim(),
-                channel: element.substring(channelNum, moduleNum).trim(),
-                module: element.substring(moduleNum, descriptionNum).trim(),
-                description: element.substring(descriptionNum, element.length)
-            }
-            installedItems.push(item);
-        }
+// 根据分辨率计算栅格行卡片数量
+function calculateSpan() {
+    const screenWidth = window.innerWidth;
+    if (screenWidth > 1366) {
+        num.value = 4; // 大屏幕，一行显示 6 个卡片
+        pageSize = 18;
+    } else if (screenWidth <= 1366 && screenWidth > 768) {
+        num.value = 6; // 中等屏幕，一行显示 4 个卡片
+        pageSize = 12;
+    } else {
+        num.value = 8; // 小屏幕，一行显示 3 个卡片
+        pageSize = 9;
     }
+    // 分页查询第一页程序
+    fetchData(pageNo, pageSize);
 }
-const commandResult = (event: any, data: any) => {
+// 命令执行结束返回结果
+const commandResult = (_event: any, data: any) => {
     if ('stdout' != data.code) {
         ElNotification({
             title: '请求错误',
@@ -155,11 +128,37 @@ const commandResult = (event: any, data: any) => {
         });
         return;
     }
+    // 返回结果 - 查询当前已安装的玲珑应用列表
     if (data.data.command == 'll-cli list') {
-        installedResListener(event, data.result);
+        const apps = data.result.split("\n");
+        if (apps.length > 1) {
+            const header = apps[0].split('[1m[38;5;214m')[1];
+            const appIdNum = header.indexOf('appId');
+            const nameNum = header.indexOf('name');
+            const versionNum = header.indexOf('version');
+            const archNum = header.indexOf('arch');
+            const channelNum = header.indexOf('channel');
+            const moduleNum = header.indexOf('module');
+            const descriptionNum = header.indexOf('description');
+            // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
+            for (let index = 1; index < apps.length - 1; index++) {
+                const element = apps[index];
+                const item: CardFace = {
+                    appId: element.substring(appIdNum, nameNum).trim(),
+                    name: element.substring(nameNum, versionNum).trim() ? element.substring(nameNum, versionNum).trim() : '-',
+                    version: element.substring(versionNum, archNum).trim(),
+                    arch: element.substring(archNum, channelNum).trim(),
+                    channel: element.substring(channelNum, moduleNum).trim(),
+                    module: element.substring(moduleNum, descriptionNum).trim(),
+                    description: element.substring(descriptionNum, element.length)
+                }
+                installedItems.push(item);
+            }
+        }
     }
+    // 返回结果 - 当前执行安装的应用信息
     if (data.data.command.startsWith('ll-cli install')) {
-        const newCode = {
+        displayedItems.splice(data.data.index, 1, {
             icon: data.data.icon,
             name: data.data.name,
             version: data.data.version,
@@ -167,16 +166,16 @@ const commandResult = (event: any, data: any) => {
             arch: data.data.arch,
             isInstalled: true,
             appId: data.data.appId,
-        }
-        displayedItems.splice(data.data.index, 1, newCode);
+        });
         ElNotification({
             title: '安装成功',
             message: '成功安装',
             type: 'success',
         });
     }
+    // 返回结果 - 当前执行卸载的应用信息
     if (data.data.command.startsWith('ll-cli uninstall')) {
-        const newCode = {
+        displayedItems.splice(data.data.index, 1, {
             icon: data.data.icon,
             name: data.data.name,
             version: data.data.version,
@@ -184,8 +183,7 @@ const commandResult = (event: any, data: any) => {
             arch: data.data.arch,
             isInstalled: false,
             appId: data.data.appId,
-        }
-        displayedItems.splice(data.data.index, 1, newCode);
+        });
         ElNotification({
             title: '卸载成功',
             message: '成功卸载',
@@ -201,7 +199,10 @@ onMounted(() => {
     ipcRenderer.on('command-result', commandResult);
 });
 // 在组件销毁时移除事件监听器
-onBeforeUnmount(() => ipcRenderer.removeListener('command-result', commandResult));
+onBeforeUnmount(() => {
+    window.removeEventListener("resize", () => calculateSpan);
+    ipcRenderer.removeListener('command-result', commandResult);
+});
 </script>
 
 <style scoped>

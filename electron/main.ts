@@ -62,7 +62,7 @@ app.on('second-instance', () => {
 })
 app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows();
-  console.log('allWindows.length',allWindows.length)
+  console.log('allWindows.length', allWindows.length)
   if (allWindows.length) {
     allWindows[0].focus()
   } else {
@@ -71,38 +71,38 @@ app.on('activate', () => {
 })
 
 // 执行脚本命令
-ipcMain.on("command",(_event,data) => {
+ipcMain.on("command", (_event, data) => {
   // 在主进程中执行命令，并将结果返回到渲染进程
   exec(data.command, (error, stdout, stderr) => {
     if (error) {
       // console.error(`执行命令出错: ${error.message}`);
-      win?.webContents.send("command-result", {code: 'error',data: data,result: error.message});
+      win?.webContents.send("command-result", { code: 'error', data: data, result: error.message });
       return;
     }
     if (stderr) {
       // console.error(`命令执行错误: ${stderr}`);
-      win?.webContents.send("command-result", {code: 'stderr',data: data,result: stderr});
+      win?.webContents.send("command-result", { code: 'stderr', data: data, result: stderr });
       return;
     }
     // console.log(`命令执行结果: ${stdout}`);
-    win?.webContents.send("command-result", {code: 'stdout',data: data,result: stdout});
+    win?.webContents.send("command-result", { code: 'stdout', data: data, result: stdout });
   });
 });
-ipcMain.on("network",(_event,data) => {
+ipcMain.on("network", (_event, data) => {
   // 执行网络请求，工具类使用src/util/request.ts
   fetch(data.url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-  })
-  .then(response => response.json())
-  .then(data => {
-    // 处理网络请求结果
-    win?.webContents.send("network-result", {code: 'network',data: data,result: '请求成功！'});
-  })
-  .catch(error => {
-    // 处理网络请求错误
-    win?.webContents.send("network-result", {code: 'network-error',data: data,result: error.message});
-  });
+  }).then(response => response.json())
+    .then(response => {
+      // 处理网络请求结果
+      response.param = data;
+      win?.webContents.send("network-result", response);
+    })
+    .catch(error => {
+      // 处理网络请求错误
+      win?.webContents.send("network-result", { code: 'network-error', msg: error.message, param: data});
+    });
 });
