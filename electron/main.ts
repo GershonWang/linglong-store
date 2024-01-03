@@ -76,16 +76,16 @@ ipcMain.on("command", (_event, data) => {
   exec(data.command, (error, stdout, stderr) => {
     if (error) {
       // console.error(`执行命令出错: ${error.message}`);
-      win?.webContents.send("command-result", { code: 'error', data: data, result: error.message });
+      win?.webContents.send("command-result", { code: 'error', param: data, result: error.message });
       return;
     }
     if (stderr) {
       // console.error(`命令执行错误: ${stderr}`);
-      win?.webContents.send("command-result", { code: 'stderr', data: data, result: stderr });
+      win?.webContents.send("command-result", { code: 'stderr', param: data, result: stderr });
       return;
     }
     // console.log(`命令执行结果: ${stdout}`);
-    win?.webContents.send("command-result", { code: 'stdout', data: data, result: stdout });
+    win?.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
   });
 });
 ipcMain.on("network", (_event, data) => {

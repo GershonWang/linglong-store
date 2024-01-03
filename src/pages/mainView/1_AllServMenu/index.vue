@@ -1,6 +1,6 @@
 <template>
     <div class="search" style="margin: 10px auto;text-align: center;">
-        <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @keydown.enter="submit">
+        <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @keydown.enter="searchSoft">
             <template #prefix>
                 <el-icon class="el-input__icon">
                     <search />
@@ -57,7 +57,7 @@ const fetchData = async (pageNo: number, pageSize: number) => {
     }
 }
 // 搜索框回车事件
-function submit() {
+const searchSoft = () => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
     // 获取输入框输入的内容，判空则默认搜索结果
@@ -119,8 +119,8 @@ function calculateSpan() {
     fetchData(pageNo, pageSize);
 }
 // 命令执行结束返回结果
-const commandResult = (_event: any, data: any) => {
-    if ('stdout' != data.code) {
+const commandResult = (_event: any, res: any) => {
+    if ('stdout' != res.code) {
         ElNotification({
             title: '请求错误',
             message: '命令执行异常！',
@@ -128,9 +128,11 @@ const commandResult = (_event: any, data: any) => {
         });
         return;
     }
+    const params = res.param;
+    const result = res.result;
     // 返回结果 - 查询当前已安装的玲珑应用列表
-    if (data.data.command == 'll-cli list') {
-        const apps = data.result.split("\n");
+    if (params.command == 'll-cli list') {
+        const apps = result.split("\n");
         if (apps.length > 1) {
             const header = apps[0].split('[1m[38;5;214m')[1];
             const appIdNum = header.indexOf('appId');
@@ -157,44 +159,44 @@ const commandResult = (_event: any, data: any) => {
         }
     }
     // 返回结果 - 当前执行安装的应用信息
-    if (data.data.command.startsWith('ll-cli install')) {
-        displayedItems.splice(data.data.index, 1, {
-            icon: data.data.icon,
-            name: data.data.name,
-            version: data.data.version,
-            description: data.data.description,
-            arch: data.data.arch,
+    if (params.command.startsWith('ll-cli install')) {
+        displayedItems.splice(params.index, 1, {
+            icon: params.icon,
+            name: params.name,
+            version: params.version,
+            description: params.description,
+            arch: params.arch,
             isInstalled: true,
-            appId: data.data.appId,
+            appId: params.appId,
         });
         ElNotification({
             title: '安装成功',
-            message: '成功安装',
+            message: params.name + '(' + params.version + ')被成功安装!',
             type: 'success',
         });
     }
     // 返回结果 - 当前执行卸载的应用信息
-    if (data.data.command.startsWith('ll-cli uninstall')) {
-        displayedItems.splice(data.data.index, 1, {
-            icon: data.data.icon,
-            name: data.data.name,
-            version: data.data.version,
-            description: data.data.description,
-            arch: data.data.arch,
+    if (params.command.startsWith('ll-cli uninstall')) {
+        displayedItems.splice(params.index, 1, {
+            icon: params.icon,
+            name: params.name,
+            version: params.version,
+            description: params.description,
+            arch: params.arch,
             isInstalled: false,
-            appId: data.data.appId,
+            appId: params.appId,
         });
         ElNotification({
             title: '卸载成功',
-            message: '成功卸载',
+            message: params.name + '(' + params.version + ')被成功卸载!',
             type: 'success',
         });
     }
 }
 // 组件初始化时加载
 onMounted(() => {
-    window.addEventListener("resize", () => calculateSpan)
-    fetchData(pageNo, pageSize);
+    window.addEventListener("resize", () => calculateSpan);
+    searchSoft();
     ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
     ipcRenderer.on('command-result', commandResult);
 });

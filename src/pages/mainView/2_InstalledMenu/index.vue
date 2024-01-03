@@ -1,15 +1,9 @@
 <template>
     <div class="container">
         <el-row>
-            <el-col style="padding:10px" v-for="(item,index) in installedItems" :key="index" :span="num">
-                <Card :name="item.name" 
-                    :version="item.version"
-                    :description="item.description"
-                    :arch="item.arch"
-                    :isInstalled="true"
-                    :appId="item.appId"
-                    :icon="item.icon"
-                    :index="index"/>
+            <el-col style="padding:10px" v-for="(item, index) in installedItems" :key="index" :span="num">
+                <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
+                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :index="index" />
             </el-col>
         </el-row>
     </div>
@@ -37,39 +31,8 @@ function calculateSpan() {
         num.value = 8; // 小屏幕，一行显示 3 个卡片
     }
 }
-const installedResListener = (_event: any, data: string) => {
-    const apps = data.split("\n");
-    if(apps.length > 1) {
-        const header = apps[0].split('[1m[38;5;214m')[1];
-        const appIdNum = header.indexOf('appId');
-        const nameNum = header.indexOf('name');
-        const versionNum = header.indexOf('version');
-        const archNum = header.indexOf('arch');
-        const channelNum = header.indexOf('channel');
-        const moduleNum = header.indexOf('module');
-        const descriptionNum = header.indexOf('description');
-        // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-        for (let index = 1; index < apps.length - 1; index++) {
-            const element = apps[index];
-            const appId = element.substring(appIdNum,nameNum).trim();
-            if (appId != 'org.deepin.Runtime') { // 去除运行时服务
-                const item = {
-                    appId: appId,
-                    name: element.substring(nameNum,versionNum).trim() ? element.substring(nameNum,versionNum).trim() : '-',
-                    version: element.substring(versionNum,archNum).trim(),
-                    arch: element.substring(archNum,channelNum).trim(),
-                    channel: element.substring(channelNum,moduleNum).trim(),
-                    module: element.substring(moduleNum,descriptionNum).trim(),
-                    description: element.substring(descriptionNum,element.length),
-                    icon: "https://linglong.dev/asset/logo.svg"
-                }
-                installedItems.push(item);
-            }
-        }
-    }
-}
 // 命令执行返回结果
-const commandResult = (event: any, data: any) => {
+const commandResult = (_event: any, data: any) => {
     if ('stdout' != data.code) {
         ElNotification({
             title: '请求错误',
@@ -78,16 +41,46 @@ const commandResult = (event: any, data: any) => {
         });
         return;
     }
+    const params = data.param;
+    const result = data.result;
     // 查询已安装命令
-    if (data.data.command == 'll-cli list') {
-        installedResListener(event, data.result);
+    if (params.command == 'll-cli list') {
+        const apps = result.split("\n");
+        if (apps.length > 1) {
+            const header = apps[0].split('[1m[38;5;214m')[1];
+            const appIdNum = header.indexOf('appId');
+            const nameNum = header.indexOf('name');
+            const versionNum = header.indexOf('version');
+            const archNum = header.indexOf('arch');
+            const channelNum = header.indexOf('channel');
+            const moduleNum = header.indexOf('module');
+            const descriptionNum = header.indexOf('description');
+            // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
+            for (let index = 1; index < apps.length - 1; index++) {
+                const element = apps[index];
+                const appId = element.substring(appIdNum, nameNum).trim();
+                if (appId != 'org.deepin.Runtime') { // 去除运行时服务
+                    const item = {
+                        appId: appId,
+                        name: element.substring(nameNum, versionNum).trim() ? element.substring(nameNum, versionNum).trim() : '-',
+                        version: element.substring(versionNum, archNum).trim(),
+                        arch: element.substring(archNum, channelNum).trim(),
+                        channel: element.substring(channelNum, moduleNum).trim(),
+                        module: element.substring(moduleNum, descriptionNum).trim(),
+                        description: element.substring(descriptionNum, element.length),
+                        icon: "https://linglong.dev/asset/logo.svg"
+                    }
+                    installedItems.push(item);
+                }
+            }
+        }
     }
     // 卸载命令
-    if (data.data.command.startsWith('ll-cli uninstall')) {
-        installedItems.splice(data.data.index, 1);
+    if (params.command.startsWith('ll-cli uninstall')) {
+        installedItems.splice(params.index, 1);
         ElNotification({
             title: '卸载成功',
-            message: '成功卸载',
+            message: params.name + '(' + params.version + ')被成功卸载!',
             type: 'success',
         });
     }
@@ -97,7 +90,7 @@ onMounted(() => {
     // 监听窗口大小变化，实时更新 span 值
     window.addEventListener("resize", () => calculateSpan);
     // 初始加载当前系统已经安装的玲珑程序
-    ipcRenderer.send('command', {name: '查询已安装程序列表',command: 'll-cli list'});
+    ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
     ipcRenderer.on('command-result', commandResult);
 });
 // 在组件销毁时移除事件监听器
