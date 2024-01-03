@@ -24,16 +24,19 @@ const mins = ref(10);
 let timerId: NodeJS.Timeout; // 使用NodeJS.Timer类型
 
 onMounted(() => {
+    // 获取session中是否存有源地址，当不存在时，赋值默认地址
     if (sessionStorage.getItem('sourceUrl') == null) {
         sessionStorage.setItem('sourceUrl','https://mirror-repo-linglong.deepin.com');
     }
+    // 开启定时器，倒计时进入主页面(1秒钟执行一次)
     timerId = setInterval(() => {
         if (mins.value == 1) {
             router.push('/main_view');
             return;
         }
         mins.value--;
-    }, 1000); // 1秒钟执行一次
+    }, 1000);
+    // 发送命令，检测当前系统是否支持玲珑
     ipcRenderer.send('command', { command: 'll-cli' });
     ipcRenderer.on('command-result', (_event, data) => {
         if ('stdout' != data.code) {
@@ -46,9 +49,9 @@ onMounted(() => {
             clearInterval(timerId);
         }
     });
+    // 发送网络命令，获取源内所有应用，并返回结果存储到session中
     ipcRenderer.send('network', {url: sessionStorage.getItem('sourceUrl') + '/api/v0/web-store/apps??page=1&size=100000'});
     ipcRenderer.on('network-result', (_event, data) => {
-        console.log(data);
         let allItems = '[';
         if(data.code == 'network') {
             const array = data.data.data.list;

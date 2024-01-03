@@ -19,6 +19,7 @@
                         <el-icon><InfoFilled /></el-icon>
                         <span>关于程序</span>
                     </el-menu-item>
+                    <hr>
                     <el-menu-item index="5" @click="toPage('/card_comp')" style="display: none;">
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>卡片组件</span>
