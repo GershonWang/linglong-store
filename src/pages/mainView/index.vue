@@ -23,7 +23,7 @@
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>卡片组件</span>
                     </el-menu-item>
-                    <el-menu-item index="999" @click="toPage('/')" style="display: none;">
+                    <el-menu-item index="999" @click="toPage('/')">
                         <el-icon><Loading /></el-icon>
                         <span>返回首页</span>
                     </el-menu-item>

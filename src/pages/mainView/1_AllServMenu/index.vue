@@ -68,13 +68,11 @@ function calculateSpan() {
     fetchData(pageNo, pageSize);
 }
 function submit() {
+    // 执行搜索前，都进行数组的重置操作
+    displayedItems.splice(0, displayedItems.length);
+    // 获取输入框输入的内容，判空则默认搜索结果
     const msg = searchName.value;
-    if (msg == '') {
-        fetchData(pageNo,pageSize);
-        return;
-    }
-    displayedItems.splice(0,displayedItems.length);
-    if(allItems != null) {
+    if (msg != '' && allItems != null) {
         const all = JSON.parse(allItems);
         for (let index = 0; index < all.length; index++) {
             const element: CardFace = all[index];
@@ -83,6 +81,8 @@ function submit() {
                 displayedItems.push(element);
             }
         }
+    } else {
+        fetchData(pageNo, pageSize);
     }
 }
 // 滚动条监听事件
@@ -171,7 +171,7 @@ const commandResult = (event: any, data: any) => {
             isInstalled: false,
             appId: data.data.appId,
         }
-        displayedItems.splice(data.data.index, 1,newCode);
+        displayedItems.splice(data.data.index, 1, newCode);
         ElNotification({
             title: '卸载成功',
             message: '成功卸载',
@@ -183,7 +183,7 @@ const commandResult = (event: any, data: any) => {
 onMounted(() => {
     window.addEventListener("resize", () => calculateSpan)
     fetchData(pageNo, pageSize);
-    ipcRenderer.send('command', {name: '查询已安装程序列表',command: 'll-cli list'});
+    ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
     ipcRenderer.on('command-result', commandResult);
 });
 // 在组件销毁时移除事件监听器

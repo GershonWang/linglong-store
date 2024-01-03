@@ -24,12 +24,11 @@ const mins = ref(10);
 let timerId: NodeJS.Timeout; // 使用NodeJS.Timer类型
 
 onMounted(() => {
-    if (window.sessionStorage.getItem('sourceUrl') == null) {
-        window.sessionStorage.setItem('sourceUrl','https://mirror-repo-linglong.deepin.com');
+    if (sessionStorage.getItem('sourceUrl') == null) {
+        sessionStorage.setItem('sourceUrl','https://mirror-repo-linglong.deepin.com');
     }
     timerId = setInterval(() => {
         if (mins.value == 1) {
-            console.log("跳转到程序列表界面");
             router.push('/main_view');
             return;
         }
@@ -47,7 +46,7 @@ onMounted(() => {
             clearInterval(timerId);
         }
     });
-    ipcRenderer.send('network', {url: window.sessionStorage.getItem('sourceUrl') + '/api/v0/web-store/apps??page=1&size=100000'});
+    ipcRenderer.send('network', {url: sessionStorage.getItem('sourceUrl') + '/api/v0/web-store/apps??page=1&size=100000'});
     ipcRenderer.on('network-result', (_event, data) => {
         console.log(data);
         let allItems = '[';

@@ -15,19 +15,19 @@ const router = createRouter({
             children: [
                 {
                     path: '/all_serv_page',
-                    component: () => import("../pages/mainView/AllServPage/index.vue")
+                    component: () => import("../pages/mainView/1_AllServMenu/index.vue")
                 },
                 {
                     path: '/installed_page',
-                    component: () => import("../pages/mainView/InstalledPage/index.vue")
+                    component: () => import("../pages/mainView/2_InstalledMenu/index.vue")
                 },
                 {
                     path: '/config_menu',
-                    component: () => import("../pages/mainView/configMenu/index.vue")
+                    component: () => import("../pages/mainView/3_ConfigMenu/index.vue")
                 },
                 {
                     path: '/about_menu',
-                    component: () => import("../pages/mainView/aboutMenu/index.vue")
+                    component: () => import("../pages/mainView/4_AboutMenu/index.vue")
                 },
                 {
                     path: '/card_comp',
