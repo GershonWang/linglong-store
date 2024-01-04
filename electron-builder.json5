@@ -3,14 +3,15 @@
  */
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
+  "appId": "com.dongpl.linglong_store",
+  "copyright": "Copyright © 2024 Jokul",
   "asar": true,
   "directories": {
     "output": "release/${version}"
   },
   "files": [
     "dist-electron",
-    "dist"
+    "dist",
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
@@ -30,12 +31,23 @@
     "artifactName": "${productName}_${version}.${ext}"
   },
   "linux": {
-    "target": [
-      "AppImage",
-      "deb"
+    "category": "Network;",
+    "icon": "icons/256x256.svg",
+    "extraFiles": [
+      "icons"
     ],
-    "category": "Network;WebBrowser;",
-    // "icon": "public/logo_320.png",
+    "target": [
+      {"target": "AppImage", "arch": ["x64","arm64"]},
+      {"target": "deb", "arch": ["x64","arm64"]}
+    ],
+  },
+  "deb":{
+    "desktop": {
+      "Name": "玲珑应用商店",
+      "Comment": "玲珑应用商店",
+      "Terminal": false,
+      "Type": "Application"
+    }
   },
   "nsis": {
     "oneClick": false,
