@@ -40,11 +40,10 @@
 </template>
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-
+// 路由对象
 const router = useRouter();
-function toPage(url:string) {
-    router.push(url);
-}
+// 路由跳转
+const toPage = (url:string) => router.push(url);
 </script>
 <style>
 .common-layout {

@@ -20,7 +20,7 @@
         <el-row>
             <el-col style="padding:10px" v-for="(item, index) in displayedItems" :key="index" :span="num">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" />
+                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index"/>
             </el-col>
         </el-row>
     </div>
