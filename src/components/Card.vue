@@ -20,11 +20,10 @@
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
-import { ref } from "vue";
 import defaultImage from '@/assets/logo.svg'
-
-const loading = ref(false);
-
+// 加载状态值
+// const loading = ref(false);
+// 接受父组件传递的参数，并设置默认值
 withDefaults(
     defineProps<CardFace>(), {
     // icon: "https://linglong.dev/asset/logo.svg",
@@ -35,14 +34,17 @@ withDefaults(
     arch: "X86_64",
     isInstalled: true,
     appId: "",
-    index: 0
-}
-)
+    index: 0,
+    loading: false
+})
+const emit = defineEmits(['update:loading'])
+// 设置默认图片
 const setDefaultImage = (e: any) => {
     e.target.src = defaultImage;
 }
 // 卸载程序
 const uninstallServ = (index: number, item: CardFace) => {
+    emit('update:loading', true);
     ElNotification({
         title: '提示',
         message: '正在卸载' + item.name + '(' + item.version + ')',
@@ -64,6 +66,7 @@ const uninstallServ = (index: number, item: CardFace) => {
 }
 // 安装程序
 const installServ = (index: number, item: CardFace) => {
+    emit('update:loading', true);
     ElNotification({
         title: '提示',
         message: '正在安装' + item.name + '(' + item.version + ')',

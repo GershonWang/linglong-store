@@ -88,6 +88,7 @@ ipcMain.on("command", (_event, data) => {
     win?.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
   });
 });
+// 执行网络请求
 ipcMain.on("network", (_event, data) => {
   // 执行网络请求，工具类使用src/util/request.ts
   fetch(data.url, {

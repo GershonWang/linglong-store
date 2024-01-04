@@ -10,5 +10,6 @@ export interface CardFace {
     id?: string,
     channel?: string,
     module?: string,
-    index?: number
+    index?: number,
+    loading?: boolean
 }

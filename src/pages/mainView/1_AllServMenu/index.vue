@@ -20,7 +20,7 @@
         <el-row>
             <el-col style="padding:10px" v-for="(item, index) in displayedItems" :key="index" :span="num">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index"/>
+                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index" :loading="false"/>
             </el-col>
         </el-row>
     </div>
@@ -177,6 +177,7 @@ const commandResult = (_event: any, res: any) => {
     }
     // 返回结果 - 当前执行安装的应用信息
     if (params.command.startsWith('ll-cli install')) {
+        // 安装成功后，更新已安装应用列表
         displayedItems.splice(params.index, 1, {
             icon: params.icon,
             name: params.name,
@@ -185,7 +186,9 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: true,
             appId: params.appId,
+            loading: false
         });
+        // 安装成功后，弹出通知
         ElNotification({
             title: '安装成功',
             message: params.name + '(' + params.version + ')被成功安装!',
@@ -194,6 +197,7 @@ const commandResult = (_event: any, res: any) => {
     }
     // 返回结果 - 当前执行卸载的应用信息
     if (params.command.startsWith('ll-cli uninstall')) {
+        // 卸载成功后，更新已安装应用列表
         displayedItems.splice(params.index, 1, {
             icon: params.icon,
             name: params.name,
@@ -202,7 +206,9 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: false,
             appId: params.appId,
+            loading: false
         });
+        // 卸载成功后，弹出通知
         ElNotification({
             title: '卸载成功',
             message: params.name + '(' + params.version + ')被成功卸载!',
