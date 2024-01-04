@@ -2,8 +2,7 @@
     <div class="search">
         <transition name="el-zoom-in-bottom">
             <div v-show="show" class="transition-box">
-                <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @input="searchSoft"
-                    @keydown.enter="searchSoft">
+                <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @input="searchSoft">
                     <template #prefix>
                         <el-icon class="el-input__icon">
                             <search />
@@ -38,9 +37,11 @@ const allItems = sessionStorage.getItem('allItems');
 const displayedItems = reactive<CardFace[]>([]);
 // 用于存储当前系统已安装的卡片对象
 const installedItems = reactive<CardFace[]>([]);
-
+// 全部程序列表容器对象
 const containRef = ref<HTMLElement>();
+// 是否显示搜索框
 const show = ref(false);
+// 搜索框输入的值
 const searchName = ref('');
 // 栅格数
 const num = ref(6);
@@ -48,6 +49,7 @@ const num = ref(6);
 let retryNum = ref(0);
 // 记录是否启用滚动条查询
 let isScrollQuery = ref(true);
+// 记录当前页数
 let pageNo = ref(1);
 let pageSize = ref(12);
 
@@ -69,11 +71,9 @@ const fetchData = async (pageNo: number, pageSize: number) => {
     }
 }
 // 搜索框回车事件
-const searchSoft = () => {
+const searchSoft = (msg: string) => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
-    // 获取输入框输入的内容，判空则默认搜索结果
-    const msg = searchName.value;
     if (msg != '' && allItems != null) {
         isScrollQuery.value = false;
         const all = JSON.parse(allItems);
@@ -219,9 +219,9 @@ const commandResult = (_event: any, res: any) => {
 // 组件初始化时加载
 onMounted(() => {
     window.addEventListener("resize", () => calculateSpan);
-    searchSoft();
-    ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
     ipcRenderer.on('command-result', commandResult);
+    ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
+    searchSoft(searchName.value); // 查询程序展示软件列表
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
