@@ -34,6 +34,9 @@ const commandResult = (_event: any, data: any) => {
         });
         clearInterval(timerId);
     }
+    if ('stdout' == data.code && 'uname -m' == data.param.command) {
+        sessionStorage.setItem('systemInfo', data.result);
+    }
 }
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
@@ -41,8 +44,16 @@ const networkResult = (_event: any, res: any) => {
     if (res.code == '200') {
         const array = res.data.list;
         for (let i = 0; i < array.length; i++) {
-            if (i != 0) allItems += ',';
-            allItems += JSON.stringify(array[i]);
+            const item = array[i];
+            // const systemInfo = sessionStorage.getItem('systemInfo');
+            // const arch:string = item.arch;
+            // if (arch != systemInfo) {
+                // continue;
+            // }
+            allItems += JSON.stringify(item) + ',';
+        }
+        if (allItems.length > 1) {
+            allItems = allItems.substring(0, allItems.length - 1);
         }
     }
     allItems += ']';
@@ -63,6 +74,8 @@ onMounted(() => {
     }, 1000);
     // 发送命令，检测当前系统是否支持玲珑
     ipcRenderer.send('command', { command: 'll-cli' });
+    // 发送命令，获取当前系统架构
+    ipcRenderer.send('command', { command: 'uname -m' });
     ipcRenderer.on('command-result', commandResult);
     // 发送网络命令，获取源内所有应用，并返回结果存储到session中
     ipcRenderer.send('network', { url: sessionStorage.getItem('sourceUrl') + '/api/v0/web-store/apps??page=1&size=100000' });
