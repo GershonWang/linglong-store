@@ -1,5 +1,5 @@
 <template>
-    <el-card class="container" v-loading="loading" element-loading-text="Loading..."
+    <el-card class="container" v-loading="loading" element-loading-text="进行中..."
         element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)"
         style="width: 100%">
         <img class="image" :src="icon || defaultImage" @error="setDefaultImage" alt="Image" />
@@ -17,15 +17,15 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
 import defaultImage from '@/assets/logo.svg'
 // 加载状态值
-// const loading = ref(false);
+const loading = ref(false);
 // 接受父组件传递的参数，并设置默认值
-withDefaults(
-    defineProps<CardFace>(), {
+withDefaults(defineProps<CardFace>(), {
     // icon: "https://linglong.dev/asset/logo.svg",
     icon: "",
     name: "程序名称",
@@ -37,53 +37,48 @@ withDefaults(
     index: 0,
     loading: false
 })
-const emit = defineEmits(['update:loading'])
 // 设置默认图片
 const setDefaultImage = (e: any) => {
     e.target.src = defaultImage;
 }
 // 卸载程序
 const uninstallServ = (index: number, item: CardFace) => {
-    emit('update:loading', true);
     ElNotification({
         title: '提示',
         message: '正在卸载' + item.name + '(' + item.version + ')',
         type: 'info',
         duration: 1000,
     });
-    const params = {
-        icon: item.icon,
-        name: item.name,
-        version: item.version,
-        description: item.description,
-        arch: item.arch,
-        isInstalled: item.isInstalled,
-        appId: item.appId,
-        command: 'll-cli uninstall ' + item.appId + '/' + item.version,
-        index
-    };
+    const params:CardFace = {};
+    params.icon = item.icon;
+    params.name = item.name;
+    params.version = item.version;
+    params.description = item.description;
+    params.arch = item.arch;
+    params.isInstalled = item.isInstalled;
+    params.appId = item.appId;
+    params.command = 'll-cli uninstall ' + item.appId + '/' + item.version;
+    params.index = index;
     ipcRenderer.send('command', params);
 }
 // 安装程序
 const installServ = (index: number, item: CardFace) => {
-    emit('update:loading', true);
     ElNotification({
         title: '提示',
         message: '正在安装' + item.name + '(' + item.version + ')',
         type: 'info',
         duration: 1000,
     });
-    const params = {
-        icon: item.icon,
-        name: item.name,
-        version: item.version,
-        description: item.description,
-        arch: item.arch,
-        isInstalled: item.isInstalled,
-        appId: item.appId,
-        command: 'll-cli install ' + item.appId + '/' + item.version,
-        index
-    };
+    const params: CardFace = {};
+    params.icon = item.icon;
+    params.name = item.name;
+    params.version = item.version;
+    params.description = item.description;
+    params.arch = item.arch;
+    params.isInstalled = item.isInstalled;
+    params.appId = item.appId;
+    params.command = 'll-cli install ' + item.appId + '/' + item.version;
+    params.index = index;
     ipcRenderer.send('command', params);
 }
 </script>
