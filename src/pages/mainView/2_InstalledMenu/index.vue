@@ -70,33 +70,44 @@ const commandResult = (_event: any, res: any) => {
             for (let index = 1; index < apps.length - 1; index++) {
                 const element = apps[index];
                 const appId = element.substring(appIdNum, nameNum).trim();
-                const name = element.substring(nameNum, versionNum).trim();
-                const version = element.substring(versionNum, archNum).trim();
-                const arch = element.substring(archNum, channelNum).trim();
-                const channel = element.substring(channelNum, moduleNum).trim();
-                const module = element.substring(moduleNum, descriptionNum).trim();
-                const description = element.substring(descriptionNum, element.length);
-                let icon = "";
-                if (appId != 'org.deepin.Runtime') { // 去除运行时服务
-                    if (allItems != null && allItems.length > 0) {
-                        const all = JSON.parse(allItems);
-                        const its = all.find((it: CardFace) => it.appId == appId && it.version == version)
-                        if (its) {
-                            icon = its.icon;
-                        }
-                    }
-                    installedItems.push({
-                        appId: appId,
-                        name: name ? name : '-',
-                        version: version,
-                        arch: arch,
-                        channel: channel,
-                        module: module,
-                        description: description,
-                        icon: icon
-                    });
+                // 去除运行时服务
+                if (appId == 'org.deepin.Runtime') { 
+                    continue;
                 }
+                const items = element.match(/'[^']+'|\S+/g);
+                console.log(items);
+                // const name = element.substring(nameNum, versionNum).trim();
+                const name = items[1];
+                // const version = element.substring(versionNum, archNum).trim();
+                const version = items[2];
+                // const arch = element.substring(archNum, channelNum).trim();
+                const arch = items[3];
+                // const channel = element.substring(channelNum, moduleNum).trim();
+                const channel = items[4];
+                // const module = element.substring(moduleNum, descriptionNum).trim();
+                const module = items[5];
+                // const description = element.substring(descriptionNum).trim();
+                const description = items[6];
+                let icon = "";
+                if (allItems != null && allItems.length > 0) {
+                    const all = JSON.parse(allItems);
+                    const its = all.find((it: CardFace) => it.appId == appId && it.version == version)
+                    if (its) {
+                        icon = its.icon;
+                    }
+                }
+                installedItems.push({
+                    appId: appId,
+                    name: name ? name : '-',
+                    version: version,
+                    arch: arch,
+                    channel: channel,
+                    module: module,
+                    description: description,
+                    icon: icon
+                });
             }
+            console.log("查询当前已安装的玲珑应用列表",installedItems);
         }
     }
     // 卸载命令

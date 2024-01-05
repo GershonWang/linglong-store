@@ -2,7 +2,7 @@
     <div class="search">
         <transition name="el-zoom-in-bottom">
             <div v-show="show" class="transition-box">
-                <el-input v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @input="searchSoft">
+                <el-input ref="inputRef" v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @input="searchSoft">
                     <template #prefix>
                         <el-icon class="el-input__icon">
                             <search />
@@ -12,7 +12,7 @@
             </div>
         </transition>
         <div class="search_image">
-            <img src="@/assets/search.svg" @click="show = !show">
+            <img src="@/assets/search.svg" @click="openInput(show)">
         </div>
     </div>
     <div class="container" ref="containRef" @scroll="handleScroll">
@@ -41,6 +41,8 @@ const installedItems = reactive<CardFace[]>([]);
 const containRef = ref<HTMLElement>();
 // 是否显示搜索框
 const show = ref(false);
+// 搜索框对象
+const inputRef = ref<HTMLElement>();
 // 搜索框输入的值
 const searchName = ref('');
 // 栅格数
@@ -70,7 +72,7 @@ const fetchData = async (pageNo: number, pageSize: number) => {
         }
     }
 }
-// 搜索框回车事件
+// 搜索框监听输入变更事件
 const searchSoft = (msg: string) => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
@@ -92,6 +94,17 @@ const searchSoft = (msg: string) => {
         // 开启滚动条监听事件
         isScrollQuery.value = true;
         fetchData(pageNo.value, pageSize.value);
+    }
+}
+// 搜索图标的点击事件
+const openInput = (status: boolean) => {
+    show.value = !status;
+    if(inputRef.value){
+        if(status) {
+            inputRef.value.blur();
+        } else {
+            inputRef.value.focus();
+        }
     }
 }
 // 滚动条监听事件
@@ -162,18 +175,47 @@ const commandResult = (_event: any, res: any) => {
             // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
             for (let index = 1; index < apps.length - 1; index++) {
                 const element = apps[index];
-                const item: CardFace = {
-                    appId: element.substring(appIdNum, nameNum).trim(),
-                    name: element.substring(nameNum, versionNum).trim() ? element.substring(nameNum, versionNum).trim() : '-',
-                    version: element.substring(versionNum, archNum).trim(),
-                    arch: element.substring(archNum, channelNum).trim(),
-                    channel: element.substring(channelNum, moduleNum).trim(),
-                    module: element.substring(moduleNum, descriptionNum).trim(),
-                    description: element.substring(descriptionNum, element.length)
+                const appId = element.substring(appIdNum, nameNum).trim();
+                // 去除运行时服务
+                if (appId == 'org.deepin.Runtime') { 
+                    continue;
                 }
-                installedItems.push(item);
+                const items = element.match(/'[^']+'|\S+/g);
+                console.log(items);
+                // const name = element.substring(nameNum, versionNum).trim();
+                const name = items[1];
+                // const version = element.substring(versionNum, archNum).trim();
+                const version = items[2];
+                // const arch = element.substring(archNum, channelNum).trim();
+                const arch = items[3];
+                // const channel = element.substring(channelNum, moduleNum).trim();
+                const channel = items[4];
+                // const module = element.substring(moduleNum, descriptionNum).trim();
+                const module = items[5];
+                // const description = element.substring(descriptionNum).trim();
+                const description = items[6];
+                let icon = "";
+                if (allItems != null && allItems.length > 0) {
+                    const all = JSON.parse(allItems);
+                    const its = all.find((it: CardFace) => it.appId == appId && it.version == version)
+                    if (its) {
+                        icon = its.icon;
+                    }
+                }
+                installedItems.push({
+                    appId: appId,
+                    name: name ? name : '-',
+                    version: version,
+                    arch: arch,
+                    channel: channel,
+                    module: module,
+                    description: description,
+                    icon: icon
+                });
             }
         }
+        // 查询程序展示软件列表
+        searchSoft(searchName.value);
     }
     // 返回结果 - 当前执行安装的应用信息
     if (params.command.startsWith('ll-cli install')) {
@@ -221,7 +263,6 @@ onMounted(() => {
     window.addEventListener("resize", () => calculateSpan);
     ipcRenderer.on('command-result', commandResult);
     ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
-    searchSoft(searchName.value); // 查询程序展示软件列表
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
