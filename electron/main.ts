@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
 import { exec } from "child_process";
 import { join } from "node:path";
+import axios from "axios";
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron')
 process.env.DIST = join(__dirname, "../dist");
@@ -75,35 +76,31 @@ ipcMain.on("command", (_event, data) => {
   // 在主进程中执行命令，并将结果返回到渲染进程
   exec(data.command, (error, stdout, stderr) => {
     if (error) {
-      // console.error(`执行命令出错: ${error.message}`);
       win?.webContents.send("command-result", { code: 'error', param: data, result: error.message });
       return;
     }
     if (stderr) {
-      // console.error(`命令执行错误: ${stderr}`);
       win?.webContents.send("command-result", { code: 'stderr', param: data, result: stderr });
       return;
     }
-    // console.log(`命令执行结果: ${stdout}`);
     win?.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
   });
 });
 // 执行网络请求
 ipcMain.on("network", (_event, data) => {
-  // 执行网络请求，工具类使用src/util/request.ts
-  fetch(data.url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }).then(response => response.json())
-    .then(response => {
-      // 处理网络请求结果
-      response.param = data;
-      win?.webContents.send("network-result", response);
-    })
-    .catch(error => {
-      // 处理网络请求错误
-      win?.webContents.send("network-result", { code: 'network-error', msg: error.message, param: data});
-    });
+  axios.defaults.headers.common['Content-Type'] = 'application/json';
+  axios.defaults.timeout = 30000;
+  axios.get(data.url).then(response =>{
+    const result = response.data;
+    result.param = data;
+    win?.webContents.send("network-result", result);
+  }).catch(error =>{
+    const response = error.response;
+    const result = {
+      code: response.status,
+      msg: response.data,
+      param: data
+    };
+    win?.webContents.send("network-result", result);
+  });
 });

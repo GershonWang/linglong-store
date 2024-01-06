@@ -2,7 +2,8 @@
     <div class="search">
         <transition name="el-zoom-in-bottom">
             <div v-show="show" class="transition-box">
-                <el-input ref="inputRef" v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;" @input="searchSoft">
+                <el-input ref="inputRef" v-model="searchName" placeholder="请输入要搜索的程序名" style="width: 300px;"
+                    @input="searchSoft">
                     <template #prefix>
                         <el-icon class="el-input__icon">
                             <search />
@@ -16,11 +17,17 @@
         </div>
     </div>
     <div class="container" ref="containRef" @scroll="handleScroll">
-        <el-row>
+        <el-row v-if="hasData">
             <el-col style="padding:10px" v-for="(item, index) in displayedItems" :key="index" :span="num">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index" :loading="false"/>
+                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index" :loading="false" />
             </el-col>
+        </el-row>
+        <el-row v-else>
+            <div style="position: absolute;left: 50%;transform: translate(-50%);text-align: center;">
+                <h1>查无数据</h1>
+                <el-button type="primary" @click="retryEvent">重试</el-button>
+            </div>
         </el-row>
     </div>
 </template>
@@ -54,6 +61,8 @@ let isScrollQuery = ref(true);
 // 记录当前页数
 let pageNo = ref(1);
 let pageSize = ref(12);
+// 是否有列表数据
+let hasData = ref(false);
 
 /**
  * 根据分页条件查询网络玲珑应用
@@ -63,44 +72,59 @@ let pageSize = ref(12);
 const fetchData = async (pageNo: number, pageSize: number) => {
     let startNum = pageNo == 1 ? 0 : pageNo * pageSize;
     let endNum = startNum + pageSize;
-    if (allItems != null && allItems.length > 0) {
+    if (allItems) {
         const all = JSON.parse(allItems);
-        for (let index = startNum; index < endNum; index++) {
-            const element = all[index];
-            element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
-            displayedItems.push(element);
+        if (all.length > 0) {
+            if (startNum > all.length) return;
+            if (endNum > all.length) endNum = all.length;
+            for (let index = startNum; index < endNum; index++) {
+                const element = all[index];
+                element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
+                displayedItems.push(element);
+            }
         }
     }
+}
+// 点击重试获取应用列表
+const retryEvent = () => {
+    console.log('retryEvent');
 }
 // 搜索框监听输入变更事件
 const searchSoft = (msg: string) => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
-    if (msg != '' && allItems != null && allItems.length > 0) {
-        isScrollQuery.value = false;
+    if (allItems) {
+        // 修改滚动条监听事件的状态
+        isScrollQuery.value = !msg;
+        // string转json
         const all = JSON.parse(allItems);
-        for (let index = 0; index < all.length; index++) {
-            const element: CardFace = all[index];
-            const name = element.name;
-            if (name && name.includes(msg)) {
+        if (all.length > 0) {
+            hasData.value = true;
+            let max = msg ? all.length : 12;
+            // 根据消息msg对象是否为空，设置页码重置
+            if (!msg) {
+                pageNo.value = 1;
+                pageSize.value = max;
+            }
+            // 遍历数组，根据消息msg对象是否为空，设置数组显示内容
+            for (let index = 0; index < max; index++) {
+                const element = all[index];
+                if (!element.name.includes(msg)) {
+                    continue;
+                }
                 element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
                 displayedItems.push(element);
             }
+            return;
         }
-    } else {
-        // 重置分页查询
-        pageNo.value = 1;
-        pageSize.value = 12;
-        // 开启滚动条监听事件
-        isScrollQuery.value = true;
-        fetchData(pageNo.value, pageSize.value);
     }
+    hasData.value = false;
 }
 // 搜索图标的点击事件
 const openInput = (status: boolean) => {
     show.value = !status;
-    if(inputRef.value){
-        if(status) {
+    if (inputRef.value) {
+        if (status) {
             inputRef.value.blur();
         } else {
             inputRef.value.focus();
@@ -177,11 +201,10 @@ const commandResult = (_event: any, res: any) => {
                 const element = apps[index];
                 const appId = element.substring(appIdNum, nameNum).trim();
                 // 去除运行时服务
-                if (appId == 'org.deepin.Runtime') { 
+                if (appId == 'org.deepin.Runtime') {
                     continue;
                 }
                 const items = element.match(/'[^']+'|\S+/g);
-                console.log(items);
                 // const name = element.substring(nameNum, versionNum).trim();
                 const name = items[1];
                 // const version = element.substring(versionNum, archNum).trim();
@@ -304,4 +327,5 @@ onBeforeUnmount(() => {
 .container {
     height: 100%;
     overflow-y: auto;
-}</style>
+}
+</style>

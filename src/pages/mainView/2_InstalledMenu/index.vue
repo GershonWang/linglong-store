@@ -75,7 +75,6 @@ const commandResult = (_event: any, res: any) => {
                     continue;
                 }
                 const items = element.match(/'[^']+'|\S+/g);
-                console.log(items);
                 // const name = element.substring(nameNum, versionNum).trim();
                 const name = items[1];
                 // const version = element.substring(versionNum, archNum).trim();
@@ -107,7 +106,6 @@ const commandResult = (_event: any, res: any) => {
                     icon: icon
                 });
             }
-            console.log("查询当前已安装的玲珑应用列表",installedItems);
         }
     }
     // 卸载命令
