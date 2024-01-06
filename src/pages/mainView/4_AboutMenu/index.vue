@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>关于页面</h1>
+    <el-divider />
     <li>
       <a class="title">项目环境</a>
     </li>

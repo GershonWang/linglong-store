@@ -15,8 +15,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { ipcRenderer } from "electron";
+import { CardFace } from "@/components/CardFace";
 import { ElNotification } from 'element-plus'
 import { useRouter } from 'vue-router';
+import { useStore } from "@/store/user";
+const store = useStore();
+console.log('store',store.name);
+// 存储在session里的玲珑源地址
+const sourceUrl = sessionStorage.getItem('sourceUrl');
+// 存储在session里的是否过滤非当前系统架构的软件
+const checkedArch = sessionStorage.getItem('checkedArch');
 // 获取路由对象
 const router = useRouter();
 // 倒计时(秒数)
@@ -44,12 +52,13 @@ const networkResult = (_event: any, res: any) => {
     if (res.code == '200') {
         const array = res.data.list;
         for (let i = 0; i < array.length; i++) {
-            const item = array[i];
-            // const systemInfo = sessionStorage.getItem('systemInfo');
-            // const arch:string = item.arch;
-            // if (arch != systemInfo) {
-                // continue;
-            // }
+            const item: CardFace = array[i];
+            const arch:string | undefined = item.arch?.trim();
+            const systemInfo: string | undefined = sessionStorage.getItem('systemInfo')?.trim();
+            const checked = sessionStorage.getItem('checkedArch');
+            if (checked === 'true' && arch != systemInfo) {
+                continue;
+            }
             allItems += JSON.stringify(item) + ',';
         }
         if (allItems.length > 1) {
@@ -60,10 +69,6 @@ const networkResult = (_event: any, res: any) => {
     sessionStorage.setItem('allItems', allItems);
 }
 onMounted(() => {
-    // 获取session中是否存有源地址，当不存在时，赋值默认地址
-    if (sessionStorage.getItem('sourceUrl') == null) {
-        sessionStorage.setItem('sourceUrl', 'https://mirror-repo-linglong.deepin.com');
-    }
     // 开启定时器，倒计时进入主页面(1秒钟执行一次)
     timerId = setInterval(() => {
         if (mins.value == 1) {
@@ -72,6 +77,10 @@ onMounted(() => {
         }
         mins.value--;
     }, 1000);
+    // 获取session中是否存有源地址，当不存在时，赋值默认地址
+    sessionStorage.setItem('sourceUrl', sourceUrl ? sourceUrl : 'https://mirror-repo-linglong.deepin.com');
+    // 获取session中是否存有过滤非架构的程序，当不存在时，赋值默认地址
+    sessionStorage.setItem('checkedArch', checkedArch ? checkedArch : 'true');
     // 发送命令，检测当前系统是否支持玲珑
     ipcRenderer.send('command', { command: 'll-cli' });
     // 发送命令，获取当前系统架构

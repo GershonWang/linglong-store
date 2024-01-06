@@ -76,13 +76,13 @@ const fetchData = async (pageNo: number, pageSize: number) => {
 const searchSoft = (msg: string) => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
-    if (msg != '' && allItems != null) {
+    if (msg != '' && allItems != null && allItems.length > 0) {
         isScrollQuery.value = false;
         const all = JSON.parse(allItems);
         for (let index = 0; index < all.length; index++) {
             const element: CardFace = all[index];
             const name = element.name;
-            if (name != undefined && name.includes(msg)) {
+            if (name && name.includes(msg)) {
                 element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
                 displayedItems.push(element);
             }
