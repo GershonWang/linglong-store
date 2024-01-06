@@ -1,11 +1,11 @@
 <template>
     <div class="container">
-        <el-row>
-            <el-col style="padding:10px" v-for="(item, index) in installedItems" :key="index" :span="num">
+        <div class="card_container">
+            <div class="card_items" v-for="(item, index) in installedItems" :key="index">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :index="index" />
-            </el-col>
-        </el-row>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -137,5 +137,22 @@ onBeforeUnmount(() => {
 .container {
     height: 100%;
     overflow-y: auto;
+}
+
+.card_container {
+    display: -webkit-inline-box;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.card_items {
+    padding: 10px;
+    flex: 1;
+    min-width: 225px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #999999;
 }
 </style>

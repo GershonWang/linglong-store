@@ -85,7 +85,6 @@ const commandResult = (_event: any, res: any) => {
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
     let allItems = '[';
-    console.log(res);
     if (res.code == 200) {
         const array = res.data.list;
         for (let i = 0; i < array.length; i++) {
@@ -106,6 +105,7 @@ const networkResult = (_event: any, res: any) => {
     sessionStorage.setItem('allItems', allItems);
     router.push('/main_view');
 }
+// 加载前执行
 onMounted(() => {
     // 获取session中是否存有源地址，当不存在时，赋值默认地址
     sessionStorage.setItem('sourceUrl', sourceUrl ? sourceUrl : 'https://mirror-repo-linglong.deepin.com');
@@ -121,7 +121,7 @@ onMounted(() => {
     ipcRenderer.send('command', { command: 'll-cli' });
 
 });
-
+// 销毁前执行
 onBeforeUnmount(() => {
     clearInterval(timerId)
     ipcRenderer.removeListener('command-result', commandResult);

@@ -1,7 +1,6 @@
 <template>
-    <el-card class="container" v-loading="loading" element-loading-text="进行中..."
-        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)"
-        style="width: 100%">
+    <el-card class="container" :title="desc" v-loading="loading" element-loading-text="进行中..."
+        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
         <img class="image" :src="icon || defaultImage" @error="setDefaultImage" alt="Image" />
         <span class="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
@@ -17,16 +16,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
 import defaultImage from '@/assets/logo.svg'
-// 加载状态值
-const loading = ref(false);
 // 接受父组件传递的参数，并设置默认值
-withDefaults(defineProps<CardFace>(), {
-    // icon: "https://linglong.dev/asset/logo.svg",
+// icon: "https://linglong.dev/asset/logo.svg",
+const props = withDefaults(defineProps<CardFace>(), {
     icon: "",
     name: "程序名称",
     version: "0.0.1",
@@ -37,19 +34,21 @@ withDefaults(defineProps<CardFace>(), {
     index: 0,
     loading: false
 })
+const emit = defineEmits(["pauseLoading"]);
 // 设置默认图片
 const setDefaultImage = (e: any) => {
     e.target.src = defaultImage;
 }
 // 卸载程序
 const uninstallServ = (index: number, item: CardFace) => {
+    emit('pauseLoading');
     ElNotification({
         title: '提示',
         message: '正在卸载' + item.name + '(' + item.version + ')',
         type: 'info',
         duration: 1000,
     });
-    const params:CardFace = {};
+    const params: CardFace = {};
     params.icon = item.icon;
     params.name = item.name;
     params.version = item.version;
@@ -63,6 +62,7 @@ const uninstallServ = (index: number, item: CardFace) => {
 }
 // 安装程序
 const installServ = (index: number, item: CardFace) => {
+    emit('pauseLoading');
     ElNotification({
         title: '提示',
         message: '正在安装' + item.name + '(' + item.version + ')',
@@ -81,6 +81,10 @@ const installServ = (index: number, item: CardFace) => {
     params.index = index;
     ipcRenderer.send('command', params);
 }
+// 计算属性
+const desc = computed(() => {
+    return props.description.replace(/(.{20})/g, '$1\n');
+});
 </script>
 
 <style scoped>
@@ -88,7 +92,7 @@ const installServ = (index: number, item: CardFace) => {
     height: 280px;
     width: 200px;
     position: relative;
-    /* background-color: #999; */
+    background-color: #999;
 }
 
 .image {
@@ -125,7 +129,7 @@ const installServ = (index: number, item: CardFace) => {
 
 .desc {
     font-size: 12px;
-    color: #999;
+    color: white;
     /* 限制显示两行文本 */
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -134,13 +138,13 @@ const installServ = (index: number, item: CardFace) => {
     text-overflow: ellipsis;
     white-space: normal;
     /* 可根据需要设置为nowrap来禁用折行 */
-    max-width: 50%;
+    max-width: 35%;
     /* 可根据需要设置最大宽度 */
 }
 
 .os {
     font-size: 12px;
-    color: #999;
+    color: white;
 }
 
 .installBtn {
@@ -155,4 +159,5 @@ const installServ = (index: number, item: CardFace) => {
     color: white;
     padding: 5px;
     min-height: auto;
-}</style>
+}
+</style>

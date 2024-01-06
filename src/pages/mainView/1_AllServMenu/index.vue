@@ -17,18 +17,19 @@
         </div>
     </div>
     <div class="container" ref="containRef" @scroll="handleScroll">
-        <el-row v-if="hasData">
-            <el-col style="padding:10px" v-for="(item, index) in displayedItems" :key="index" :span="num">
+        <div class="card_container" v-if="hasData">
+            <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index" :loading="false" />
-            </el-col>
-        </el-row>
-        <el-row v-else>
+                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index"
+                    :loading="loading[index]" @pauseLoading="pauseLoading(index)" />
+            </div>
+        </div>
+        <div class="card_container" v-else>
             <div style="position: absolute;left: 50%;transform: translate(-50%);text-align: center;">
                 <h1>查无数据</h1>
                 <el-button type="primary" @click="retryEvent">重试</el-button>
             </div>
-        </el-row>
+        </div>
     </div>
 </template>
 
@@ -52,18 +53,20 @@ const show = ref(false);
 const inputRef = ref<HTMLElement>();
 // 搜索框输入的值
 const searchName = ref('');
-// 栅格数
-const num = ref(6);
 // 重试次数
 let retryNum = ref(0);
 // 记录是否启用滚动条查询
 let isScrollQuery = ref(true);
 // 记录当前页数
 let pageNo = ref(1);
-let pageSize = ref(12);
+let pageSize = ref(50);
 // 是否有列表数据
 let hasData = ref(false);
 
+const loading = ref(Array(displayedItems.length).fill(false));
+const pauseLoading = (index: number) => {
+    loading.value[index] = false;
+};
 /**
  * 根据分页条件查询网络玲珑应用
  * @param pageNo 页数
@@ -100,7 +103,7 @@ const searchSoft = (msg: string) => {
         const all = JSON.parse(allItems);
         if (all.length > 0) {
             hasData.value = true;
-            let max = msg ? all.length : 12;
+            let max = msg ? all.length : 50;
             // 根据消息msg对象是否为空，设置页码重置
             if (!msg) {
                 pageNo.value = 1;
@@ -140,31 +143,16 @@ const handleScroll = () => {
         const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
         if (scrollPosition != 0 && scrollbarHeight != 0 && scrollbarHeight >= scrollPosition
             && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
-            // console.log('滚动位置:', scrollPosition);
-            // console.log('窗口高度:', windowHeight);
-            // console.log('内容高度:', contentHeight);
-            // console.log('滚动条长度:', scrollbarHeight);
             pageNo.value += 1;
             fetchData(pageNo.value, pageSize.value);
         }
     }
 }
-// 根据分辨率计算栅格行卡片数量
-function calculateSpan() {
+// 监听屏幕宽度变化
+const changeScreenWidth = () => {
     const screenWidth = window.innerWidth;
-    if (screenWidth > 1366) {
-        num.value = 4; // 大屏幕，一行显示 6 个卡片
-        pageSize.value = 18;
-    } else if (screenWidth <= 1366 && screenWidth > 768) {
-        num.value = 6; // 中等屏幕，一行显示 4 个卡片
-        pageSize.value = 12;
-    } else {
-        num.value = 8; // 小屏幕，一行显示 3 个卡片
-        pageSize.value = 9;
-    }
-    // 分页查询第一页程序
-    fetchData(pageNo.value, pageSize.value);
-}
+    console.log('屏幕宽度：', screenWidth / 200);
+};
 // 命令执行结束返回结果
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
@@ -283,13 +271,13 @@ const commandResult = (_event: any, res: any) => {
 }
 // 组件初始化时加载
 onMounted(() => {
-    window.addEventListener("resize", () => calculateSpan);
+    window.addEventListener("resize", changeScreenWidth);
     ipcRenderer.on('command-result', commandResult);
     ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
-    window.removeEventListener("resize", () => calculateSpan);
+    window.removeEventListener("resize", changeScreenWidth);
     ipcRenderer.removeListener('command-result', commandResult);
 });
 </script>
@@ -306,7 +294,7 @@ onBeforeUnmount(() => {
 .transition-box {
     margin-bottom: 60px;
     border-radius: 10px;
-    background-color: #999999;
+    background-color: #CA0317;
     text-align: center;
     color: #fff;
     padding: 40px 20px;
@@ -320,12 +308,29 @@ onBeforeUnmount(() => {
     bottom: 30px;
     right: 60px;
     border-radius: 15px;
-    background-color: #999999;
+    background-color: #CA0317;
     padding: 5px;
 }
 
 .container {
     height: 100%;
     overflow-y: auto;
+}
+
+.card_container {
+    display: -webkit-inline-box;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.card_items {
+    padding: 10px;
+    flex: 1;
+    min-width: 225px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #999999;
 }
 </style>
