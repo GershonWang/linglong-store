@@ -20,8 +20,7 @@
         <div class="card_container" v-if="hasData">
             <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index"
-                    :loading="loading[index]" @pauseLoading="pauseLoading(index)" />
+                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index" />
             </div>
         </div>
         <div class="card_container" v-else>
@@ -63,10 +62,6 @@ let pageSize = ref(50);
 // 是否有列表数据
 let hasData = ref(false);
 
-const loading = ref(Array(displayedItems.length).fill(false));
-const pauseLoading = (index: number) => {
-    loading.value[index] = false;
-};
 /**
  * 根据分页条件查询网络玲珑应用
  * @param pageNo 页数
@@ -189,35 +184,29 @@ const commandResult = (_event: any, res: any) => {
                 }
                 const items = element.match(/'[^']+'|\S+/g);
                 // const name = element.substring(nameNum, versionNum).trim();
-                const name = items[1];
                 // const version = element.substring(versionNum, archNum).trim();
-                const version = items[2];
                 // const arch = element.substring(archNum, channelNum).trim();
-                const arch = items[3];
                 // const channel = element.substring(channelNum, moduleNum).trim();
-                const channel = items[4];
                 // const module = element.substring(moduleNum, descriptionNum).trim();
-                const module = items[5];
                 // const description = element.substring(descriptionNum).trim();
-                const description = items[6];
+                const item: CardFace = {}
+                item.appId = appId;
+                item.name = items[1] ? items[1] : '-';
+                item.version = items[2];
+                item.arch = items[3];
+                item.channel = items[4];
+                item.module = items[5];
+                item.description = items[6];
                 let icon = "";
                 if (allItems != null && allItems.length > 0) {
                     const all = JSON.parse(allItems);
-                    const its = all.find((it: CardFace) => it.appId == appId && it.version == version)
+                    const its = all.find((it: CardFace) => it.appId == appId && it.version == items[2])
                     if (its) {
                         icon = its.icon;
                     }
                 }
-                installedItems.push({
-                    appId: appId,
-                    name: name ? name : '-',
-                    version: version,
-                    arch: arch,
-                    channel: channel,
-                    module: module,
-                    description: description,
-                    icon: icon
-                });
+                item.icon = icon;
+                installedItems.push(item);
             }
         }
         // 查询程序展示软件列表
@@ -227,6 +216,7 @@ const commandResult = (_event: any, res: any) => {
     if (params.command.startsWith('ll-cli install')) {
         // 安装成功后，更新已安装应用列表
         displayedItems.splice(params.index, 1, {
+            index: params.index,
             icon: params.icon,
             name: params.name,
             version: params.version,
@@ -234,7 +224,6 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: true,
             appId: params.appId,
-            loading: false
         });
         // 安装成功后，弹出通知
         ElNotification({
@@ -247,6 +236,7 @@ const commandResult = (_event: any, res: any) => {
     if (params.command.startsWith('ll-cli uninstall')) {
         // 卸载成功后，更新已安装应用列表
         displayedItems.splice(params.index, 1, {
+            index: params.index,
             icon: params.icon,
             name: params.name,
             version: params.version,
@@ -254,7 +244,6 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: false,
             appId: params.appId,
-            loading: false
         });
         // 卸载成功后，弹出通知
         ElNotification({
@@ -270,9 +259,7 @@ onMounted(() => {
     ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
 });
 // 在组件销毁时移除事件监听器
-onBeforeUnmount(() => {
-    ipcRenderer.removeListener('command-result', commandResult);
-});
+onBeforeUnmount(() => ipcRenderer.removeListener('command-result', commandResult));
 </script>
 
 <style scoped>

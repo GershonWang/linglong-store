@@ -1,5 +1,6 @@
 import { IpcRendererEvent, ipcRenderer } from "electron";
 import { defineStore } from "pinia";
+import { ElNotification } from 'element-plus'
 import { computed, reactive, ref } from "vue";
 import { CardFace } from "@/components/CardFace";
 

@@ -1,5 +1,6 @@
 // Card.ts
 export interface CardFace {
+    index?: number,
     icon?: string,
     name?: string,
     version?: string,
@@ -10,7 +11,5 @@ export interface CardFace {
     id?: string,
     channel?: string,
     module?: string,
-    index?: number,
-    loading?: boolean,
     command?:string
 }

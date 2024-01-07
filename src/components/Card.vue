@@ -16,11 +16,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
 import defaultImage from '@/assets/logo.svg'
+
+const loading = ref(false);
+
 // 接受父组件传递的参数，并设置默认值
 // icon: "https://linglong.dev/asset/logo.svg",
 const props = withDefaults(defineProps<CardFace>(), {
@@ -32,16 +35,16 @@ const props = withDefaults(defineProps<CardFace>(), {
     isInstalled: true,
     appId: "",
     index: 0,
-    loading: false
 })
-const emit = defineEmits(["pauseLoading"]);
 // 设置默认图片
 const setDefaultImage = (e: any) => {
     e.target.src = defaultImage;
 }
 // 卸载程序
 const uninstallServ = (index: number, item: CardFace) => {
-    emit('pauseLoading');
+    // 启用加载框
+    loading.value = true;
+    // 弹出提示框
     ElNotification({
         title: '提示',
         message: '正在卸载' + item.name + '(' + item.version + ')',
@@ -62,7 +65,9 @@ const uninstallServ = (index: number, item: CardFace) => {
 }
 // 安装程序
 const installServ = (index: number, item: CardFace) => {
-    emit('pauseLoading');
+    // 启用加载框
+    loading.value = true;
+    // 弹出提示框
     ElNotification({
         title: '提示',
         message: '正在安装' + item.name + '(' + item.version + ')',
@@ -85,6 +90,10 @@ const installServ = (index: number, item: CardFace) => {
 const desc = computed(() => {
     return props.description.replace(/(.{20})/g, '$1\n');
 });
+// 监听安装状态字段，发生变化时，将加载赋默认值
+watch(() => props.isInstalled, (newVal, oldVal) => {
+    loading.value = false;
+});
 </script>
 
 <style scoped>
@@ -97,6 +106,7 @@ const desc = computed(() => {
 
 .image {
     width: 150px;
+    height: 150px;
     margin: 0 auto;
     display: block;
 }
