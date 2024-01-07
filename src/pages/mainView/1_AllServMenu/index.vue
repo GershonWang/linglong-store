@@ -294,7 +294,7 @@ onBeforeUnmount(() => {
 .transition-box {
     margin-bottom: 60px;
     border-radius: 10px;
-    background-color: #CA0317;
+    background-color: #335061;
     text-align: center;
     color: #fff;
     padding: 40px 20px;
@@ -308,7 +308,7 @@ onBeforeUnmount(() => {
     bottom: 30px;
     right: 60px;
     border-radius: 15px;
-    background-color: #CA0317;
+    background-color: #335061;
     padding: 5px;
 }
 
@@ -318,16 +318,16 @@ onBeforeUnmount(() => {
 }
 
 .card_container {
-    display: -webkit-inline-box;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 10px;
+    display: grid;
+    grid-gap: 10px;
+    margin-right: 12px;
+    grid-template-columns: repeat(auto-fill,minmax(200px,auto));
 }
 
 .card_items {
     padding: 10px;
     flex: 1;
-    min-width: 225px;
+    min-width: 200px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;

@@ -140,16 +140,16 @@ onBeforeUnmount(() => {
 }
 
 .card_container {
-    display: -webkit-inline-box;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 10px;
+    display: grid;
+    grid-gap: 10px;
+    margin-right: 12px;
+    grid-template-columns: repeat(auto-fill,minmax(200px,auto));
 }
 
 .card_items {
     padding: 10px;
     flex: 1;
-    min-width: 225px;
+    min-width: 200px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;

@@ -54,7 +54,7 @@ const toPage = (url:string) => router.push(url);
     height: 100%;
 }
 .el-aside {
-    width: 200px;
+    width: 180px;
     margin: 12px 0 12px 12px;
     border-radius: 15px;
 }

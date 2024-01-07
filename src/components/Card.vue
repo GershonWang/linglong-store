@@ -90,9 +90,9 @@ const desc = computed(() => {
 <style scoped>
 .container {
     height: 280px;
-    width: 200px;
+    width: 100%;
     position: relative;
-    background-color: #999;
+    background-color: #999999;
 }
 
 .image {
@@ -106,7 +106,9 @@ const desc = computed(() => {
     justify-content: center;
     color: #36D;
     font-weight: bold;
+    font-size: 18px;
     white-space: nowrap;
+    margin: 3px auto 3px
     /* overflow: hidden; */
     /* text-overflow: ellipsis; */
     /* max-width: 150px; */
@@ -120,8 +122,8 @@ const desc = computed(() => {
 }
 
 .btm {
-    margin-top: 10px;
-    line-height: 12px;
+    margin-top: 3px;
+    line-height: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;

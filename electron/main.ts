@@ -15,8 +15,8 @@ const indexHtml = join(process.env.DIST, "index.html");
 // 创建窗口并初始化相关参数
 function createWindow() {
   win = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1366,
+    height: 768,
     minWidth: 800,
     minHeight: 600,
     icon: join(process.env.PUBLIC, "logo.png"),
