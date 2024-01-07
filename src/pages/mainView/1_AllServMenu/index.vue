@@ -148,11 +148,6 @@ const handleScroll = () => {
         }
     }
 }
-// 监听屏幕宽度变化
-const changeScreenWidth = () => {
-    const screenWidth = window.innerWidth;
-    console.log('屏幕宽度：', screenWidth / 200);
-};
 // 命令执行结束返回结果
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
@@ -271,13 +266,11 @@ const commandResult = (_event: any, res: any) => {
 }
 // 组件初始化时加载
 onMounted(() => {
-    window.addEventListener("resize", changeScreenWidth);
     ipcRenderer.on('command-result', commandResult);
     ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => {
-    window.removeEventListener("resize", changeScreenWidth);
     ipcRenderer.removeListener('command-result', commandResult);
 });
 </script>

@@ -15,6 +15,12 @@ import { ElNotification } from 'element-plus'
 import { ipcRenderer } from 'electron';
 import { CardFace } from "@/components/CardFace";
 import Card from "@/components/Card.vue";
+import { allItemsStore, installedItemsStore } from "@/store/items";
+
+const installedStore = installedItemsStore();
+console.log("store1", installedStore.installedItems);
+console.log("store", installedStore.getItems());
+console.log("store2", installedStore.installedItems);
 // 存储在session里源内所有程序数组
 let allItems = sessionStorage.getItem('allItems');
 // 用于存储当前系统已安装的卡片对象

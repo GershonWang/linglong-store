@@ -18,9 +18,6 @@ import { ElMessageBox } from 'element-plus'
 import { ipcRenderer } from "electron";
 import { CardFace } from "@/components/CardFace";
 import { useRouter } from 'vue-router';
-import { useStore } from "@/store/user";
-const store = useStore();
-console.log('store', store.name);
 
 // 存储在session里的玲珑源地址
 const sourceUrl = sessionStorage.getItem('sourceUrl');
