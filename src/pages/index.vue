@@ -18,6 +18,9 @@ import { ElMessageBox } from 'element-plus'
 import { ipcRenderer } from "electron";
 import { CardFace } from "@/components/CardFace";
 import { useRouter } from 'vue-router';
+import { useSysConfStore } from "@/store/sysConf";
+
+const sysConfStore = useSysConfStore();
 
 // 存储在session里的玲珑源地址
 const sourceUrl = sessionStorage.getItem('sourceUrl');
@@ -33,7 +36,7 @@ const message = ref('加载中...');
 let timerId: NodeJS.Timeout = setInterval(() => {
     mins.value = (mins.value % 3) + 1;
     message.value = '加载中' + '.'.repeat(mins.value);
-}, 1000);;
+}, 1000);
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
     if ('ll-cli' == res.param.command) {
@@ -116,7 +119,6 @@ onMounted(() => {
     ipcRenderer.send('command', { command: 'uname -m' });
     // 发送命令，检测当前系统是否支持玲珑
     ipcRenderer.send('command', { command: 'll-cli' });
-
 });
 // 销毁前执行
 onBeforeUnmount(() => {
