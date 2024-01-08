@@ -64,7 +64,7 @@ const commandResult = (_event: any, res: any) => {
                 const element = apps[index];
                 const appId = element.substring(appIdNum, nameNum).trim();
                 // 去除运行时服务
-                if (appId == 'org.deepin.Runtime') { 
+                if (appId == 'org.deepin.Runtime' || appId == 'org.deepin.basics') { 
                     continue;
                 }
                 const items = element.match(/'[^']+'|\S+/g);
