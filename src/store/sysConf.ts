@@ -47,4 +47,9 @@ export const useSysConfStore = defineStore('sysConf', () => {
         setDefaultFilterFlag
     }
 
+}, {
+	persist: {
+		storage: localStorage,
+		paths: ['info']
+	}
 })
