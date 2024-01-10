@@ -3,14 +3,14 @@ import { exec } from "child_process";
 import { join } from "node:path";
 import axios from "axios";
 
-process.env.DIST_ELECTRON = join(__dirname, '../dist-electron')
+process.env.DIST_ELECTRON = join(__dirname, '../dist-electron');
 process.env.DIST = join(__dirname, "../dist");
-process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELECTRON, '../public') : process.env.DIST
+process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELECTRON, '../public') : process.env.DIST;
 
-let win: BrowserWindow | null;
 const preload = join(__dirname, 'preload.js')
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
+let win: BrowserWindow | null;
 
 // 创建窗口并初始化相关参数
 function createWindow() {
@@ -19,8 +19,7 @@ function createWindow() {
     height: 768,
     minWidth: 800,
     minHeight: 600,
-    // icon: join(process.env.PUBLIC, "logo.png"),
-    icon: join(__dirname, '../public/logo.png'),
+    icon: join(process.env.PUBLIC, "logo.png"),
     webPreferences: {
       preload,
       nodeIntegration: true,
@@ -43,22 +42,31 @@ function createWindow() {
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
-  // Make all links open with the browser, not with the application
+  // 设置所有链接通过默认浏览器打开，而非程序内打开
   win.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith("https:") || url.startsWith("http:"))
+    console.log("url", url);
+    // 如果是http或https协议的链接，则通过默认浏览器打开
+    if (url.startsWith("https:") || url.startsWith("http:")) {
       shell.openExternal(url);
+    }
     return { action: "deny" };
   });
 }
+// 应用准备就绪创建窗口
 app.whenReady().then(createWindow);
+// 应用监听所有关闭事件，退出程序
 app.on("window-all-closed", () => {
   win = null;
-  if (process.platform !== 'darwin') app.quit()
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
+// 应用监听开启第二个窗口
 app.on('second-instance', () => {
   if (win) {
-    // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore()
+    if (win.isMinimized()) {
+      win.restore()
+    }
     win.focus()
   }
 })
@@ -72,6 +80,7 @@ app.on('activate', () => {
   }
 })
 
+/* ************************************************* ipcMain ********************************************** */
 // 执行脚本命令
 ipcMain.on("command", (_event, data) => {
   // 在主进程中执行命令，并将结果返回到渲染进程
@@ -105,3 +114,4 @@ ipcMain.on("network", (_event, data) => {
     win?.webContents.send("network-result", result);
   });
 });
+/* ************************************************* ipcMain ********************************************** */
