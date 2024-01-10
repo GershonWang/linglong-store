@@ -19,7 +19,8 @@ function createWindow() {
     height: 768,
     minWidth: 800,
     minHeight: 600,
-    icon: join(process.env.PUBLIC, "logo.png"),
+    // icon: join(process.env.PUBLIC, "logo.png"),
+    icon: join(__dirname, '../public/logo.png'),
     webPreferences: {
       preload,
       nodeIntegration: true,
@@ -27,15 +28,15 @@ function createWindow() {
       // webSecurity: false, // 禁用 Web 安全策略
     },
   });
+  console.log("dev环境的配置地址", VITE_DEV_SERVER_URL);
+  console.log("pro环境的配置地址", indexHtml);
   // 禁用菜单，一般情况下，不需要禁用
   Menu.setApplicationMenu(null);
   // 根据是否存在开发服务地址判断加载模式
   if (process.env.VITE_DEV_SERVER_URL) {
-    // console.log("dev环境的配置地址", VITE_DEV_SERVER_URL);
     win.webContents.openDevTools({ mode: "detach" });
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
-    // console.log("pro环境的配置地址", indexHtml);
     win.loadFile(indexHtml);
   }
   // Test active push message to Renderer-process.
