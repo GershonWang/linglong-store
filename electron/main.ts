@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
 import { exec } from "child_process";
 import { join } from "node:path";
 import axios from "axios";
+import { updateHandle } from './autoUpdater'
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron');
 process.env.DIST = join(__dirname, "../dist");
@@ -12,8 +13,10 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
 let win: BrowserWindow | null;
 
+let key = 0;
 // 创建窗口并初始化相关参数
 function createWindow() {
+  key++;
   win = new BrowserWindow({
     width: 1366,
     height: 768,
@@ -79,6 +82,9 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+// 尝试更新, 只有当用户第一次打开app时才触发
+if (key == 1) updateHandle({ win })
 
 /* ************************************************* ipcMain ********************************************** */
 // 执行脚本命令

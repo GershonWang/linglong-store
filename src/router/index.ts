@@ -33,6 +33,10 @@ const router = createRouter({
                     path: '/card_comp',
                     component: () => import("../components/Card.vue")
                 },
+                {
+                    path: '/update_menu',
+                    component: () => import("../pages/mainView/5_UpdateMenu/index.vue")
+                },
             ],
         },
     ], // `routes: routes` 的缩写
