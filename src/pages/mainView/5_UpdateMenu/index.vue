@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
 export default {
   name: 'landing-page',
   mounted: function () {
@@ -39,17 +39,20 @@ export default {
     }
   },
   methods: {
-    downloadUpdate() {
-      this.downloadPercent = 0
-      ipcRenderer.send('downloadUpdate')
-      // //注意：“downloadProgress”事件可能存在无法触发的问题，只需要限制一下下载网速就好了
-      ipcRenderer.on('downloadProgress', (event, progressObj) => {
-        this.downloadPercent = parseInt(progressObj.percent || 0)
-      })
-      ipcRenderer.on('isUpdateNow', () => {
-        ipcRenderer.send('isUpdateNow')
-      })
-    },
+    // downloadUpdate() {
+    //   this.downloadPercent = 0
+    //   ipcRenderer.send('downloadUpdate')
+    //   // //注意：“downloadProgress”事件可能存在无法触发的问题，只需要限制一下下载网速就好了
+    //   ipcRenderer.on('downloadProgress', (event, progressObj) => {
+    //     this.downloadPercent = parseInt(progressObj.percent || 0)
+    //   })
+    //   ipcRenderer.on('isUpdateNow', () => {
+    //     ipcRenderer.send('isUpdateNow')
+    //   })
+    // },
+    updateApp() {
+      console.log('updateApp');
+    }
   },
 }
 </script>

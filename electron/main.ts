@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
 import { exec } from "child_process";
 import { join } from "node:path";
 import axios from "axios";
+import IPCHandler from "./ipcHandlers";
 import { updateHandle } from './autoUpdater'
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron');
@@ -16,7 +17,6 @@ let win: BrowserWindow | null;
 let key = 0;
 // 创建窗口并初始化相关参数
 function createWindow() {
-  key++;
   win = new BrowserWindow({
     width: 1366,
     height: 768,
@@ -54,6 +54,13 @@ function createWindow() {
     }
     return { action: "deny" };
   });
+  // 尝试更新, 只有当用户第一次打开app时才触发
+  // if (key == 0) {
+  //   console.log("key", key);
+  //   updateHandle(win)
+  //   key++;
+  // }
+  IPCHandler(win);
 }
 // 应用准备就绪创建窗口
 app.whenReady().then(createWindow);
@@ -82,42 +89,3 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
-// 尝试更新, 只有当用户第一次打开app时才触发
-if (key == 1) updateHandle({ win })
-
-/* ************************************************* ipcMain ********************************************** */
-// 执行脚本命令
-ipcMain.on("command", (_event, data) => {
-  // 在主进程中执行命令，并将结果返回到渲染进程
-  exec(data.command, (error, stdout, stderr) => {
-    if (error) {
-      win?.webContents.send("command-result", { code: 'error', param: data, result: error.message });
-      return;
-    }
-    if (stderr) {
-      win?.webContents.send("command-result", { code: 'stderr', param: data, result: stderr });
-      return;
-    }
-    win?.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
-  });
-});
-// 执行网络请求
-ipcMain.on("network", (_event, data) => {
-  axios.defaults.headers.common['Content-Type'] = 'application/json';
-  axios.defaults.timeout = 30000;
-  axios.get(data.url).then(response =>{
-    const result = response.data;
-    result.param = data;
-    win?.webContents.send("network-result", result);
-  }).catch(error =>{
-    const response = error.response;
-    const result = {
-      code: response.status,
-      msg: response.data,
-      param: data
-    };
-    win?.webContents.send("network-result", result);
-  });
-});
-/* ************************************************* ipcMain ********************************************** */
