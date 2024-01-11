@@ -19,8 +19,17 @@ import { ipcRenderer } from "electron";
 import { CardFace } from "@/components/CardFace";
 import { useRouter } from 'vue-router';
 import { useSysConfStore } from "@/store/sysConf";
+import { storeToRefs } from 'pinia'
 
 const sysConfStore = useSysConfStore();
+const { arch,filterFlag } = storeToRefs(sysConfStore);
+
+console.log('当前系统架构：', arch.value);
+console.log('是否过滤非当前系统架构的软件：', filterFlag.value);
+arch.value = '6666';
+console.log('修改后的系统架构：', sysConfStore.arch);
+sysConfStore.$reset;
+console.log('重置后的系统架构：', sysConfStore.arch);
 
 // 存储在session里的玲珑源地址
 const sourceUrl = sessionStorage.getItem('sourceUrl');
