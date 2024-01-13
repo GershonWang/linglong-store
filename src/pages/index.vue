@@ -19,22 +19,11 @@ import { ipcRenderer } from "electron";
 import { CardFace } from "@/components/CardFace";
 import { useRouter } from 'vue-router';
 import { useSysConfStore } from "@/store/sysConf";
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from 'pinia';
 
 const sysConfStore = useSysConfStore();
-const { arch,filterFlag } = storeToRefs(sysConfStore);
+const { arch,sourceUrl,filterFlag } = storeToRefs(sysConfStore);
 
-console.log('当前系统架构：', arch.value);
-console.log('是否过滤非当前系统架构的软件：', filterFlag.value);
-arch.value = '6666';
-console.log('修改后的系统架构：', sysConfStore.arch);
-sysConfStore.$reset;
-console.log('重置后的系统架构：', sysConfStore.arch);
-
-// 存储在session里的玲珑源地址
-const sourceUrl = sessionStorage.getItem('sourceUrl');
-// 存储在session里的是否过滤非当前系统架构的软件
-const checkedArch = sessionStorage.getItem('checkedArch');
 // 获取路由对象
 const router = useRouter();
 // 倒计时(秒数)
@@ -83,12 +72,11 @@ const commandResult = (_event: any, res: any) => {
             })
         } else {
             // 发送网络命令，获取源内所有应用，并返回结果存储到session中
-            const baseUrl = sessionStorage.getItem('sourceUrl');
-            ipcRenderer.send('network', { url: baseUrl + '/api/v0/web-store/apps??page=1&size=100000' });
+            ipcRenderer.send('network', { url: sourceUrl.value + '/api/v0/web-store/apps??page=1&size=100000' });
         }
     }
     if ('stdout' == res.code && 'uname -m' == res.param.command) {
-        sessionStorage.setItem('systemInfo', res.result);
+        arch.value = res.result.trim();
     }
 }
 // 网络执行返回结果
@@ -98,10 +86,8 @@ const networkResult = (_event: any, res: any) => {
         const array = res.data.list;
         for (let i = 0; i < array.length; i++) {
             const item: CardFace = array[i];
-            const arch: string | undefined = item.arch?.trim();
-            const systemInfo: string | undefined = sessionStorage.getItem('systemInfo')?.trim();
-            const checked = sessionStorage.getItem('checkedArch');
-            if (checked === 'true' && arch != systemInfo) {
+            const itemArch: string | undefined = item.arch?.trim();
+            if (filterFlag.value && itemArch != arch.value) {
                 continue;
             }
             allItems += JSON.stringify(item) + ',';
@@ -116,10 +102,6 @@ const networkResult = (_event: any, res: any) => {
 }
 // 加载前执行
 onMounted(() => {
-    // 获取session中是否存有源地址，当不存在时，赋值默认地址
-    sessionStorage.setItem('sourceUrl', sourceUrl ? sourceUrl : 'https://mirror-repo-linglong.deepin.com');
-    // 获取session中是否存有过滤非架构的程序，当不存在时，赋值默认地址
-    sessionStorage.setItem('checkedArch', checkedArch ? checkedArch : 'true');
     // 监听命令行执行结果
     ipcRenderer.on('command-result', commandResult);
     // 监听网络请求执行结果
