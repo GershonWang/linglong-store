@@ -1,20 +1,13 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron'
-import log from './logger'
+import { BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
-const fs = require('fs-extra')
-const path = require('path')
+import log from './logger'
  
 // 检测更新，在你想要检查更新的时候执行，renderer事件触发后的操作自行编写
 export function updateHandle(mainWindow: BrowserWindow) {
-  console.log('updateHandle',mainWindow);
   //                            清除每次更新下载的文件，否则无法进行更新
   //= ==============================================================================================================
   // updaterCacheDirName的值与src/main/app-update.yml中的updaterCacheDirName值一致，在windows中会创建一个类似
   // C:\Users\Administrator\AppData\Local\slient-print-updater\pending文件存储更新下载后的文件"*.exe"和"update-info.json"
-  // let updaterCacheDirName = 'slient-print-updater'
-  // const updatePendingPath = path.join(app.baseCachePath, updaterCacheDirName, 'pending')
-  // log.warn('updatePendingPath:' + updatePendingPath)
-  // fs.emptyDir(updatePendingPath)
   let message = {
     error: '检查更新出错',
     checking: '正在检查更新……',
@@ -24,7 +17,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
    // 也可以通过代码配置文件服务地址
   autoUpdater.setFeedURL({
     provider: 'generic',
-    url: '服文件地址'
+    url: 'https://github.com/GershonWang/linglong_store/releases/download'
   })
   // 设置是否自动下载，默认是true,当点击检测到新版本时，会自动下载安装包，所以设置为false
   autoUpdater.autoDownload = false

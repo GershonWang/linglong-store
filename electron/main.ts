@@ -1,9 +1,7 @@
-import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
-import { exec } from "child_process";
+import { app, BrowserWindow, shell, Menu } from "electron";
 import { join } from "node:path";
-import axios from "axios";
-import IPCHandler from "./ipcHandlers";
-import { updateHandle } from './autoUpdater'
+import IPCHandler from "./ipc";
+import { updateHandle } from "./update/autoUpdater";
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron');
 process.env.DIST = join(__dirname, "../dist");
@@ -14,7 +12,6 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
 let win: BrowserWindow | null;
 
-let key = 0;
 // 创建窗口并初始化相关参数
 function createWindow() {
   win = new BrowserWindow({
@@ -54,16 +51,16 @@ function createWindow() {
     }
     return { action: "deny" };
   });
-  // 尝试更新, 只有当用户第一次打开app时才触发
-  // if (key == 0) {
-  //   console.log("key", key);
-  //   updateHandle(win)
-  //   key++;
-  // }
-  IPCHandler(win);
+  
 }
 // 应用准备就绪创建窗口
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  // 加载IPC服务
+  IPCHandler(win);
+  // 自动更新
+  updateHandle(win);
+});
 // 应用监听所有关闭事件，退出程序
 app.on("window-all-closed", () => {
   win = null;
