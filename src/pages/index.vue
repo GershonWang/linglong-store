@@ -11,18 +11,29 @@
             <p>2.点击安装时，受网速和程序大小的影响，程序安装比较缓慢甚至可能会没反应，此时无需操作耐心等待程序安装成功提示即可。</p>
         </div>
     </div>
+    <el-dialog v-model="centerDialogVisible" title="警告" width="30%" center style="background-color: #242424;">
+        <span>当前系统未安装玲珑环境，无法使用当前商店！！</span>
+        <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="quitApp">退出</el-button>
+                <el-button type="primary" @click="goMount">前往</el-button>
+            </span>
+        </template>
+    </el-dialog>
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, h } from 'vue';
-import { ElMessageBox } from 'element-plus'
 import { ipcRenderer } from "electron";
-import { CardFace } from "@/components/CardFace";
 import { useRouter } from 'vue-router';
-import { useSysConfStore } from "@/store/sysConf";
 import { storeToRefs } from 'pinia';
+import { useSysConfStore } from "@/store/sysConf";
+import { useAllItemsStore,useInstalledItemsStore } from '@/store/items'
 
 const sysConfStore = useSysConfStore();
-const { arch,sourceUrl,filterFlag } = storeToRefs(sysConfStore);
+const allItemsStore = useAllItemsStore();
+const installedItemsStore = useInstalledItemsStore();
+
+const { arch, sourceUrl, filterFlag } = storeToRefs(sysConfStore);
 
 // 获取路由对象
 const router = useRouter();
@@ -30,75 +41,51 @@ const router = useRouter();
 const mins = ref(0);
 // 提示信息
 const message = ref('加载中...');
+// 弹框标识
+const centerDialogVisible = ref(false);
 // 定时任务对象
 let timerId: NodeJS.Timeout = setInterval(() => {
     mins.value = (mins.value % 3) + 1;
     message.value = '加载中' + '.'.repeat(mins.value);
 }, 1000);
+// 退出按钮
+const quitApp = () => {
+    centerDialogVisible.value = false;
+    window.close();
+}
+// 前往安装
+const goMount = () => {
+    centerDialogVisible.value = false;
+    window.open('https://linglong.dev/guide/start/install.html');
+    window.close();
+}
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
-    if ('ll-cli' == res.param.command) {
-        if ('stdout' != res.code) {
-            // 清除定时任务
-            clearInterval(timerId);
-            // 设置提示信息
-            ElMessageBox({
-                title: '警告',
-                message: h('p', null, [
-                    h('span', null, '当前系统未安装 '),
-                    h('i', { style: 'color: #025BFF' }, '玲珑环境'),
-                ]),
-                showCancelButton: true,
-                confirmButtonText: '安装',
-                cancelButtonText: '退出',
-                beforeClose: (action, instance, done) => {
-                    if (action === 'confirm') {
-                        instance.confirmButtonLoading = true
-                        instance.confirmButtonText = '加载中...'
-                        setTimeout(() => {
-                            done()
-                            setTimeout(() => {
-                                instance.confirmButtonLoading = false
-                            }, 300)
-                        }, 3000)
-                    }
-                    else {
-                        window.close();
-                    }
-                },
-            }).then(() => {
-                window.open('https://linglong.dev/guide/start/install.html');
-                window.close();
-            })
-        } else {
-            // 发送网络命令，获取源内所有应用，并返回结果存储到session中
-            ipcRenderer.send('network', { url: sourceUrl.value + '/api/v0/web-store/apps??page=1&size=100000' });
-        }
-    }
-    if ('stdout' == res.code && 'uname -m' == res.param.command) {
+    if ('uname -m' == res.param.command && 'stdout' == res.code) {
         arch.value = res.result.trim();
+    }
+    if ('ll-cli' == res.param.command && 'stdout' == res.code) {
+        // 发送命令，获取系统已安装的程序列表
+        ipcRenderer.send("command", { name: "查询已安装程序列表", command: "ll-cli list" });
+        // 发送网络命令，获取源内所有应用，并返回结果存储到session中
+        ipcRenderer.send('network', { url: sourceUrl.value + '/api/v0/web-store/apps??page=1&size=100000' });
+    }
+    if ('ll-cli' == res.param.command && 'stdout' != res.code) {
+        // 设置提示信息,弹出弹框
+        centerDialogVisible.value = true; 
+    }
+    if ('ll-cli list' == res.param.command && 'stdout' == res.code) {
+        const result = res.result;
+        installedItemsStore.initInstalledItems(result);
     }
 }
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
-    let allItems = '[';
     if (res.code == 200) {
         const array = res.data.list;
-        for (let i = 0; i < array.length; i++) {
-            const item: CardFace = array[i];
-            const itemArch: string | undefined = item.arch?.trim();
-            if (filterFlag.value && itemArch != arch.value) {
-                continue;
-            }
-            allItems += JSON.stringify(item) + ',';
-        }
-        if (allItems.length > 1) {
-            allItems = allItems.substring(0, allItems.length - 1);
-        }
+        allItemsStore.initAllItems(array,filterFlag.value,arch.value);
+        router.push('/main_view');
     }
-    allItems += ']';
-    sessionStorage.setItem('allItems', allItems);
-    router.push('/main_view');
 }
 // 加载前执行
 onMounted(() => {
@@ -136,5 +123,9 @@ onBeforeUnmount(() => {
 
 .logo:hover {
     filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.dialog-footer button:first-child {
+    margin-right: 10px;
 }
 </style>

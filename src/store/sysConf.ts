@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 export const useSysConfStore = defineStore('sysConf', {
     state: () => ({
@@ -11,24 +11,24 @@ export const useSysConfStore = defineStore('sysConf', {
         filterFlag: ref(true),
     }),
     getters: {
-        
+        getFilterFlag: (state) => state.filterFlag,
     },
     actions: {
         // 修改系统架构信息
-        setArch(inArch: string){
+        changeArch(inArch: string){
             const that = this;
             that.arch = inArch;
         },
         // 修改玲珑源地址
-        setSourceUrl(inSourceUrl: string){
+        changeSourceUrl(inSourceUrl: string){
             const that = this;
             that.sourceUrl = inSourceUrl;
         },
         // 修改过滤非当前架构程序
-        setFilterFlag(inFilterFlag: boolean){
+        changeFilterFlag(inFilterFlag: boolean){
             const that = this;
             that.filterFlag = inFilterFlag;
-        }
+        },
     },
     persist: true
 })

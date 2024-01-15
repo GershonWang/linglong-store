@@ -4,11 +4,21 @@ import { ElNotification } from 'element-plus'
 import { computed, reactive, ref } from "vue";
 import { CardFace } from "@/components/CardFace";
 
-export const allItemsStore = defineStore("allItems", () => {
+export const useAllItemsStore = defineStore("allItems", () => {
     // 用于存储当前系统已安装的卡片对象
     const allItems = reactive<CardFace[]>([]);
-    // 重试次数
-    let retryNum = ref(0);
+
+    const initAllItems = (array: any, filterFlag: boolean, arch: string) => {
+        for (let i = 0; i < array.length; i++) {
+            const item: CardFace = array[i];
+            const itemArch: string | undefined = item.arch?.trim();
+            if (filterFlag && itemArch != arch) {
+                continue;
+            }
+            allItems.push(item);
+        }
+        return allItems;
+    }
 
     const getItems = () => {
         return allItems;
@@ -40,6 +50,7 @@ export const allItemsStore = defineStore("allItems", () => {
 
     return {
         allItems,
+        initAllItems,
         getItems,
         addItem,
         removeItem,
@@ -52,62 +63,41 @@ export const allItemsStore = defineStore("allItems", () => {
     };
 });
 
-export const installedItemsStore = defineStore("installedItems", () => {
+export const useInstalledItemsStore = defineStore("installedItems", () => {
     // 用于存储当前系统已安装的卡片对象
     let installedItemList = reactive<CardFace[]>([]);
-    // 重试次数
-    let retryNum = ref(0);
+
+    const initInstalledItems = (data: any) => {
+        const apps = data.split("\n");
+        if (apps.length > 1) {
+            const header = apps[0].split("[1m[38;5;214m")[1];
+            const appIdNum = header.indexOf("appId");
+            const nameNum = header.indexOf("name");
+            // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
+            for (let index = 1; index < apps.length - 1; index++) {
+                const element = apps[index];
+                const appId = element.substring(appIdNum, nameNum).trim();
+                // 去除运行时服务
+                if (appId == "org.deepin.Runtime") {
+                    continue;
+                }
+                const items = element.match(/'[^']+'|\S+/g);
+                const item: CardFace = {};
+                item.appId = appId;
+                item.name = items[1] ? items[1] : "-";
+                item.version = items[2];
+                item.arch = items[3];
+                item.channel = items[4];
+                item.module = items[5];
+                item.description = items[6];
+                item.icon = "";
+                installedItemList.push(item);
+            }
+        }
+        return installedItemList;
+    }
 
     const getItems = () => {
-        clearItems();
-        console.log('installedItemList',installedItemList);
-        ipcRenderer.send("command", { name: "查询已安装程序列表", command: "ll-cli list" });
-        ipcRenderer.on("command-result", (_event: IpcRendererEvent, res: any) => {
-            const params = res.param;
-            if ("stdout" != res.code) {
-                if (retryNum.value <= 3) {
-                    retryNum.value++;
-                    ipcRenderer.send("command", params);
-                } else {
-                    retryNum.value = 0;
-                    ElNotification({
-                        title: "请求错误",
-                        message: "命令执行异常！",
-                        type: "error",
-                    });
-                }
-                return;
-            }
-            // 返回结果 - 查询当前已安装的玲珑应用列表
-            if (params.command == "ll-cli list") {
-                const apps = res.result.split("\n");
-                if (apps.length > 1) {
-                    const header = apps[0].split("[1m[38;5;214m")[1];
-                    const appIdNum = header.indexOf("appId");
-                    const nameNum = header.indexOf("name");
-                    // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-                    for (let index = 1; index < apps.length - 1; index++) {
-                        const element = apps[index];
-                        const appId = element.substring(appIdNum, nameNum).trim();
-                        // 去除运行时服务
-                        if (appId == "org.deepin.Runtime") {
-                            continue;
-                        }
-                        const items = element.match(/'[^']+'|\S+/g);
-                        const item: CardFace = {};
-                        item.appId = appId;
-                        item.name = items[1] ? items[1] : "-";
-                        item.version = items[2];
-                        item.arch = items[3];
-                        item.channel = items[4];
-                        item.module = items[5];
-                        item.description = items[6];
-                        item.icon = "";
-                        addItem(item);
-                    }
-                }
-            }
-        });
         return installedItemList;
     };
     const addItem = (item: CardFace) => {
@@ -116,7 +106,7 @@ export const installedItemsStore = defineStore("installedItems", () => {
     const removeItem = (item: CardFace) => {
         installedItemList.splice(installedItemList.indexOf(item), 1);
     };
-    const clearItems = () => {
+    const clearItems1 = () => {
         installedItemList.splice(0, installedItemList.length);
     };
     const getItem = (name: string) => {
@@ -125,9 +115,9 @@ export const installedItemsStore = defineStore("installedItems", () => {
     const getItemIndex = (name: string) => {
         return installedItemList.findIndex((item) => item.name === name);
     };
-    const getItemCount = () => {
+    const getItemCount = computed(() => {
         return installedItemList.length;
-    };
+    });
     const getItemAt = (index: number) => {
         return installedItemList[index];
     };
@@ -137,32 +127,15 @@ export const installedItemsStore = defineStore("installedItems", () => {
 
     return {
         installedItemList,
+        initInstalledItems,
         getItems,
         addItem,
         removeItem,
-        clearItems,
+        clearItems1,
         getItem,
         getItemIndex,
         getItemCount,
         getItemAt,
         getItemByName,
-    };
-});
-
-export const useThemeStore = defineStore("theme", () => {
-    const defaultSize = ref(16);
-
-    const getBigSize = computed(() => {
-        return defaultSize.value + 10;
-    });
-
-    const changeSize = (size: number) => {
-        defaultSize.value = size;
-    };
-
-    return {
-        defaultSize,
-        getBigSize,
-        changeSize,
     };
 });
