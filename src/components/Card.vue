@@ -1,7 +1,7 @@
 <template>
     <el-card class="container" :title="desc" v-loading="loading" element-loading-text="进行中..."
-        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
-        <img class="image" :src="icon || defaultImage" @error="setDefaultImage" alt="Image" />
+        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)" @click="openDetails(appId)">
+        <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" />
         <span class="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
         <div class="btm">
@@ -21,6 +21,9 @@ import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
 import defaultImage from '@/assets/logo.svg'
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const loading = ref(false);
 
@@ -36,9 +39,15 @@ const props = withDefaults(defineProps<CardFace>(), {
     appId: "",
     index: 0,
 })
-// 设置默认图片
-const setDefaultImage = (e: any) => {
-    e.target.src = defaultImage;
+const openDetails = (appId: string) => {
+    router.push({ path: '/details', query: { 
+        appId: props.appId,
+        name: props.name,
+        version: props.version,
+        description: props.description,
+        arch: props.arch,
+        icon: props.icon
+    } });
 }
 // 卸载程序
 const uninstallServ = (index: number, item: CardFace) => {
