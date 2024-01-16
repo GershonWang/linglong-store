@@ -1,6 +1,6 @@
 <template>
     <el-card class="container" :title="desc" v-loading="loading" element-loading-text="进行中..."
-        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)" @click="openDetails(appId)">
+        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
         <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" />
         <span class="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<CardFace>(), {
     appId: "",
     index: 0,
 })
-const openDetails = (appId: string) => {
+const openDetails = () => {
     router.push({ path: '/details', query: { 
         appId: props.appId,
         name: props.name,
@@ -100,7 +100,7 @@ const desc = computed(() => {
     return props.description.replace(/(.{20})/g, '$1\n');
 });
 // 监听安装状态字段，发生变化时，将加载赋默认值
-watch(() => props.isInstalled, (newVal, oldVal) => {
+watch(() => props.isInstalled, () => {
     loading.value = false;
 });
 </script>

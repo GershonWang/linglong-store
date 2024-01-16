@@ -38,8 +38,13 @@ import { ipcRenderer } from 'electron';
 import { ElNotification } from 'element-plus'
 import { CardFace } from "@/components/CardFace";
 import Card from "@/components/Card.vue";
+import { useAllItemsStore } from "@/store/items";
+
+const allItemsStore = useAllItemsStore();
+const allItems = allItemsStore.getItems();
+
 // 存储在session里源内所有程序数组
-const allItems = sessionStorage.getItem('allItems');
+// const allItems = sessionStorage.getItem('allItems');
 // 用于存储当前显示的卡片对象
 const displayedItems = reactive<CardFace[]>([]);
 // 用于存储当前系统已安装的卡片对象
@@ -71,14 +76,14 @@ const fetchData = async (pageNo: number, pageSize: number) => {
     let startNum = pageNo == 1 ? 0 : pageNo * pageSize;
     let endNum = startNum + pageSize;
     if (allItems) {
-        const all = JSON.parse(allItems);
+        const all = allItems;
         if (all.length > 0) {
             if (startNum > all.length) return;
             if (endNum > all.length) endNum = all.length;
             for (let index = startNum; index < endNum; index++) {
-                const element = all[index];
-                element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
-                displayedItems.push(element);
+                // const element = all[index];
+                // element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
+                // displayedItems.push(element);
             }
         }
     }
@@ -91,32 +96,33 @@ const retryEvent = () => {
 const searchSoft = (msg: string) => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
-    if (allItems) {
-        // 修改滚动条监听事件的状态
-        isScrollQuery.value = !msg;
-        // string转json
-        const all = JSON.parse(allItems);
-        if (all.length > 0) {
-            hasData.value = true;
-            let max = msg ? all.length : 50;
-            // 根据消息msg对象是否为空，设置页码重置
-            if (!msg) {
-                pageNo.value = 1;
-                pageSize.value = max;
-            }
-            // 遍历数组，根据消息msg对象是否为空，设置数组显示内容
-            for (let index = 0; index < max; index++) {
-                const element = all[index];
-                if (!element.name.includes(msg)) {
-                    continue;
-                }
-                element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
-                displayedItems.push(element);
-            }
-            return;
-        }
+    if (!allItems) {
+        hasData.value = false;
+        return;
     }
-    hasData.value = false;
+    // 修改滚动条监听事件的状态
+    isScrollQuery.value = !msg;
+    // string转json
+    const all = JSON.parse(allItems);
+    if (all.length > 0) {
+        hasData.value = true;
+        let max = msg ? all.length : 50;
+        // 根据消息msg对象是否为空，设置页码重置
+        if (!msg) {
+            pageNo.value = 1;
+            pageSize.value = max;
+        }
+        // 遍历数组，根据消息msg对象是否为空，设置数组显示内容
+        for (let index = 0; index < max; index++) {
+            const element = all[index];
+            if (!element.name.includes(msg)) {
+                continue;
+            }
+            element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
+            displayedItems.push(element);
+        }
+        return;
+    }
 }
 // 搜索图标的点击事件
 const openInput = (status: boolean) => {
@@ -163,55 +169,42 @@ const commandResult = (_event: any, res: any) => {
         return;
     }
     // 返回结果 - 查询当前已安装的玲珑应用列表
-    if (params.command == 'll-cli list') {
-        const apps = result.split("\n");
-        if (apps.length > 1) {
-            const header = apps[0].split('[1m[38;5;214m')[1];
-            const appIdNum = header.indexOf('appId');
-            const nameNum = header.indexOf('name');
-            const versionNum = header.indexOf('version');
-            const archNum = header.indexOf('arch');
-            const channelNum = header.indexOf('channel');
-            const moduleNum = header.indexOf('module');
-            const descriptionNum = header.indexOf('description');
-            // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-            for (let index = 1; index < apps.length - 1; index++) {
-                const element = apps[index];
-                const appId = element.substring(appIdNum, nameNum).trim();
-                // 去除运行时服务
-                if (appId == 'org.deepin.Runtime') {
-                    continue;
-                }
-                const items = element.match(/'[^']+'|\S+/g);
-                // const name = element.substring(nameNum, versionNum).trim();
-                // const version = element.substring(versionNum, archNum).trim();
-                // const arch = element.substring(archNum, channelNum).trim();
-                // const channel = element.substring(channelNum, moduleNum).trim();
-                // const module = element.substring(moduleNum, descriptionNum).trim();
-                // const description = element.substring(descriptionNum).trim();
-                const item: CardFace = {}
-                item.appId = appId;
-                item.name = items[1] ? items[1] : '-';
-                item.version = items[2];
-                item.arch = items[3];
-                item.channel = items[4];
-                item.module = items[5];
-                item.description = items[6];
-                let icon = "";
-                if (allItems != null && allItems.length > 0) {
-                    const all = JSON.parse(allItems);
-                    const its = all.find((it: CardFace) => it.appId == appId && it.version == items[2])
-                    if (its) {
-                        icon = its.icon;
-                    }
-                }
-                item.icon = icon;
-                installedItems.push(item);
-            }
-        }
-        // 查询程序展示软件列表
-        searchSoft(searchName.value);
-    }
+    // if (params.command == 'll-cli list') {
+    //     const apps = result.split("\n");
+    //     if (apps.length > 1) {
+    //         const header = apps[0].split('[1m[38;5;214m')[1];
+    //         const appIdNum = header.indexOf('appId');
+    //         const nameNum = header.indexOf('name');
+    //         // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
+    //         for (let index = 1; index < apps.length - 1; index++) {
+    //             const element = apps[index];
+    //             const appId = element.substring(appIdNum, nameNum).trim();
+    //             // 去除运行时服务
+    //             if (appId == 'org.deepin.Runtime') {
+    //                 continue;
+    //             }
+    //             const items = element.match(/'[^']+'|\S+/g);
+    //             const item: CardFace = {}
+    //             item.appId = appId;
+    //             item.name = items[1] ? items[1] : '-';
+    //             item.version = items[2];
+    //             item.arch = items[3];
+    //             item.channel = items[4];
+    //             item.module = items[5];
+    //             item.description = items[6];
+    //             let icon = "";
+    //             if (allItems != null && allItems.length > 0) {
+    //                 const all = JSON.parse(allItems);
+    //                 const its = all.find((it: CardFace) => it.appId == appId && it.version == items[2])
+    //                 if (its) {
+    //                     icon = its.icon;
+    //                 }
+    //             }
+    //             item.icon = icon;
+    //             installedItems.push(item);
+    //         }
+    //     }
+    // }
     // 返回结果 - 当前执行安装的应用信息
     if (params.command.startsWith('ll-cli install')) {
         // 安装成功后，更新已安装应用列表
@@ -256,7 +249,9 @@ const commandResult = (_event: any, res: any) => {
 // 组件初始化时加载
 onMounted(() => {
     ipcRenderer.on('command-result', commandResult);
-    ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
+    // 查询程序展示软件列表
+    searchSoft(searchName.value);
+    // ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => ipcRenderer.removeListener('command-result', commandResult));
