@@ -2,7 +2,7 @@
 export interface CardFace {
     index?: number,
     icon?: string,
-    name?: string,
+    name: string,
     version?: string,
     description?: string,
     arch?: string,

@@ -16,7 +16,7 @@
             <img src="@/assets/search.svg" @click="openInput(show)">
         </div>
     </div>
-    <div class="container" ref="containRef" @scroll="handleScroll">
+    <div class="container" @scroll="handleScroll">
         <div class="card_container" v-if="hasData">
             <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
@@ -26,7 +26,6 @@
         <div class="card_container" v-else>
             <div style="position: absolute;left: 50%;transform: translate(-50%);text-align: center;">
                 <h1>查无数据</h1>
-                <el-button type="primary" @click="retryEvent">重试</el-button>
             </div>
         </div>
     </div>
@@ -38,19 +37,16 @@ import { ipcRenderer } from 'electron';
 import { ElNotification } from 'element-plus'
 import { CardFace } from "@/components/CardFace";
 import Card from "@/components/Card.vue";
-import { useAllItemsStore } from "@/store/items";
+import { useAllItemsStore, useInstalledItemsStore } from "@/store/items";
 
 const allItemsStore = useAllItemsStore();
+const installedItemsStore = useInstalledItemsStore();
+// 获取全部程序列表
 const allItems = allItemsStore.getItems();
-
-// 存储在session里源内所有程序数组
-// const allItems = sessionStorage.getItem('allItems');
-// 用于存储当前显示的卡片对象
+// 获取已安装程序列表
+let installedItems = installedItemsStore.getItems();
+// 获取显示的程序列表
 const displayedItems = reactive<CardFace[]>([]);
-// 用于存储当前系统已安装的卡片对象
-const installedItems = reactive<CardFace[]>([]);
-// 全部程序列表容器对象
-const containRef = ref<HTMLElement>();
 // 是否显示搜索框
 const show = ref(false);
 // 搜索框对象
@@ -67,61 +63,33 @@ let pageSize = ref(50);
 // 是否有列表数据
 let hasData = ref(false);
 
-/**
- * 根据分页条件查询网络玲珑应用
- * @param pageNo 页数
- * @param pageSize 每页条数
- */
-const fetchData = async (pageNo: number, pageSize: number) => {
-    let startNum = pageNo == 1 ? 0 : pageNo * pageSize;
-    let endNum = startNum + pageSize;
-    if (allItems) {
-        const all = allItems;
-        if (all.length > 0) {
-            if (startNum > all.length) return;
-            if (endNum > all.length) endNum = all.length;
-            for (let index = startNum; index < endNum; index++) {
-                // const element = all[index];
-                // element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
-                // displayedItems.push(element);
-            }
-        }
-    }
-}
-// 点击重试获取应用列表
-const retryEvent = () => {
-    console.log('retryEvent');
-}
 // 搜索框监听输入变更事件
 const searchSoft = (msg: string) => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
     if (!allItems) {
+        console.log("全部程序查询为空...");
         hasData.value = false;
         return;
     }
     // 修改滚动条监听事件的状态
     isScrollQuery.value = !msg;
-    // string转json
-    const all = JSON.parse(allItems);
-    if (all.length > 0) {
-        hasData.value = true;
-        let max = msg ? all.length : 50;
-        // 根据消息msg对象是否为空，设置页码重置
-        if (!msg) {
-            pageNo.value = 1;
-            pageSize.value = max;
-        }
-        // 遍历数组，根据消息msg对象是否为空，设置数组显示内容
-        for (let index = 0; index < max; index++) {
-            const element = all[index];
-            if (!element.name.includes(msg)) {
-                continue;
-            }
+    hasData.value = true;
+    let max = msg ? allItems.length : 50;
+    // 根据消息msg对象是否为空，设置页码重置
+    if (!msg) {
+        pageNo.value = 1;
+        pageSize.value = max;
+    }
+    // 遍历数组，根据消息msg对象是否为空，设置数组显示内容
+    for (let index = 0; index < max; index++) {
+        const element: CardFace = allItems[index];
+        const name = element.name.toLowerCase();
+        const message = msg.toLowerCase();
+        if (name.includes(message)) {
             element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
             displayedItems.push(element);
         }
-        return;
     }
 }
 // 搜索图标的点击事件
@@ -137,22 +105,31 @@ const openInput = (status: boolean) => {
 }
 // 滚动条监听事件
 const handleScroll = () => {
-    if (isScrollQuery.value && containRef.value) {
-        const scrollPosition = containRef.value.scrollTop; // 获取滚动位置
-        const windowHeight = containRef.value.clientHeight; // 获取窗口高度
-        const contentHeight = containRef.value.scrollHeight; // 获取内容高度
-        const scrollbarHeight = contentHeight - windowHeight; // 计算滚动条长度
-        if (scrollPosition != 0 && scrollbarHeight != 0 && scrollbarHeight >= scrollPosition
-            && scrollbarHeight - parseInt(String(scrollPosition)) <= 1) {
-            pageNo.value += 1;
-            fetchData(pageNo.value, pageSize.value);
+    if (!isScrollQuery.value) {
+        console.log("滚动条监听事件被忽略...");
+        return;
+    }
+    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+    const scrollPosition = container.scrollTop; // 获取滚动位置
+    const windowHeight = container.clientHeight; // 获取窗口高度
+    const contentHeight = container.scrollHeight; // 获取内容高度
+    // 判断滚动条位置是否接近底部，如果接近则加载更多数据
+    if (scrollPosition + windowHeight >= contentHeight) {
+        pageNo.value ++;
+        let startNum = pageNo.value * pageSize.value;
+        let endNum = startNum + pageSize.value;
+        if (startNum > allItems.length) return;
+        if (endNum > allItems.length) endNum = allItems.length;
+        for (let index = startNum; index < endNum; index++) {
+            const element = allItems[index];
+            element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
+            displayedItems.push(element);
         }
     }
 }
 // 命令执行结束返回结果
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
-    const result = res.result;
     const code = res.code;
     if ('stdout' != code) {
         if (retryNum.value <= 3) {
@@ -168,47 +145,9 @@ const commandResult = (_event: any, res: any) => {
         }
         return;
     }
-    // 返回结果 - 查询当前已安装的玲珑应用列表
-    // if (params.command == 'll-cli list') {
-    //     const apps = result.split("\n");
-    //     if (apps.length > 1) {
-    //         const header = apps[0].split('[1m[38;5;214m')[1];
-    //         const appIdNum = header.indexOf('appId');
-    //         const nameNum = header.indexOf('name');
-    //         // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-    //         for (let index = 1; index < apps.length - 1; index++) {
-    //             const element = apps[index];
-    //             const appId = element.substring(appIdNum, nameNum).trim();
-    //             // 去除运行时服务
-    //             if (appId == 'org.deepin.Runtime') {
-    //                 continue;
-    //             }
-    //             const items = element.match(/'[^']+'|\S+/g);
-    //             const item: CardFace = {}
-    //             item.appId = appId;
-    //             item.name = items[1] ? items[1] : '-';
-    //             item.version = items[2];
-    //             item.arch = items[3];
-    //             item.channel = items[4];
-    //             item.module = items[5];
-    //             item.description = items[6];
-    //             let icon = "";
-    //             if (allItems != null && allItems.length > 0) {
-    //                 const all = JSON.parse(allItems);
-    //                 const its = all.find((it: CardFace) => it.appId == appId && it.version == items[2])
-    //                 if (its) {
-    //                     icon = its.icon;
-    //                 }
-    //             }
-    //             item.icon = icon;
-    //             installedItems.push(item);
-    //         }
-    //     }
-    // }
     // 返回结果 - 当前执行安装的应用信息
     if (params.command.startsWith('ll-cli install')) {
-        // 安装成功后，更新已安装应用列表
-        displayedItems.splice(params.index, 1, {
+        const item = {
             index: params.index,
             icon: params.icon,
             name: params.name,
@@ -217,7 +156,11 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: true,
             appId: params.appId,
-        });
+        }
+        // 安装成功后，更新已安装应用列表
+        displayedItems.splice(params.index, 1, item);
+        // 安装成功后，更新已安装应用列表
+        installedItems.push(item);
         // 安装成功后，弹出通知
         ElNotification({
             title: '安装成功',
@@ -227,8 +170,7 @@ const commandResult = (_event: any, res: any) => {
     }
     // 返回结果 - 当前执行卸载的应用信息
     if (params.command.startsWith('ll-cli uninstall')) {
-        // 卸载成功后，更新已安装应用列表
-        displayedItems.splice(params.index, 1, {
+        const item = {
             index: params.index,
             icon: params.icon,
             name: params.name,
@@ -237,7 +179,11 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: false,
             appId: params.appId,
-        });
+        }
+        // 卸载成功后，更新已安装应用列表
+        displayedItems.splice(params.index, 1, item);
+        // 卸载成功后，更新已安装应用列表
+        installedItems = installedItems.filter(item => item.appId !== params.appId);
         // 卸载成功后，弹出通知
         ElNotification({
             title: '卸载成功',
@@ -249,9 +195,7 @@ const commandResult = (_event: any, res: any) => {
 // 组件初始化时加载
 onMounted(() => {
     ipcRenderer.on('command-result', commandResult);
-    // 查询程序展示软件列表
-    searchSoft(searchName.value);
-    // ipcRenderer.send('command', { name: '查询已安装程序列表', command: 'll-cli list' });
+    searchSoft(searchName.value); // 查询程序展示软件列表
 });
 // 在组件销毁时移除事件监听器
 onBeforeUnmount(() => ipcRenderer.removeListener('command-result', commandResult));
@@ -296,7 +240,7 @@ onBeforeUnmount(() => ipcRenderer.removeListener('command-result', commandResult
     display: grid;
     grid-gap: 10px;
     margin-right: 12px;
-    grid-template-columns: repeat(auto-fill,minmax(200px,auto));
+    grid-template-columns: repeat(auto-fill, minmax(200px, auto));
 }
 
 .card_items {

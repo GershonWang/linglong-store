@@ -1,11 +1,12 @@
-import { IpcRendererEvent, ipcRenderer } from "electron";
 import { defineStore } from "pinia";
-import { ElNotification } from 'element-plus'
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import { CardFace } from "@/components/CardFace";
 
+/**
+ * 全部应用
+ */
 export const useAllItemsStore = defineStore("allItems", () => {
-    // 用于存储当前系统已安装的卡片对象
+
     const allItems = reactive<CardFace[]>([]);
 
     const initAllItems = (array: any, filterFlag: boolean, arch: string) => {
@@ -63,8 +64,11 @@ export const useAllItemsStore = defineStore("allItems", () => {
     };
 });
 
+/**
+ * 已安装的全部应用
+ */
 export const useInstalledItemsStore = defineStore("installedItems", () => {
-    // 用于存储当前系统已安装的卡片对象
+
     let installedItemList = reactive<CardFace[]>([]);
 
     const initInstalledItems = (data: any) => {
@@ -82,9 +86,10 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                     continue;
                 }
                 const items = element.match(/'[^']+'|\S+/g);
-                const item: CardFace = {};
+                const item: CardFace = {
+                    name: items[1] ? items[1] : "-"
+                };
                 item.appId = appId;
-                item.name = items[1] ? items[1] : "-";
                 item.version = items[2];
                 item.arch = items[3];
                 item.channel = items[4];
@@ -132,6 +137,55 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         addItem,
         removeItem,
         clearItems1,
+        getItem,
+        getItemIndex,
+        getItemCount,
+        getItemAt,
+        getItemByName,
+    };
+});
+
+/**
+ * 全部应用，当前显示的应用列表
+ */
+export const useDisplayedItemsStore = defineStore("displayedItems", () => {
+
+    let displayedItemList = reactive<CardFace[]>([]);
+
+    const getItems = () => {
+        return displayedItemList;
+    };
+    const addItem = (item: CardFace) => {
+        displayedItemList.push(item);
+    };
+    const removeItem = (item: CardFace) => {
+        displayedItemList.splice(displayedItemList.indexOf(item), 1);
+    };
+    const clearItems = computed(() => {
+        displayedItemList.splice(0, displayedItemList.length);
+    });
+    const getItem = (name: string) => {
+        return displayedItemList.find((item) => item.name === name);
+    };
+    const getItemIndex = (name: string) => {
+        return displayedItemList.findIndex((item) => item.name === name);
+    };
+    const getItemCount = computed(() => {
+        return displayedItemList.length;
+    });
+    const getItemAt = (index: number) => {
+        return displayedItemList[index];
+    };
+    const getItemByName = (name: string) => {
+        return displayedItemList.find((item) => item.name === name);
+    };
+
+    return {
+        displayedItemList,
+        getItems,
+        addItem,
+        removeItem,
+        clearItems,
         getItem,
         getItemIndex,
         getItemCount,
