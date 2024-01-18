@@ -20,7 +20,7 @@
         <div class="card_container" v-if="hasData">
             <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :index="index" />
+                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
         </div>
         <div class="card_container" v-else>

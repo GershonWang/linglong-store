@@ -6,7 +6,6 @@ const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
     // 执行脚本命令
     ipcMain.on("command", (_event, data) => {
-        console.log("command", data);
         // 在主进程中执行命令，并将结果返回到渲染进程
         exec(data.command, (error, stdout, stderr) => {
             if (error) {
@@ -17,7 +16,6 @@ const IPCHandler = (win: BrowserWindow) => {
                 win?.webContents.send("command-result", { code: 'stderr', param: data, result: stderr });
                 return;
             }
-            console.log("stdout", stdout);
             win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
         });
     });

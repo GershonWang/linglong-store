@@ -8,24 +8,26 @@
             <p class="desc">{{ description }}</p>
             <p class="os">{{ arch }}</p>
             <el-button class="uninstallBtn" v-if="isInstalled"
-                @click="uninstallServ(index, props)">卸载</el-button>
+                @click="changeStatus(props,'uninstall')">卸载</el-button>
             <el-button class="installBtn" v-else
-                @click="installServ(index, props)">安装</el-button>
+                @click="changeStatus(props,'install')">安装</el-button>
         </div>
     </el-card>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
 import defaultImage from '@/assets/logo.svg'
 import { useRouter } from 'vue-router';
+import { useAllServItemsStore } from "@/store/allServItems";
+import { useInstalledItemsStore } from "@/store/installedItems";
 
 const router = useRouter();
-
-const loading = ref(false);
+const allServItemsStore = useAllServItemsStore();
+const installedItemsStore = useInstalledItemsStore();
 
 // 接受父组件传递的参数，并设置默认值
 // icon: "https://linglong.dev/asset/logo.svg",
@@ -37,7 +39,7 @@ const props = withDefaults(defineProps<CardFace>(), {
     arch: "X86_64",
     isInstalled: true,
     appId: "",
-    index: 0,
+    loading: false,
 })
 const openDetails = () => {
     router.push({ path: '/details', query: { 
@@ -49,64 +51,41 @@ const openDetails = () => {
         icon: props.icon
     } });
 }
-// 卸载程序
-const uninstallServ = (index: number, item: CardFace) => {
-    // 启用加载框
-    // loading.value = true;
-    // 弹出提示框
-    ElNotification({
-        title: '提示',
-        message: '正在卸载' + item.name + '(' + item.version + ')',
-        type: 'info',
-        duration: 1000,
-    });
-    const params: CardFace = {
-        icon: item.icon,
-        name: item.name,
-        version: item.version,
-        description: item.description,
-        arch: item.arch,
-        isInstalled: item.isInstalled,
-        appId: item.appId,
-        command: 'll-cli uninstall ' + item.appId + '/' + item.version,
-        index: index,
-    };
-    console.log('card卸载params',params);
-    ipcRenderer.send('command', params);
-}
-// 安装程序
-const installServ = (index: number, item: CardFace) => {
-    // 启用加载框
-    // loading.value = true;
-    // 弹出提示框
-    ElNotification({
-        title: '提示',
-        message: '正在安装' + item.name + '(' + item.version + ')',
-        type: 'info',
-        duration: 1000,
-    });
-    const params: CardFace = {
-        icon: item.icon,
-        name: item.name,
-        version: item.version,
-        description: item.description,
-        arch: item.arch,
-        isInstalled: item.isInstalled,
-        appId: item.appId,
-        command: 'll-cli install ' + item.appId + '/' + item.version,
-        index: index,
-    };
-    console.log('card安装params',params);
-    ipcRenderer.send('command', params);
-}
 // 计算属性
 const desc = computed(() => {
     return props.description.replace(/(.{20})/g, '$1\n');
 });
-// 监听安装状态字段，发生变化时，将加载赋默认值
-watch(() => props.isInstalled, () => {
-    loading.value = false;
-});
+const changeStatus = (item: CardFace,flag: string) => {
+    // 启用加载框
+    allServItemsStore.updateItemLoadingStatus(item, true);
+    installedItemsStore.updateItemLoadingStatus(item, true);
+    // 根据flag判断是安装还是卸载
+    let message: string = '正在安装' + item.name + '(' + item.version + ')';
+    let command: string = 'll-cli install ' + item.appId + '/' + item.version;
+    if (flag == 'uninstall') {
+        message = '正在卸载' + item.name + '(' + item.version + ')';
+        command = 'll-cli uninstall ' + item.appId + '/' + item.version;
+    }
+    // 弹出提示框
+    ElNotification({
+        title: '提示',
+        message: message,
+        type: 'info',
+        duration: 1000,
+    });
+    // 发送操作命令
+    ipcRenderer.send('command', {
+        icon: item.icon,
+        name: item.name,
+        version: item.version,
+        description: item.description,
+        arch: item.arch,
+        isInstalled: item.isInstalled,
+        appId: item.appId,
+        command: command,
+        loading: false
+    });
+}
 </script>
 
 <style scoped>

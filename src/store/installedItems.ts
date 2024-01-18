@@ -31,7 +31,8 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                     channel: items[4],
                     module: items[5],
                     description: items[6],
-                    icon: ''
+                    icon: '',
+                    loading: false,
                 })
             }
         }
@@ -71,22 +72,29 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         }
     };
     /**
-     * 清空对象
+     * 清空所有应用对象列表
      */
     const clearItems = () => {
         installedItemList.splice(0, installedItemList.length);
     };
+    /**
+     * 更新对象的加载状态
+     * @param item 要更新的对象
+     */
+    const updateItemLoadingStatus = (item: CardFace,flag: boolean) => {
+        const index = installedItemList.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+        if (index !== -1) {
+            const aItem = installedItemList[index];
+            aItem.loading = flag;
+            installedItemList.splice(index, 1, aItem);
+        }
+    }
+    
     const getItem = (name: string) => {
         return installedItemList.find((item) => item.name === name);
     };
     const getItemIndex = (name: string) => {
         return installedItemList.findIndex((item) => item.name === name);
-    };
-    const getItemCount = computed(() => {
-        return installedItemList.length;
-    });
-    const getItemAt = (index: number) => {
-        return installedItemList[index];
     };
     const getItemByName = (name: string) => {
         return installedItemList.find((item) => item.name === name);
@@ -94,15 +102,15 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
 
     return {
         installedItemList,
-        updateInstalledItemsIcons,
         initInstalledItems,
+        updateInstalledItemsIcons,
         addItem,
         removeItem,
         clearItems,
+        updateItemLoadingStatus,
+
         getItem,
         getItemIndex,
-        getItemCount,
-        getItemAt,
         getItemByName,
     };
 });

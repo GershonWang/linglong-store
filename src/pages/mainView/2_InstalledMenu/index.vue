@@ -3,7 +3,7 @@
         <div class="card_container">
             <div class="card_items" v-for="(item, index) in installedStore.installedItemList" :key="index">
                 <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :index="index" />
+                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
         </div>
     </div>

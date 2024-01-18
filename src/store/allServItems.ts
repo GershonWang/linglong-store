@@ -23,7 +23,8 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
             if (sysConfStore.filterFlag && itemArch != sysConfStore.arch) {
                 continue;
             }
-            item.isInstalled = installedItemList.some((installedItem) => installedItem.name === item.name && installedItem.version === item.version && installedItem.appId === item.appId);
+            item.isInstalled = installedItemList.some((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+            item.loading = false;
             allServItemList.push(item);
         }
         return allServItemList;
@@ -48,16 +49,34 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
             allServItemList.splice(index, 1, aItem);
         }
     }
-
+    /**
+     * 移除对象
+     * @param item 要移除的对象
+     */
     const removeItem = (item: CardFace) => {
-        const index = allServItemList.findIndex((i) => i.appId === item.appId && i.name === item.name && i.version === item.version);
+        const index = allServItemList.findIndex((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
         if (index !== -1) {
             allServItemList.splice(index, 1);
         }
     };
+    /**
+     * 清空所有应用对象列表
+     */
     const clearItems = () => {
         allServItemList.splice(0, allServItemList.length);
     };
+    /**
+     * 更新对象的加载状态
+     * @param item 要更新的对象
+     */
+    const updateItemLoadingStatus = (item: CardFace,flag: boolean) => {
+        const index = allServItemList.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+        if (index !== -1) {
+            const aItem = allServItemList[index];
+            aItem.loading = flag;
+            allServItemList.splice(index, 1, aItem);
+        }
+    }
     const getItem = (name: string) => {
         return allServItemList.find((item) => item.name === name);
     };
@@ -75,6 +94,8 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         updateItemInstallStatus,
         removeItem,
         clearItems,
+        updateItemLoadingStatus,
+        
         getItem,
         getItemIndex,
         getItemByName,

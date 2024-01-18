@@ -47,11 +47,12 @@ import { ipcRenderer } from 'electron';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
-import { useAllItemsStore } from "@/store/allItems";
+import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
+import { CardFace } from '@/components/CardFace';
 
 const installedItemsStore = useInstalledItemsStore();
-const allItemsStore = useAllItemsStore();
+const allServItemsStore = useAllServItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
@@ -78,8 +79,7 @@ const commandResult = (_event: any, res: any) => {
     }
     // 返回结果 - 当前执行安装的应用信息
     if (params.command.startsWith('ll-cli install')) {
-        const item = {
-            index: params.index,
+        const item: CardFace = {
             icon: params.icon,
             name: params.name,
             version: params.version,
@@ -87,12 +87,14 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: true,
             appId: params.appId,
+            loading: params.loading
         }
-        console.log('安装item',item);
         // 安装成功后，更新已安装应用列表
         installedItemsStore.addItem(item);
         // 安装成功后，更新全部应用中的应用状态
-        allItemsStore.updateItemInstallStatus(item);
+        allServItemsStore.updateItemInstallStatus(item);
+        // 安装成功后，更新当前应用加载状态
+        allServItemsStore.updateItemLoadingStatus(item,false);
         // 安装成功后，弹出通知
         ElNotification({
             title: '安装成功',
@@ -102,8 +104,7 @@ const commandResult = (_event: any, res: any) => {
     }
     // 返回结果 - 当前执行卸载的应用信息
     if (params.command.startsWith('ll-cli uninstall')) {
-        const item = {
-            index: params.index,
+        const item: CardFace = {
             icon: params.icon,
             name: params.name,
             version: params.version,
@@ -111,12 +112,14 @@ const commandResult = (_event: any, res: any) => {
             arch: params.arch,
             isInstalled: false,
             appId: params.appId,
+            loading: params.loading
         }
-        console.log('卸载item',item);
         // 卸载成功后，从已安装应用列表中移除该应用
         installedItemsStore.removeItem(item);
         // 卸载成功后，更新全部应用中的应用状态
-        allItemsStore.updateItemInstallStatus(item);
+        allServItemsStore.updateItemInstallStatus(item);
+        // 安装成功后，更新当前应用加载状态
+        allServItemsStore.updateItemLoadingStatus(item,false);
         // 卸载成功后，弹出通知
         ElNotification({
             title: '卸载成功',
