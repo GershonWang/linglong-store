@@ -17,9 +17,12 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
      * @returns 存入数据的对象数组
      */
     const initAllItems = (array: any, installedItemList: CardFace[]) => {
+        // 清空原始对象
+        clearItems();
+        // 组装数据进入对象数组
         for (let i = 0; i < array.length; i++) {
             const item: CardFace = array[i];
-            const itemArch: string | undefined = item.arch?.trim();
+            const itemArch: string = item.arch.trim();
             if (sysConfStore.filterFlag && itemArch != sysConfStore.arch) {
                 continue;
             }
