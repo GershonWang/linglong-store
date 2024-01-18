@@ -24,6 +24,7 @@ export default {
     ipcRenderer.send('checkForUpdate')
     // 监听自动更新事件
     ipcRenderer.on('message', (event, text) => {
+      console.log('text',text);
       if (text === '检测到新版本，正在下载……') {
         this.$nextTick(() => {
           this.visible = true

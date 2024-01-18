@@ -1,7 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from './logger'
- 
+
 // 检测更新，在你想要检查更新的时候执行，renderer事件触发后的操作自行编写
 export function updateHandle(mainWindow: BrowserWindow) {
   //                            清除每次更新下载的文件，否则无法进行更新
@@ -14,7 +14,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
     updateAva: '检测到新版本，正在下载……',
     updateNotAva: '现在使用的就是最新版本，不用更新'
   }
-   // 也可以通过代码配置文件服务地址
+  // 也可以通过代码配置文件服务地址
   autoUpdater.setFeedURL({
     provider: 'generic',
     url: 'https://github.com/GershonWang/linglong_store/releases/download'
@@ -37,38 +37,35 @@ export function updateHandle(mainWindow: BrowserWindow) {
   autoUpdater.on('update-not-available', function (info) {
     sendUpdateMessage(message.updateNotAva, mainWindow)
   })
- 
   // 更新下载进度事件
   autoUpdater.on('download-progress', function (progressObj) {
     mainWindow.webContents.send('downloadProgress', progressObj)
   })
   // 新安装包下载完成
-  autoUpdater.on('update-downloaded', function (_event:any) {
-    console.log('update-downloaded', _event);
+  autoUpdater.on('update-downloaded', function (_event: any) {
     ipcMain.on('isUpdateNow', (e, arg) => {
       log.warn('开始更新')
       autoUpdater.quitAndInstall()
     })
     mainWindow.webContents.send('isUpdateNow')
   })
- 
+
   ipcMain.on('checkForUpdate', () => {
     // 执行自动更新检查
     log.warn('执行自动更新检查, isDestroyed:', mainWindow.isDestroyed())
     // 解决mac重启App 报错 的问题: object has been destroyed
-    if (mainWindow &&!mainWindow.isDestroyed()) {
+    if (mainWindow && !mainWindow.isDestroyed()) {
       autoUpdater.checkForUpdates()
     }
   })
- 
+
   ipcMain.on('downloadUpdate', () => {
-    // 下载
     log.warn('执行下载')
     autoUpdater.downloadUpdate()
   })
-}
- 
-// 通过main进程发送事件给renderer进程，提示更新信息
-function sendUpdateMessage(text, mainWindow: BrowserWindow) {
-  mainWindow.webContents.send('message', text)
+
+  // 通过main进程发送事件给renderer进程，提示更新信息
+  function sendUpdateMessage(text, mainWindow: BrowserWindow) {
+    mainWindow.webContents.send('message', text)
+  }
 }

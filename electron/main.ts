@@ -1,4 +1,5 @@
 import { app, BrowserWindow, shell, Menu } from "electron";
+import log from "electron-log";
 import { join } from "node:path";
 import IPCHandler from "./ipc";
 import { updateHandle } from "./update/autoUpdater";
@@ -27,8 +28,8 @@ function createWindow() {
       // webSecurity: false, // 禁用 Web 安全策略
     },
   });
-  console.log("dev环境的配置地址", VITE_DEV_SERVER_URL);
-  console.log("pro环境的配置地址", indexHtml);
+  log.info("dev环境的配置地址", VITE_DEV_SERVER_URL);
+  log.info("pro环境的配置地址", indexHtml);
   // 禁用菜单，一般情况下，不需要禁用
   Menu.setApplicationMenu(null);
   // 根据是否存在开发服务地址判断加载模式
@@ -44,14 +45,14 @@ function createWindow() {
   });
   // 设置所有链接通过默认浏览器打开，而非程序内打开
   win.webContents.setWindowOpenHandler(({ url }) => {
-    console.log("url", url);
+    log.info("url", url);
     // 如果是http或https协议的链接，则通过默认浏览器打开
     if (url.startsWith("https:") || url.startsWith("http:")) {
       shell.openExternal(url);
     }
     return { action: "deny" };
   });
-  
+
 }
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
