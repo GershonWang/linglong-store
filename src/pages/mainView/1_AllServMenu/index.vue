@@ -32,19 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
-import { ipcRenderer } from 'electron';
-import { ElNotification } from 'element-plus'
-import { CardFace } from "@/components/CardFace";
+import { onMounted, reactive, ref } from 'vue';
 import Card from "@/components/Card.vue";
-import { useAllItemsStore, useInstalledItemsStore } from "@/store/items";
+import { useAllServItemsStore } from "@/store/allServItems";
+import { CardFace } from '@/components/CardFace';
 
-const allItemsStore = useAllItemsStore();
-const installedItemsStore = useInstalledItemsStore();
+const allServItemsStore = useAllServItemsStore();
 // 获取全部程序列表
-const allItems = allItemsStore.getItems();
-// 获取已安装程序列表
-let installedItems = installedItemsStore.getItems();
+const allItems = allServItemsStore.allServItemList;
 // 获取显示的程序列表
 const displayedItems = reactive<CardFace[]>([]);
 // 是否显示搜索框
@@ -53,8 +48,6 @@ const show = ref(false);
 const inputRef = ref<HTMLElement>();
 // 搜索框输入的值
 const searchName = ref('');
-// 重试次数
-let retryNum = ref(0);
 // 记录是否启用滚动条查询
 let isScrollQuery = ref(true);
 // 记录当前页数
@@ -87,7 +80,6 @@ const searchSoft = (msg: string) => {
         const name = element.name.toLowerCase();
         const message = msg.toLowerCase();
         if (name.includes(message)) {
-            element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
             displayedItems.push(element);
         }
     }
@@ -122,83 +114,14 @@ const handleScroll = () => {
         if (endNum > allItems.length) endNum = allItems.length;
         for (let index = startNum; index < endNum; index++) {
             const element = allItems[index];
-            element.isInstalled = installedItems.some(it => it.appId == element.appId && it.version == element.version);
             displayedItems.push(element);
         }
     }
 }
-// 命令执行结束返回结果
-const commandResult = (_event: any, res: any) => {
-    const params = res.param;
-    const code = res.code;
-    if ('stdout' != code) {
-        if (retryNum.value <= 3) {
-            retryNum.value++;
-            ipcRenderer.send('command', params);
-        } else {
-            retryNum.value = 0;
-            ElNotification({
-                title: '请求错误',
-                message: '命令执行异常！',
-                type: 'error',
-            });
-        }
-        return;
-    }
-    // 返回结果 - 当前执行安装的应用信息
-    if (params.command.startsWith('ll-cli install')) {
-        const item = {
-            index: params.index,
-            icon: params.icon,
-            name: params.name,
-            version: params.version,
-            description: params.description,
-            arch: params.arch,
-            isInstalled: true,
-            appId: params.appId,
-        }
-        // 安装成功后，更新已安装应用列表
-        displayedItems.splice(params.index, 1, item);
-        // 安装成功后，更新已安装应用列表
-        installedItems.push(item);
-        // 安装成功后，弹出通知
-        ElNotification({
-            title: '安装成功',
-            message: params.name + '(' + params.version + ')被成功安装!',
-            type: 'success',
-        });
-    }
-    // 返回结果 - 当前执行卸载的应用信息
-    if (params.command.startsWith('ll-cli uninstall')) {
-        const item = {
-            index: params.index,
-            icon: params.icon,
-            name: params.name,
-            version: params.version,
-            description: params.description,
-            arch: params.arch,
-            isInstalled: false,
-            appId: params.appId,
-        }
-        // 卸载成功后，更新已安装应用列表
-        displayedItems.splice(params.index, 1, item);
-        // 卸载成功后，更新已安装应用列表
-        installedItems = installedItems.filter(item => item.appId !== params.appId);
-        // 卸载成功后，弹出通知
-        ElNotification({
-            title: '卸载成功',
-            message: params.name + '(' + params.version + ')被成功卸载!',
-            type: 'success',
-        });
-    }
-}
 // 组件初始化时加载
 onMounted(() => {
-    ipcRenderer.on('command-result', commandResult);
     searchSoft(searchName.value); // 查询程序展示软件列表
 });
-// 在组件销毁时移除事件监听器
-onBeforeUnmount(() => ipcRenderer.removeListener('command-result', commandResult));
 </script>
 
 <style scoped>

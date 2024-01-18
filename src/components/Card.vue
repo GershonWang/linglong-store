@@ -8,9 +8,9 @@
             <p class="desc">{{ description }}</p>
             <p class="os">{{ arch }}</p>
             <el-button class="uninstallBtn" v-if="isInstalled"
-                @click="uninstallServ(index, { icon, name, version, description, arch, isInstalled, appId })">卸载</el-button>
+                @click="uninstallServ(index, props)">卸载</el-button>
             <el-button class="installBtn" v-else
-                @click="installServ(index, { icon, name, version, description, arch, isInstalled, appId })">安装</el-button>
+                @click="installServ(index, props)">安装</el-button>
         </div>
     </el-card>
 </template>
@@ -52,7 +52,7 @@ const openDetails = () => {
 // 卸载程序
 const uninstallServ = (index: number, item: CardFace) => {
     // 启用加载框
-    loading.value = true;
+    // loading.value = true;
     // 弹出提示框
     ElNotification({
         title: '提示',
@@ -60,22 +60,24 @@ const uninstallServ = (index: number, item: CardFace) => {
         type: 'info',
         duration: 1000,
     });
-    const params: CardFace = {};
-    params.icon = item.icon;
-    params.name = item.name;
-    params.version = item.version;
-    params.description = item.description;
-    params.arch = item.arch;
-    params.isInstalled = item.isInstalled;
-    params.appId = item.appId;
-    params.command = 'll-cli uninstall ' + item.appId + '/' + item.version;
-    params.index = index;
+    const params: CardFace = {
+        icon: item.icon,
+        name: item.name,
+        version: item.version,
+        description: item.description,
+        arch: item.arch,
+        isInstalled: item.isInstalled,
+        appId: item.appId,
+        command: 'll-cli uninstall ' + item.appId + '/' + item.version,
+        index: index,
+    };
+    console.log('card卸载params',params);
     ipcRenderer.send('command', params);
 }
 // 安装程序
 const installServ = (index: number, item: CardFace) => {
     // 启用加载框
-    loading.value = true;
+    // loading.value = true;
     // 弹出提示框
     ElNotification({
         title: '提示',
@@ -83,16 +85,18 @@ const installServ = (index: number, item: CardFace) => {
         type: 'info',
         duration: 1000,
     });
-    const params: CardFace = {};
-    params.icon = item.icon;
-    params.name = item.name;
-    params.version = item.version;
-    params.description = item.description;
-    params.arch = item.arch;
-    params.isInstalled = item.isInstalled;
-    params.appId = item.appId;
-    params.command = 'll-cli install ' + item.appId + '/' + item.version;
-    params.index = index;
+    const params: CardFace = {
+        icon: item.icon,
+        name: item.name,
+        version: item.version,
+        description: item.description,
+        arch: item.arch,
+        isInstalled: item.isInstalled,
+        appId: item.appId,
+        command: 'll-cli install ' + item.appId + '/' + item.version,
+        index: index,
+    };
+    console.log('card安装params',params);
     ipcRenderer.send('command', params);
 }
 // 计算属性

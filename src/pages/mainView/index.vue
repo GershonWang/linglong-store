@@ -43,11 +43,95 @@
     </div>
 </template>
 <script setup lang="ts">
+import { ipcRenderer } from 'electron';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElNotification } from 'element-plus'
+import { useAllItemsStore } from "@/store/allItems";
+import { useInstalledItemsStore } from "@/store/installedItems";
+
+const installedItemsStore = useInstalledItemsStore();
+const allItemsStore = useAllItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
 const toPage = (url:string) => router.push(url);
+// 重试次数
+let retryNum = ref(0);
+
+const commandResult = (_event: any, res: any) => {
+    const params = res.param;
+    const code = res.code;
+    if ('stdout' != code) {
+        if (retryNum.value <= 3) {
+            retryNum.value++;
+            ipcRenderer.send('command', params);
+        } else {
+            retryNum.value = 0;
+            ElNotification({
+                title: '请求错误',
+                message: '命令执行异常！',
+                type: 'error',
+            });
+        }
+        return;
+    }
+    // 返回结果 - 当前执行安装的应用信息
+    if (params.command.startsWith('ll-cli install')) {
+        const item = {
+            index: params.index,
+            icon: params.icon,
+            name: params.name,
+            version: params.version,
+            description: params.description,
+            arch: params.arch,
+            isInstalled: true,
+            appId: params.appId,
+        }
+        console.log('安装item',item);
+        // 安装成功后，更新已安装应用列表
+        installedItemsStore.addItem(item);
+        // 安装成功后，更新全部应用中的应用状态
+        allItemsStore.updateItemInstallStatus(item);
+        // 安装成功后，弹出通知
+        ElNotification({
+            title: '安装成功',
+            message: params.name + '(' + params.version + ')被成功安装!',
+            type: 'success',
+        });
+    }
+    // 返回结果 - 当前执行卸载的应用信息
+    if (params.command.startsWith('ll-cli uninstall')) {
+        const item = {
+            index: params.index,
+            icon: params.icon,
+            name: params.name,
+            version: params.version,
+            description: params.description,
+            arch: params.arch,
+            isInstalled: false,
+            appId: params.appId,
+        }
+        console.log('卸载item',item);
+        // 卸载成功后，从已安装应用列表中移除该应用
+        installedItemsStore.removeItem(item);
+        // 卸载成功后，更新全部应用中的应用状态
+        allItemsStore.updateItemInstallStatus(item);
+        // 卸载成功后，弹出通知
+        ElNotification({
+            title: '卸载成功',
+            message: params.name + '(' + params.version + ')被成功卸载!',
+            type: 'success',
+        });
+    }
+}
+
+onMounted(() => {
+    ipcRenderer.on('command-result', commandResult);
+});
+onBeforeUnmount(() => {
+    ipcRenderer.removeListener('command-result', commandResult)
+});
 </script>
 <style>
 .common-layout {
@@ -92,4 +176,4 @@ a:hover {
     padding: 12px;
     position: relative;
 }
-</style>
+</style>@/store/allServItems

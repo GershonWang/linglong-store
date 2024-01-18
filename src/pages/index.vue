@@ -22,18 +22,19 @@
     </el-dialog>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, h } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useSysConfStore } from "@/store/sysConf";
-import { useAllItemsStore,useInstalledItemsStore } from '@/store/items'
+import { useAllServItemsStore } from '@/store/allServItems'
+import { useInstalledItemsStore } from "@/store/installedItems";
 
 const sysConfStore = useSysConfStore();
-const allItemsStore = useAllItemsStore();
+const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
-const { arch, sourceUrl, filterFlag } = storeToRefs(sysConfStore);
+const { arch, sourceUrl } = storeToRefs(sysConfStore);
 
 // 获取路由对象
 const router = useRouter();
@@ -61,13 +62,14 @@ const goMount = () => {
 }
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
+    console.log('首页加载执行',res);
     if ('uname -m' == res.param.command && 'stdout' == res.code) {
         arch.value = res.result.trim();
     }
     if ('ll-cli' == res.param.command && 'stdout' == res.code) {
         // 发送命令，获取系统已安装的程序列表
         ipcRenderer.send("command", { name: "查询已安装程序列表", command: "ll-cli list" });
-        // 发送网络命令，获取源内所有应用，并返回结果存储到session中
+        // 发送网络命令，获取源内所有应用
         ipcRenderer.send('network', { url: sourceUrl.value + '/api/v0/web-store/apps??page=1&size=100000' });
     }
     if ('ll-cli' == res.param.command && 'stdout' != res.code) {
@@ -82,13 +84,19 @@ const commandResult = (_event: any, res: any) => {
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
     if (res.code == 200) {
-        const array = res.data.list;
-        allItemsStore.initAllItems(array,filterFlag.value,arch.value);
+        // 初始化所有应用程序列表
+        const responseList = res.data.list;
+        const installedItemList = installedItemsStore.installedItemList;
+        allServItemsStore.initAllItems(responseList,installedItemList);
+        // 更新已安装程序图标
+        const allItems = allServItemsStore.allServItemList;
+        installedItemsStore.updateInstalledItemsIcons(allItems);
+        // 跳转到主界面
         router.push('/main_view');
     }
 }
 // 加载前执行
-onMounted(() => {
+onMounted(async () => {
     // 监听命令行执行结果
     ipcRenderer.on('command-result', commandResult);
     // 监听网络请求执行结果
@@ -128,4 +136,4 @@ onBeforeUnmount(() => {
 .dialog-footer button:first-child {
     margin-right: 10px;
 }
-</style>
+</style>@/store/allItems@/store/allServItems
