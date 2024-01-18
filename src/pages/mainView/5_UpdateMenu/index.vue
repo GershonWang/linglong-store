@@ -9,6 +9,7 @@
 
 <script setup lang="ts">
 import { ipcRenderer } from 'electron'
+import log from "electron-log";
 import { onMounted, ref } from 'vue';
 
 const downloadPercent = ref(0);
@@ -27,7 +28,7 @@ const downloadUpdate = () => {
 }
 // 监听主进程发送的更新消息
 const updateMessage = (_event: any, text: string) => {
-  console.log('updateMessage', text);
+  log.info('updateMessage', text);
 }
 // 页面加载时
 onMounted(() => {
