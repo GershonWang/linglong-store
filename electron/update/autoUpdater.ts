@@ -17,7 +17,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
   // 也可以通过代码配置文件服务地址
   autoUpdater.setFeedURL({
     provider: 'generic',
-    url: 'https://github.com/GershonWang/linglong_store/releases/download'
+    url: 'https://github.com/GershonWang/linglong_store/'
   })
   // 设置是否自动下载，默认是true,当点击检测到新版本时，会自动下载安装包，所以设置为false
   autoUpdater.autoDownload = false

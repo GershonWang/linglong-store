@@ -18,8 +18,6 @@ import { ipcRenderer } from 'electron'
 export default {
   name: 'landing-page',
   mounted: function () {
-    // 给主进程发送事件
-    ipcRenderer.send('web-created')
     // 检查更新
     ipcRenderer.send('checkForUpdate')
     // 监听自动更新事件
