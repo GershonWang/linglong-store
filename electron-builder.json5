@@ -6,18 +6,6 @@
   "appId": "com.dongpl.linglong_store",
   "copyright": "Copyright © 2024 Jokul",
   "asar": true,
-  "publish": [
-    {
-      "provider": "github",
-      "owner": "GershonWang",
-      "repo": "linglong_store",
-      "releaseType": "draft"
-    },
-    {
-      "provider": "github",
-      "url": "https://github.com/GershonWang/linglong_store/"
-    }
-  ],
   "directories": {
     "output": "release/${version}"
   },
