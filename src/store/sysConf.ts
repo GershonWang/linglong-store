@@ -9,6 +9,8 @@ export const useSysConfStore = defineStore('sysConf', {
         sourceUrl: ref('https://mirror-repo-linglong.deepin.com'),
         // 是否过滤非当前架构程序
         filterFlag: ref(true),
+        // 自动检测更新
+        autoCheckUpdate: ref(true),
     }),
     getters: {
         getFilterFlag: (state) => state.filterFlag,
@@ -28,6 +30,11 @@ export const useSysConfStore = defineStore('sysConf', {
         changeFilterFlag(inFilterFlag: boolean){
             const that = this;
             that.filterFlag = inFilterFlag;
+        },
+        // 自动检测更新
+        changeAutoCheckUpdate(autoCheckUpdate: boolean){
+            const that = this;
+            that.autoCheckUpdate = autoCheckUpdate;
         },
     },
     persist: true

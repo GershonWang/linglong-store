@@ -2,18 +2,17 @@
   <div>
     <h1>基本设置</h1>
     <el-divider />
-    <div>
       玲珑源：
       <el-select style="width: 300px;" v-model="defaultSource" @change="changeEvent">
         <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com"
           :key="1" />
-      </el-select>
-    </div>
-    <div>
+      </el-select><br>
       <el-checkbox v-model="checked" size="large" @change="checkedArch(checked)">
         过滤非当前({{ sysConfStore.arch }})架构程序
-      </el-checkbox>
-    </div>
+      </el-checkbox><br>
+      <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
+        自动检测更新
+      </el-checkbox><br>
   </div>
 </template>
 <script setup lang="ts">
@@ -31,6 +30,8 @@ const installedItemsStore = useInstalledItemsStore();
 const defaultSource = ref('');
 // 是否过滤不匹配架构程序
 let checked = ref(true);
+// 自动检测更新
+let autoCheckUpdate = ref(true);
 // 切换源事件
 const changeEvent = (data: any) => {
   sysConfStore.changeSourceUrl(data);
@@ -41,6 +42,10 @@ const checkedArch = (data: boolean) => {
   // 发送网络命令，获取源内所有应用
   ipcRenderer.send('network', { url: sysConfStore.sourceUrl + '/api/v0/web-store/apps??page=1&size=100000' });
   ipcRenderer.on('network-result', networkResult);
+}
+// 自动检测更新事件
+const checkedUpdate = (data: boolean) => {
+  sysConfStore.changeAutoCheckUpdate(data);
 }
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
@@ -54,6 +59,7 @@ const networkResult = (_event: any, res: any) => {
 onMounted(() => {
   defaultSource.value = sysConfStore.sourceUrl;
   checked.value = sysConfStore.filterFlag;
+  autoCheckUpdate.value = sysConfStore.autoCheckUpdate;
 })
 onBeforeUnmount(() => {
   ipcRenderer.removeListener('network-result', networkResult)
