@@ -26,13 +26,13 @@ const installedStore = useInstalledItemsStore();
     display: grid;
     grid-gap: 10px;
     margin-right: 12px;
-    grid-template-columns: repeat(auto-fill,minmax(200px,auto));
+    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
 }
 
 .card_items {
     padding: 10px;
     flex: 1;
-    min-width: 200px;
+    min-width: 180px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;

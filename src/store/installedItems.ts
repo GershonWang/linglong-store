@@ -16,6 +16,8 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
     const initInstalledItems = (data: string) => {
         const apps: string[] = data.split("\n");
         if (apps.length > 1) {
+            const header = apps[0].split("[1m[38;5;214m")[1];
+            const descriptionNum = header.indexOf("description");
             // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
             for (let index = 1; index < apps.length - 1; index++) {
                 const element: string = apps[index];
@@ -30,7 +32,7 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                     arch: items[3],
                     channel: items[4],
                     module: items[5],
-                    description: items[6],
+                    description: element.substring(descriptionNum).trim(),
                     icon: '',
                     loading: false,
                 })

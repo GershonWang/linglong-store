@@ -1,12 +1,13 @@
 <template>
-    <el-card class="container" :title="desc" v-loading="loading" element-loading-text="进行中..."
+    <el-card class="container" v-loading="loading" element-loading-text="进行中..."
         element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
-        <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" />
-        <span class="name">{{ name }}</span>
+        <div class="imageDiv" :title="desc" @click="openDetails">
+            <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" />
+        </div>
+        <span class="name" :title="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
-        <div class="btm">
-            <p class="desc">{{ description }}</p>
-            <p class="os">{{ arch }}</p>
+        <div class="bottom">
+            <p class="arch">{{ arch }}</p>
             <el-button class="uninstallBtn" v-if="isInstalled"
                 @click="changeStatus(props,'uninstall')">卸载</el-button>
             <el-button class="installBtn" v-else
@@ -96,11 +97,18 @@ const changeStatus = (item: CardFace,flag: string) => {
     background-color: #999999;
 }
 
-.image {
-    width: 150px;
-    height: 150px;
+.imageDiv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 0 auto;
-    display: block;
+    width: 120px;
+    height: 120px;
+}
+
+.image {
+    width: 100px;
+    height: 100px;
 }
 
 .name {
@@ -110,10 +118,10 @@ const changeStatus = (item: CardFace,flag: string) => {
     font-weight: bold;
     font-size: 18px;
     white-space: nowrap;
-    margin: 3px auto 3px
-    /* overflow: hidden; */
-    /* text-overflow: ellipsis; */
-    /* max-width: 150px; */
+    margin: 3px auto 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
 }
 
 .version {
@@ -123,8 +131,10 @@ const changeStatus = (item: CardFace,flag: string) => {
     border-radius: 5px;
 }
 
-.btm {
+.bottom {
     margin-top: 3px;
+    padding-left: 12px;
+    padding-right: 2px;
     line-height: 10px;
     display: flex;
     justify-content: space-between;
@@ -146,22 +156,22 @@ const changeStatus = (item: CardFace,flag: string) => {
     /* 可根据需要设置最大宽度 */
 }
 
-.os {
-    font-size: 12px;
+.arch {
+    font-size: 14px;
     color: white;
 }
 
 .installBtn {
     background-color: blue;
     color: white;
-    padding: 5px;
-    min-height: auto;
+    padding: 6px;
+    height: 24px;
 }
 
 .uninstallBtn {
     background-color: red;
     color: white;
-    padding: 5px;
-    min-height: auto;
+    padding: 6px;
+    height: 24px;
 }
 </style>

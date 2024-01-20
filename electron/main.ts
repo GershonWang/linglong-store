@@ -16,7 +16,7 @@ let win: BrowserWindow | null;
 // 创建窗口并初始化相关参数
 function createWindow() {
   win = new BrowserWindow({
-    width: 1366,
+    width: 1280,
     height: 768,
     minWidth: 800,
     minHeight: 600,
