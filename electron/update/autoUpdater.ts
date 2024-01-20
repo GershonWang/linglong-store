@@ -11,19 +11,13 @@ export function updateHandle(mainWindow: BrowserWindow) {
   let message = {
     error: '检查更新出错',
     checking: '正在检查更新……',
-    updateAva: '检测到新版本，正在下载……',
+    updateAva: '检测到新版本，是否选择下载？',
     updateNotAva: '现在使用的就是最新版本，不用更新'
   }
   // 也可以通过代码配置文件服务地址
-  // autoUpdater.setFeedURL({
-  //   provider: 'github',
-  //   repo: 'GershonWang/linglong_store',
-  //   owner: 'GershonWang',
-  //   releaseType: 'release',
-  // })
   autoUpdater.setFeedURL({
     provider: 'generic',
-    url:'https://github.com/GershonWang/linglong_store/releases/download/v1.0.8'
+    url:'https://gitee.com/Jokul2018/linglong_store/releases/download/v0.0.1/'
   })
   // 设置是否自动下载，默认是true,当点击检测到新版本时，会自动下载安装包，所以设置为false
   autoUpdater.autoDownload = false

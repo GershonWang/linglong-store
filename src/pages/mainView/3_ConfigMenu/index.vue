@@ -11,7 +11,7 @@
         过滤非当前({{ sysConfStore.arch }})架构程序
       </el-checkbox><br>
       <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
-        自动检测更新
+        启动App自动检测商店版本
       </el-checkbox><br>
   </div>
 </template>
