@@ -15,11 +15,15 @@ export function updateHandle(mainWindow: BrowserWindow) {
     updateNotAva: '现在使用的就是最新版本，不用更新'
   }
   // 也可以通过代码配置文件服务地址
+  // autoUpdater.setFeedURL({
+  //   provider: 'github',
+  //   repo: 'GershonWang/linglong_store',
+  //   owner: 'GershonWang',
+  //   releaseType: 'release',
+  // })
   autoUpdater.setFeedURL({
-    provider: 'github',
-    repo: 'GershonWang/linglong_store',
-    owner: 'GershonWang',
-    releaseType: 'release',
+    provider: 'generic',
+    url:'https://github.com/GershonWang/linglong_store/releases/download/v1.0.8'
   })
   // 设置是否自动下载，默认是true,当点击检测到新版本时，会自动下载安装包，所以设置为false
   autoUpdater.autoDownload = false

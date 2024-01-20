@@ -23,6 +23,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ElNotification } from 'element-plus'
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
@@ -34,7 +35,7 @@ const sysConfStore = useSysConfStore();
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
-const { arch, sourceUrl } = storeToRefs(sysConfStore);
+const { arch, sourceUrl, autoCheckUpdate } = storeToRefs(sysConfStore);
 
 // 获取路由对象
 const router = useRouter();
@@ -73,7 +74,7 @@ const commandResult = (_event: any, res: any) => {
     }
     if ('ll-cli' == res.param.command && 'stdout' != res.code) {
         // 设置提示信息,弹出弹框
-        centerDialogVisible.value = true; 
+        centerDialogVisible.value = true;
     }
     if ('ll-cli list' == res.param.command && 'stdout' == res.code) {
         const result = res.result;
@@ -86,7 +87,7 @@ const networkResult = (_event: any, res: any) => {
         // 初始化所有应用程序列表
         const responseList = res.data.list;
         const installedItemList = installedItemsStore.installedItemList;
-        allServItemsStore.initAllItems(responseList,installedItemList);
+        allServItemsStore.initAllItems(responseList, installedItemList);
         // 更新已安装程序图标
         const allItems = allServItemsStore.allServItemList;
         installedItemsStore.updateInstalledItemsIcons(allItems);
@@ -94,16 +95,30 @@ const networkResult = (_event: any, res: any) => {
         router.push('/main_view');
     }
 }
+// 监听主进程发送的更新消息
+const updateMessage = (_event: any, text: string) => {
+    ElNotification({
+        title: '提示',
+        message: text,
+        type: 'info',
+    });
+}
 // 加载前执行
 onMounted(async () => {
     // 监听命令行执行结果
     ipcRenderer.on('command-result', commandResult);
     // 监听网络请求执行结果
     ipcRenderer.on('network-result', networkResult);
+    // 监听自动更新事件
+    ipcRenderer.on('update-message', updateMessage);
     // 发送命令，获取当前系统架构
     ipcRenderer.send('command', { command: 'uname -m' });
     // 发送命令，检测当前系统是否支持玲珑
     ipcRenderer.send('command', { command: 'll-cli' });
+    // 检查更新
+    if (autoCheckUpdate.value) {
+        ipcRenderer.send('checkForUpdate');
+    }
 });
 // 销毁前执行
 onBeforeUnmount(() => {
