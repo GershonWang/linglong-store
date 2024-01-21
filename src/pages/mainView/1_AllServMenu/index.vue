@@ -19,7 +19,7 @@
     <div class="container" @scroll="handleScroll">
         <div class="card_container" v-if="hasData">
             <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
-                <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
+                <AllCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
         </div>
@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import Card from "@/components/Card.vue";
+import AllCard from "@/components/allCard.vue";
 import { useAllServItemsStore } from "@/store/allServItems";
 import { CardFace } from '@/components/CardFace';
 

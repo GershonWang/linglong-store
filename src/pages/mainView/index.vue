@@ -47,12 +47,14 @@ import { ipcRenderer } from 'electron';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
+import { CardFace } from '@/components/CardFace';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
-import { CardFace } from '@/components/CardFace';
+import { useDifVersionItemsStore } from "@/store/difVersionItems";
 
 const installedItemsStore = useInstalledItemsStore();
 const allServItemsStore = useAllServItemsStore();
+const difVersionItemsStore = useDifVersionItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
@@ -71,7 +73,8 @@ const commandResult = (_event: any, res: any) => {
             retryNum.value = 0;
             ElNotification({
                 title: '请求错误',
-                message: '命令执行异常！',
+                dangerouslyUseHTMLString: true,
+                message: '命令执行异常！<br>' + res.result,
                 type: 'error',
             });
         }
@@ -95,6 +98,10 @@ const commandResult = (_event: any, res: any) => {
         allServItemsStore.updateItemInstallStatus(item);
         // 安装成功后，更新当前应用加载状态
         allServItemsStore.updateItemLoadingStatus(item,false);
+        // 安装完成后，更新版本应用的应用状态
+        difVersionItemsStore.updateItemInstallStatus(item);
+        // 安装完成后，更新版本应用加载状态
+        difVersionItemsStore.updateItemLoadingStatus(item,false);
         // 安装成功后，弹出通知
         ElNotification({
             title: '安装成功',
@@ -118,8 +125,12 @@ const commandResult = (_event: any, res: any) => {
         installedItemsStore.removeItem(item);
         // 卸载成功后，更新全部应用中的应用状态
         allServItemsStore.updateItemInstallStatus(item);
-        // 安装成功后，更新当前应用加载状态
+        // 卸载成功后，更新当前应用加载状态
         allServItemsStore.updateItemLoadingStatus(item,false);
+        // 卸载完成后，更新版本应用的应用状态
+        difVersionItemsStore.updateItemInstallStatus(item);
+        // 卸载完成后，更新版本应用加载状态
+        difVersionItemsStore.updateItemLoadingStatus(item,false);
         // 卸载成功后，弹出通知
         ElNotification({
             title: '卸载成功',

@@ -26,7 +26,7 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
             if (sysConfStore.filterFlag && itemArch != sysConfStore.arch) {
                 continue;
             }
-            item.isInstalled = installedItemList.some((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+            item.isInstalled = installedItemList.some((it) => it.name === item.name && it.appId === item.appId);
             item.loading = false;
             allServItemList.push(item);
         }

@@ -2,7 +2,7 @@
     <div class="container">
         <div class="card_container">
             <div class="card_items" v-for="(item, index) in installedStore.installedItemList" :key="index">
-                <Card :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
+                <InstalledCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
         </div>
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import Card from "@/components/Card.vue";
+import InstalledCard from "@/components/installedCard.vue";
 import { useInstalledItemsStore } from "@/store/installedItems";
 
 const installedStore = useInstalledItemsStore();

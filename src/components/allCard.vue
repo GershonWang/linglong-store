@@ -1,34 +1,28 @@
 <template>
-    <el-card class="container" v-loading="loading" element-loading-text="进行中..."
-        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
+    <el-card class="container">
         <div class="imageDiv" :title="desc" @click="openDetails">
             <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" />
         </div>
         <span class="name" :title="name">{{ name }}</span>
         <span class="version">{{ version }}</span>
-        <div class="bottom">
+        <div class="bottom"  v-loading="loading" :element-loading-svg="svg"
+        element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
             <p class="arch">{{ arch }}</p>
             <el-button class="uninstallBtn" v-if="isInstalled"
-                @click="changeStatus(props,'uninstall')">卸载</el-button>
+                @click="openDetails">卸载</el-button>
             <el-button class="installBtn" v-else
-                @click="changeStatus(props,'install')">安装</el-button>
+                @click="openDetails">安装</el-button>
         </div>
     </el-card>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { ipcRenderer } from "electron";
-import { ElNotification } from 'element-plus'
 import { CardFace } from "./CardFace";
 import defaultImage from '@/assets/logo.svg'
 import { useRouter } from 'vue-router';
-import { useAllServItemsStore } from "@/store/allServItems";
-import { useInstalledItemsStore } from "@/store/installedItems";
 
 const router = useRouter();
-const allServItemsStore = useAllServItemsStore();
-const installedItemsStore = useInstalledItemsStore();
 
 // 接受父组件传递的参数，并设置默认值
 // icon: "https://linglong.dev/asset/logo.svg",
@@ -42,8 +36,26 @@ const props = withDefaults(defineProps<CardFace>(), {
     appId: "",
     loading: false,
 })
+// 计算属性
+const desc = computed(() => {
+    return props.description.replace(/(.{20})/g, '$1\n');
+});
+// 加载的svg动画
+const svg = `
+        <path class="path" d="
+          M 30 15
+          L 28 17
+          M 25.61 25.61
+          A 15 15, 0, 0, 1, 15 30
+          A 15 15, 0, 1, 1, 27.99 7.5
+          L 15 15
+        " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+      `
+
+// 打开不同版本页面
 const openDetails = () => {
     router.push({ path: '/details', query: { 
+        menuName: '全部程序', 
         appId: props.appId,
         name: props.name,
         version: props.version,
@@ -51,41 +63,6 @@ const openDetails = () => {
         arch: props.arch,
         icon: props.icon
     } });
-}
-// 计算属性
-const desc = computed(() => {
-    return props.description.replace(/(.{20})/g, '$1\n');
-});
-const changeStatus = (item: CardFace,flag: string) => {
-    // 启用加载框
-    allServItemsStore.updateItemLoadingStatus(item, true);
-    installedItemsStore.updateItemLoadingStatus(item, true);
-    // 根据flag判断是安装还是卸载
-    let message: string = '正在安装' + item.name + '(' + item.version + ')';
-    let command: string = 'll-cli install ' + item.appId + '/' + item.version;
-    if (flag == 'uninstall') {
-        message = '正在卸载' + item.name + '(' + item.version + ')';
-        command = 'll-cli uninstall ' + item.appId + '/' + item.version;
-    }
-    // 弹出提示框
-    ElNotification({
-        title: '提示',
-        message: message,
-        type: 'info',
-        duration: 1000,
-    });
-    // 发送操作命令
-    ipcRenderer.send('command', {
-        icon: item.icon,
-        name: item.name,
-        version: item.version,
-        description: item.description,
-        arch: item.arch,
-        isInstalled: item.isInstalled,
-        appId: item.appId,
-        command: command,
-        loading: false
-    });
 }
 </script>
 

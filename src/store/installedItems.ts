@@ -22,7 +22,7 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
             for (let index = 1; index < apps.length - 1; index++) {
                 const element: string = apps[index];
                 const items: RegExpMatchArray | null = element.match(/'[^']+'|\S+/g);
-                if (!items || items[0] == "org.deepin.Runtime") { // 去除空行和运行时服务
+                if (!items || items[0] == "org.deepin.Runtime" || items[0] == 'org.deepin.basics') { // 去除空行和运行时服务
                     continue;
                 }
                 installedItemList.push({
@@ -49,7 +49,7 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         // 从所有程序列表中更新已安装程序的icon
         for (let index = 0; index < installedItemList.length; index++) {
             const element = installedItemList[index];
-            const findItem = allItems.find(item => item.appId == element.appId && item.name == element.name && item.version == element.version);
+            const findItem = allItems.find(item => item.appId == element.appId && item.name == element.name);
             if (findItem) {
                 element.icon = findItem.icon;
             }

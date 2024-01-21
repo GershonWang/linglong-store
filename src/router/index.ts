@@ -30,10 +30,6 @@ const router = createRouter({
                     component: () => import("../pages/mainView/4_AboutMenu/index.vue")
                 },
                 {
-                    path: '/card_comp',
-                    component: () => import("../components/Card.vue")
-                },
-                {
                     path: '/details',
                     component: () => import("../components/Details.vue")
                 },

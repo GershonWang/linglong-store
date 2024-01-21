@@ -1,4 +1,8 @@
 <template>
+    <el-breadcrumb :separator-icon="ArrowRight">
+        <el-breadcrumb-item class="firstMenu" @click="router.back">{{ query.menuName }}</el-breadcrumb-item>
+        <el-breadcrumb-item class="secondMenu">{{ query.name }}</el-breadcrumb-item>
+    </el-breadcrumb>
     <div class="baseContainer">
         <div class="title">参数信息</div>
         <div class="baseMessage">
@@ -26,79 +30,102 @@
     </div>
     <div class="chooseVerson">
         <div class="title">版本选择</div>
-        <el-table :data="tableData" style="width: 100%;height: 95%;border-radius: 5px">
+        <el-table :data="difVersionItemsStore.difVersionItemList" height="94%" style="width: 100%;border-radius: 5px">
             <el-table-column prop="name" label="名称" width="180" />
-            <el-table-column prop="version" label="版本号" width="180"/>
+            <el-table-column prop="version" label="版本号" width="180" />
             <el-table-column prop="description" label="描述" />
             <el-table-column fixed="right" label="操作" width="120">
-            <template #default>
-                <el-button link type="primary" size="small" @click="handleClick">
-                    安装
-                </el-button>
-                <el-button link type="primary" size="small">
-                    卸载
-                </el-button>
-            </template>
+                <template #default="scope">
+                    <el-button class="uninstallBtn" v-if="scope.row.isInstalled" :disabled="scope.row.loading"
+                        @click="changeStatus(scope.row,'uninstall')">卸载</el-button>
+                    <el-button class="installBtn" v-else :disabled="scope.row.loading"
+                        @click="changeStatus(scope.row,'install')">安装</el-button>
+                </template>
             </el-table-column>
         </el-table>
-        <!-- <div>{{ query.version }}</div> -->
     </div>
 </template>
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-const query = router.currentRoute.value.query;
-import defaultImage from '@/assets/logo.svg'
-import { onBeforeUnmount, onMounted, reactive } from 'vue';
+import { onBeforeUnmount, onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
 import { CardFace } from './CardFace';
+import { useRouter } from 'vue-router';
+import { ElNotification } from 'element-plus'
+import { ArrowRight } from '@element-plus/icons-vue'
+import defaultImage from '@/assets/logo.svg'
+import { useAllServItemsStore } from "@/store/allServItems";
+import { useInstalledItemsStore } from "@/store/installedItems";
+import { useDifVersionItemsStore } from "@/store/difVersionItems";
 
-const tableData = reactive<CardFace[]>([]);
-
-const handleClick = () => {
-  console.log('click')
+const allServItemsStore = useAllServItemsStore();
+const installedItemsStore = useInstalledItemsStore();
+const difVersionItemsStore = useDifVersionItemsStore();
+// 路由对象
+const router = useRouter();
+const query = router.currentRoute.value.query;
+// 操作按钮的点击事件
+const changeStatus = async (item: CardFace,flag: string) => {
+    // 启用加载框
+    allServItemsStore.updateItemLoadingStatus(item, true);
+    installedItemsStore.updateItemLoadingStatus(item, true);
+    difVersionItemsStore.updateItemLoadingStatus(item,true);
+    // 根据flag判断是安装还是卸载
+    let message: string = '正在安装' + item.name + '(' + item.version + ')';
+    let command: string = 'll-cli install ' + item.appId + '/' + item.version;
+    if (flag == 'uninstall') {
+        message = '正在卸载' + item.name + '(' + item.version + ')';
+        command = 'll-cli uninstall ' + item.appId + '/' + item.version;
+    }
+    // 弹出提示框
+    ElNotification({
+        title: '提示',
+        message: message,
+        type: 'info',
+        duration: 1000,
+    });
+    // 发送操作命令
+    ipcRenderer.send('command', {
+        icon: item.icon,
+        name: item.name,
+        version: item.version,
+        description: item.description,
+        arch: item.arch,
+        isInstalled: item.isInstalled,
+        appId: item.appId,
+        command: command,
+        loading: false
+    });
 }
-
+// 查询同应用不同版本的列表
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
     if (command.startsWith('ll-cli query') && 'stdout' == res.code) {
-        const apps: string[] = res.result.split("\n");
-        if (apps.length > 1) {
-            const header = apps[0].split("[1m[38;5;214m")[1];
-            const descriptionNum = header.indexOf("description");
-            // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
-            for (let index = 1; index < apps.length - 1; index++) {
-                const element: string = apps[index];
-                const items: RegExpMatchArray | null = element.match(/'[^']+'|\S+/g);
-                if (!items || items[0] == "org.deepin.Runtime" || items[5] == 'devel') { // 去除空行和运行时服务
-                    continue;
-                }
-                tableData.push({
-                    appId: items[0],
-                    name: items[1] ? items[1] : "-",
-                    version: items[2],
-                    arch: items[3],
-                    channel: items[4],
-                    module: items[5],
-                    description: element.substring(descriptionNum).trim(),
-                })
-            }
-        }
+        const data = res.result;
+        difVersionItemsStore.initDifVersionItems(data,query);
     }
 }
+// 启动时加载
 onMounted(() => {
     ipcRenderer.send("command", { name: "查询该程序所有版本列表", command: "ll-cli query " + query.appId });
     ipcRenderer.on('command-result', commandResult);
 })
+// 关闭前销毁
 onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
 })
 </script>
 <style scoped>
+.firstMenu :deep(.el-breadcrumb__inner) {
+    color: white;
+    cursor: pointer; 
+}
+.secondMenu :deep(.el-breadcrumb__inner) {
+    color: #999999;
+}
 .baseContainer {
     background-color: #999999;
     border-radius: 5px;
+    margin-top: 10px;
     margin-bottom: 3px;
     height: 30%;
 }
@@ -106,8 +133,7 @@ onBeforeUnmount(() => {
 .chooseVerson {
     background-color: #999999;
     border-radius: 5px;
-    margin-bottom: 3px;
-    height: 70%;
+    height: 67%;
 }
 
 .title {
@@ -152,4 +178,19 @@ onBeforeUnmount(() => {
 
 .softTitle {
     font-size: 18px;
-}</style>
+}
+
+.installBtn {
+    background-color: blue;
+    color: white;
+    padding: 6px;
+    height: 24px;
+}
+
+.uninstallBtn {
+    background-color: red;
+    color: white;
+    padding: 6px;
+    height: 24px;
+}
+</style>

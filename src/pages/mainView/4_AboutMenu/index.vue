@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>关于页面</h1>
+    <h1>关于程序</h1>
     <el-divider />
     <li>
       <a class="title">项目环境</a>
@@ -20,6 +20,9 @@
     </li>
     <div class="item">当前版本: {{ pkg.version }}</div>
     <div class="item">开发作者：{{ pkg.author }}</div>
+    <div class="item">
+      码云地址：<a class="link" href="https://gitee.com/Jokul2018/linglong_store" target="_blank">https://gitee.com/Jokul2018/linglong_store</a>
+    </div>
     <div class="item">
       github地址：<a class="link" href="https://github.com/GershonWang/linglong_store" target="_blank">https://github.com/GershonWang/linglong_store</a>
     </div>
