@@ -116,6 +116,7 @@ const updateMessage = (_event: any, text: string) => {
             center: true,
         }).then(() => {
             downloadPercent.value = 0
+            message.value = "更新下载中..." + downloadPercent.value + '%';
             ipcRenderer.send('downloadUpdate')
             // //注意：“downloadProgress”事件可能存在无法触发的问题，只需要限制一下下载网速就好了
             ipcRenderer.on('downloadProgress', (_event, progressObj) => {
