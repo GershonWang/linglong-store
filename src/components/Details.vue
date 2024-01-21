@@ -81,7 +81,7 @@ const changeStatus = async (item: CardFace,flag: string) => {
         title: '提示',
         message: message,
         type: 'info',
-        duration: 1000,
+        duration: 500,
     });
     // 发送操作命令
     ipcRenderer.send('command', {

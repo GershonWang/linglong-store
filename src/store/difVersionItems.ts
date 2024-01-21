@@ -18,27 +18,53 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
         // 清空原始对象
         clearItems();
         const apps: string[] = data.split("\n");
+        const seachAppId = query.appId;
+        const installedItemList = installedItemsStore.installedItemList;
         if (apps.length > 1) {
-            const header = apps[0].split("[1m[38;5;214m")[1];
-            const descriptionNum = header.indexOf("description");
             // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
             for (let index = 1; index < apps.length - 1; index++) {
-                const element: string = apps[index];
+                const element: string = apps[index].trim();
+                const item = {
+                    appId: "",name: "",version: "",arch: "",
+                    channel: "",module: "",description: "",
+                    isInstalled: false,loading: false,
+                }
                 const items: RegExpMatchArray | null = element.match(/'[^']+'|\S+/g);
-                if (!items || items[0] != query.appId || items[5] == 'devel') { // 去除空行和运行时服务
+                if (items && items.some((value: string) => value === "linglong")) {
+                    const channelIndex = items.findIndex((value: string) => value === "linglong");
+                    let name = "";
+                    if (channelIndex > 4) {
+                        for (let index = 1; index < channelIndex - 2; index++) {
+                            name += items[index] + " ";
+                        }
+                    } else if (channelIndex < 4) {
+                        name = "-";
+                    } else {
+                        name = items[1];
+                    }
+                    item.appId = items[0];
+                    item.name = name.trim();
+                    item.version = items[channelIndex - 2];
+                    item.arch = items[channelIndex - 1];
+                    item.channel = items[channelIndex];
+                    item.module = items[channelIndex + 1];
+                    let description = "";
+                    if (items.length - channelIndex > 2) {
+                        for (let index = channelIndex + 2; index < items.length; index++) {
+                            description += items[index] + " ";
+                        }
+                    } else if (items.length - channelIndex < 2) {
+                        description = " ";
+                    } else {
+                        description = items[channelIndex + 2];
+                    }
+                    item.description = description.trim();
+                }
+                if (item.appId != seachAppId || item.module == 'devel') { // 去除空行和运行时服务
                     continue;
                 }
-                difVersionItemList.push({
-                    appId: items[0],
-                    name: items[1] ? items[1] : "-",
-                    version: items[2],
-                    arch: items[3],
-                    channel: items[4],
-                    module: items[5],
-                    description: element.substring(descriptionNum).trim(),
-                    isInstalled: installedItemsStore.installedItemList.some((it) => it.name === items[1] && it.version === items[2] && it.appId === items[0]),
-                    loading: false,
-                })
+                item.isInstalled = installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+                difVersionItemList.push(item);
             }
         }
         return difVersionItemList;

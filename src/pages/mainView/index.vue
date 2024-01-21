@@ -73,9 +73,9 @@ const commandResult = (_event: any, res: any) => {
             retryNum.value = 0;
             ElNotification({
                 title: '请求错误',
-                dangerouslyUseHTMLString: true,
-                message: '命令执行异常！<br>' + res.result,
+                message: '命令执行异常！',
                 type: 'error',
+                duration: 500,
             });
         }
         return;
@@ -107,6 +107,7 @@ const commandResult = (_event: any, res: any) => {
             title: '安装成功',
             message: params.name + '(' + params.version + ')被成功安装!',
             type: 'success',
+            duration: 500,
         });
     }
     // 返回结果 - 当前执行卸载的应用信息
@@ -136,6 +137,7 @@ const commandResult = (_event: any, res: any) => {
             title: '卸载成功',
             message: params.name + '(' + params.version + ')被成功卸载!',
             type: 'success',
+            duration: 500,
         });
     }
 }
