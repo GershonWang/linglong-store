@@ -3,7 +3,7 @@
  */
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "com.dongpl.linglong_store",
+  "appId": "com.dongpl.linglong-store",
   "copyright": "Copyright © 2024 Jokul",
   "asar": true,
   "directories": {
