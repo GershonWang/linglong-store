@@ -5,6 +5,7 @@
         </a>
         <h1>玲珑应用商店</h1>
         <h3>{{ message }}</h3>
+        <h3>{{ downloadPercentMsg }}</h3>
         <div style="text-align: left;">
             <h3 style="color: chocolate;">PS注意：</h3>
             <p>1.刚程序运行时，会检测当前系统是否满足玲珑环境;如果环境不满足则弹出提示，程序不会进入到后续界面;这里需要您手动安装玲珑环境方可使用。</p>
@@ -45,6 +46,7 @@ const watchData = reactive({
 })
 // 进度条状态
 const downloadPercent = ref(0);
+const downloadPercentMsg = ref('');
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
     if ('uname -m' == res.param.command && 'stdout' == res.code) {
@@ -100,7 +102,6 @@ const networkResult = (_event: any, res: any) => {
         // 更新已安装程序图标
         const allItems = allServItemsStore.allServItemList;
         installedItemsStore.updateInstalledItemsIcons(allItems);
-        message.value = "加载完成...";
     } else {
         message.value = "网络源玲珑程序列表获取失败...";
     }
@@ -115,12 +116,13 @@ const updateMessage = (_event: any, text: string) => {
             type: 'info',
             center: true,
         }).then(() => {
+            message.value = "更新下载中...";
             downloadPercent.value = 0
-            message.value = "更新下载中..." + downloadPercent.value + '%';
             ipcRenderer.send('downloadUpdate')
             // //注意：“downloadProgress”事件可能存在无法触发的问题，只需要限制一下下载网速就好了
             ipcRenderer.on('downloadProgress', (_event, progressObj) => {
                 downloadPercent.value = parseInt(progressObj.percent || 0)
+                downloadPercentMsg.value = "下载进度：" + parseInt(progressObj.percent || 0) + "%";
             })
             ipcRenderer.on('isUpdateNow', () => {
                 ipcRenderer.send('isUpdateNow')
@@ -135,6 +137,10 @@ const updateMessage = (_event: any, text: string) => {
 // 监听message对象，如果等于‘加载完成’，则跳转到主界面
 watch(watchData, async (newQuestion, _oldQuestion) => {
     if (newQuestion.archFlag && newQuestion.useFlag && newQuestion.updateFlag && newQuestion.installFlag && newQuestion.netFlag) {
+        message.value = "加载完成...";
+        downloadPercentMsg.value = "";
+        // 延时500毫秒进入
+        await new Promise(resolve => setTimeout(resolve, 500));
         // 跳转到主界面
         router.push('/main_view');
     }
