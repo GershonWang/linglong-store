@@ -1,7 +1,7 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { exec } from "child_process";
 import axios from "axios";
-import log from "../logger";
+import log from "../logger/ipcLog";
 
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */

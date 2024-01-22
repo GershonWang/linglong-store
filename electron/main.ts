@@ -1,6 +1,6 @@
 import { app, BrowserWindow, shell, Menu } from "electron";
 import { join } from "node:path";
-import log from "./logger";
+import log from "electron-log";
 import IPCHandler from "./ipcHandler";
 import { updateHandle } from "./update";
 
@@ -17,7 +17,7 @@ const indexHtml = join(process.env.DIST, "index.html");
 //       return true;
 //   },
 // })
-console.log(app);
+log.info(app);
 
 let win: BrowserWindow | null;
 
@@ -53,7 +53,7 @@ function createWindow() {
   });
   // 设置所有链接通过默认浏览器打开，而非程序内打开
   win.webContents.setWindowOpenHandler(({ url }) => {
-    log.info("url", url);
+    log.info("打开url", url);
     // 如果是http或https协议的链接，则通过默认浏览器打开
     if (url.startsWith("https:") || url.startsWith("http:")) {
       shell.openExternal(url);
@@ -88,7 +88,7 @@ app.on('second-instance', () => {
 })
 app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows();
-  console.log('allWindows.length', allWindows.length)
+  log.info('活跃窗口个数：', allWindows.length);
   if (allWindows.length) {
     allWindows[0].focus()
   } else {
