@@ -196,4 +196,4 @@ onBeforeUnmount(() => {
     bottom: 0;
     width: 100%;
 }
-</style>@/store/systemConf
+</style>

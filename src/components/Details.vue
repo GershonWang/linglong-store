@@ -201,4 +201,4 @@ onBeforeUnmount(() => {
     padding: 6px;
     height: 24px;
 }
-</style>../interface/CardFace
+</style>

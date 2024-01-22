@@ -175,4 +175,4 @@ onMounted(() => {
     box-sizing: border-box;
     background-color: #999999;
 }
-</style>@/interface/CardFace
+</style>

@@ -188,4 +188,4 @@ a:hover {
     padding: 12px;
     position: relative;
 }
-</style>@/store/allServItems@/interface/CardFace
+</style>
