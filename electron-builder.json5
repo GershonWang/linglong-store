@@ -37,7 +37,13 @@
       "icons"
     ],
     "target": [
-      {"target": "deb", "arch": ["x64","arm64"]}
+      {"target": "deb", "arch": ["x64","arm64"]},
+      {"target": "AppImage", "arch": ["x64","arm64"]},
+      // {"target": "flatpak", "arch": ["x64","arm64"]},
+      // {"target": "snap", "arch": ["x64","arm64"]},
+      // {"target": "rpm", "arch": ["x64","arm64"]},
+      // {"target": "pacman", "arch": ["x64","arm64"]},
+      // {"target": "apk", "arch": ["x64","arm64"]},
     ],
   },
   "deb":{

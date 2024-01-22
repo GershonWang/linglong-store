@@ -11,6 +11,14 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELE
 const preload = join(__dirname, 'preload.js')
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
+
+// Object.defineProperty(app,'isPackaged',{
+//   get() {
+//       return true;
+//   },
+// })
+console.log(app);
+
 let win: BrowserWindow | null;
 
 // 创建窗口并初始化相关参数
@@ -87,3 +95,10 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+// 处理应用程序关闭事件
+app.on('before-quit', () => {
+  // 在这里进行必要的清理操作，如果有未完成的更新，取消它
+  // 例如，取消更新时，你可以使用以下代码
+  win.webContents.send('removeDownListener');
+});

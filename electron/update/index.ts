@@ -12,7 +12,8 @@ export function updateHandle(mainWindow: BrowserWindow) {
     error: '检查更新出错',
     checking: '正在检查更新……',
     updateAva: '检测到新版本，是否选择下载？',
-    updateNotAva: '现在使用的就是最新版本，不用更新'
+    updateNotAva: '现在使用的就是最新版本，不用更新',
+    chooseUpdate: '下载完毕，是否立刻更新？'
   }
   // 也可以通过代码配置文件服务地址
   autoUpdater.setFeedURL({
@@ -26,6 +27,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
   autoUpdater.on('error', function (error) {
     sendUpdateMessage(message.error, mainWindow)
   })
+  // 检查更新
   autoUpdater.on('checking-for-update', function () {
     sendUpdateMessage(message.checking, mainWindow)
   })
@@ -33,7 +35,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
   autoUpdater.on('update-available', function (info) {
     sendUpdateMessage(message.updateAva, mainWindow)
   })
-  //  没有可用的更新，也就是当前是最新版本
+  // 没有可用的更新，也就是当前是最新版本
   autoUpdater.on('update-not-available', function (info) {
     sendUpdateMessage(message.updateNotAva, mainWindow)
   })
@@ -43,27 +45,32 @@ export function updateHandle(mainWindow: BrowserWindow) {
   })
   // 新安装包下载完成
   autoUpdater.on('update-downloaded', function (_event: any) {
-    ipcMain.on('isUpdateNow', (e, arg) => {
-      log.warn('开始更新')
-      autoUpdater.quitAndInstall()
-    })
-    mainWindow.webContents.send('isUpdateNow')
+    sendUpdateMessage(message.chooseUpdate,mainWindow);
   })
-
+  // 监听更新事件
   ipcMain.on('checkForUpdate', () => {
     // 执行自动更新检查
     log.warn('执行自动更新检查, isDestroyed:', mainWindow.isDestroyed())
     // 解决mac重启App 报错 的问题: object has been destroyed
     if (mainWindow && !mainWindow.isDestroyed()) {
-      autoUpdater.checkForUpdates()
+      autoUpdater.checkForUpdates();
     }
   })
-
+  // 监听下载事件
   ipcMain.on('downloadUpdate', () => {
-    log.warn('执行下载')
-    autoUpdater.downloadUpdate()
+    log.warn('执行应用下载');
+    autoUpdater.downloadUpdate();
   })
-
+  // 监听更新事件
+  ipcMain.on('isUpdateNow', (e, arg) => {
+    log.warn('开始更新安装');
+    autoUpdater.quitAndInstall();
+  })
+  // 监听更新事件
+  ipcMain.on('removeDownListener', () => {
+    log.warn('移除下载完成后的监听事件');
+    autoUpdater.removeAllListeners('update-downloaded');
+  })
   // 通过main进程发送事件给renderer进程，提示更新信息
   function sendUpdateMessage(text, mainWindow: BrowserWindow) {
     mainWindow.webContents.send('update-message', text)

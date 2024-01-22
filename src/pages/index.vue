@@ -60,8 +60,6 @@ const commandResult = (_event: any, res: any) => {
         if (autoCheckUpdate.value) {
             message.value = "检测商店版本号...";
             ipcRenderer.send('checkForUpdate');
-            // 监听自动更新事件
-            ipcRenderer.on('update-message', updateMessage);
         } else {
             watchData.updateFlag = true;
         }
@@ -124,9 +122,17 @@ const updateMessage = (_event: any, text: string) => {
                 downloadPercent.value = parseInt(progressObj.percent || 0)
                 downloadPercentMsg.value = "下载进度：" + parseInt(progressObj.percent || 0) + "%";
             })
-            ipcRenderer.on('isUpdateNow', () => {
-                ipcRenderer.send('isUpdateNow')
-            })
+        }).catch(() => {
+            watchData.updateFlag = true;
+        })
+    } else if (text == '下载完毕，是否立刻更新？'){
+        ElMessageBox.confirm(text, '提示', {
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'info',
+            center: true,
+        }).then(() => {
+            ipcRenderer.send('isUpdateNow');
         }).catch(() => {
             watchData.updateFlag = true;
         })
@@ -151,8 +157,10 @@ onMounted(async () => {
     ipcRenderer.on('command-result', commandResult);
     // 监听网络请求执行结果
     ipcRenderer.on('network-result', networkResult);
+    // 监听自动更新事件
+    ipcRenderer.on('update-message', updateMessage);
     // 发送命令，获取当前系统架构
-    message.value = "开始环境检测。。。";
+    message.value = "开始环境检测...";
     message.value = "检测当前系统架构...";
     ipcRenderer.send('command', { command: 'uname -m' });
     message.value = "检测是否存在玲珑环境...";
@@ -163,8 +171,6 @@ onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
     ipcRenderer.removeListener('network-result', networkResult);
     ipcRenderer.removeListener('update-message', updateMessage);
-    ipcRenderer.removeAllListeners('downloadProgress');
-    ipcRenderer.removeAllListeners('isUpdateNow');
 });
 </script>
 <style scoped>

@@ -86,7 +86,25 @@ const updateMessage = (_event: any, text: string) => {
       updateStatusStore.changeUpdateBtnStatus(updateBtnStatus.value);
       ElNotification({
         title: '提示',
-        message: "放弃更新。。",
+        message: "已放弃更新...",
+        type: 'info',
+        duration: 500,
+      });
+    })
+  } else if (text == '下载完毕，是否立刻更新？') {
+    ElMessageBox.confirm(text, '提示', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'info',
+      center: true,
+    }).then(() => {
+      ipcRenderer.send('isUpdateNow');
+    }).catch(() => {
+      updateBtnStatus.value = false;
+      updateStatusStore.changeUpdateBtnStatus(updateBtnStatus.value);
+      ElNotification({
+        title: '提示',
+        message: "已取消安装...",
         type: 'info',
         duration: 500,
       });
@@ -117,10 +135,6 @@ onMounted(() => {
       downloadModule.value = false;
       updateStatusStore.changeUpdateWinStatus(downloadModule.value);
     }
-  })
-  // 监听下载完成事件
-  ipcRenderer.on('isUpdateNow', () => {
-    ipcRenderer.send('isUpdateNow')
   })
 })
 onBeforeUnmount(() => {
@@ -168,4 +182,5 @@ onBeforeUnmount(() => {
 
 .progress :deep(.el-progress__text) {
   color: white;
-}</style>
+}
+</style>
