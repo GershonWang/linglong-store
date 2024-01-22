@@ -76,6 +76,13 @@ const changeStatus = async (item: CardFace,flag: string) => {
         message = '正在卸载' + item.name + '(' + item.version + ')';
         command = 'll-cli uninstall ' + item.appId + '/' + item.version;
     }
+    // 从所有程序列表中捞取程序图标icon
+    let icon: string | undefined;
+    const allItems = allServItemsStore.allServItemList;
+    const findItem = allItems.find(item => item.appId == item.appId && item.name == item.name);
+    if (findItem) {
+        icon = findItem.icon;
+    }
     // 弹出提示框
     ElNotification({
         title: '提示',
@@ -85,7 +92,7 @@ const changeStatus = async (item: CardFace,flag: string) => {
     });
     // 发送操作命令
     ipcRenderer.send('command', {
-        icon: item.icon,
+        icon: icon,
         name: item.name,
         version: item.version,
         description: item.description,

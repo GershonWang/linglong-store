@@ -6,6 +6,7 @@ const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
     // 执行脚本命令
     ipcMain.on("command", (_event, data) => {
+        console.log('command-data',data);
         // 在主进程中执行命令，并将结果返回到渲染进程
         exec(data.command, (error, stdout, stderr) => {
             if (error) {

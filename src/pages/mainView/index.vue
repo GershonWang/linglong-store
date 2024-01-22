@@ -82,15 +82,8 @@ const commandResult = (_event: any, res: any) => {
     }
     // 返回结果 - 当前执行安装的应用信息
     if (params.command.startsWith('ll-cli install')) {
-        // 从所有程序列表中捞取程序图标icon
-        let icon = params.icon;
-        const allItems = allServItemsStore.allServItemList;
-        const findItem = allItems.find(item => item.appId == params.appId && item.name == params.name);
-        if (findItem) {
-            icon = findItem.icon;
-        }
         const item: CardFace = {
-            icon: icon,
+            icon: params.icon,
             name: params.name,
             version: params.version,
             description: params.description,
