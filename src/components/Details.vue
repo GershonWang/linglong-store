@@ -125,6 +125,7 @@ onBeforeUnmount(() => {
 .firstMenu :deep(.el-breadcrumb__inner) {
     color: white;
     cursor: pointer; 
+    font-weight: bold;
 }
 .secondMenu :deep(.el-breadcrumb__inner) {
     color: #999999;
