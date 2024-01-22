@@ -20,7 +20,7 @@
 import { computed } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
-import { CardFace } from "./CardFace";
+import { CardFace } from "@/interface/CardFace";
 import defaultImage from '@/assets/logo.svg'
 import { useRouter } from 'vue-router';
 import { useAllServItemsStore } from "@/store/allServItems";
@@ -192,4 +192,4 @@ const changeStatus = (item: CardFace,flag: string) => {
     padding: 6px;
     height: 24px;
 }
-</style>
+</style>../interface/CardFace

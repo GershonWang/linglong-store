@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { CardFace } from "./CardFace";
+import { CardFace } from "@/interface/CardFace";
 import defaultImage from '@/assets/logo.svg'
 import { useRouter } from 'vue-router';
 
@@ -151,4 +151,4 @@ const openDetails = () => {
     padding: 6px;
     height: 24px;
 }
-</style>
+</style>../interface/CardFace

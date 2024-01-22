@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 import { reactive } from "vue";
-import { CardFace } from "@/components/CardFace";
-import { useSysConfStore } from "@/store/sysConf";
+import { CardFace } from "@/interface/CardFace";
+import { useSystemConfigStore } from "@/store/systemConfig";
 
-const sysConfStore = useSysConfStore();
+const systemConfigStore = useSystemConfigStore();
 /**
  * 全部应用
  */
@@ -23,7 +23,7 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         for (let i = 0; i < array.length; i++) {
             const item: CardFace = array[i];
             const itemArch: string = item.arch.trim();
-            if (sysConfStore.filterFlag && itemArch != sysConfStore.arch) {
+            if (systemConfigStore.filterFlag && itemArch != systemConfigStore.arch) {
                 continue;
             }
             item.isInstalled = installedItemList.some((it) => it.name === item.name && it.appId === item.appId);

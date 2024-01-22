@@ -23,14 +23,14 @@ import { ElMessageBox } from 'element-plus'
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
-import { useSysConfStore } from "@/store/sysConf";
-import { useAllServItemsStore } from '@/store/allServItems'
+import { useSystemConfigStore } from "@/store/systemConfig";
+import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
 
-const sysConfStore = useSysConfStore();
+const systemConfigStore = useSystemConfigStore();
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
-const { arch, sourceUrl, autoCheckUpdate } = storeToRefs(sysConfStore);
+const { arch, sourceUrl, autoCheckUpdate } = storeToRefs(systemConfigStore);
 
 // 获取路由对象
 const router = useRouter();
@@ -196,4 +196,4 @@ onBeforeUnmount(() => {
     bottom: 0;
     width: 100%;
 }
-</style>
+</style>@/store/systemConf

@@ -1,6 +1,6 @@
-import { CardFace } from "@/components/CardFace";
 import { defineStore } from "pinia";
 import { reactive } from "vue";
+import { CardFace } from "@/interface/CardFace";
 
 /**
  * 已安装的全部应用

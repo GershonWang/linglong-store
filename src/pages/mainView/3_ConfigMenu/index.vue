@@ -8,7 +8,7 @@
           :key="1" />
       </el-select><br>
       <el-checkbox v-model="checked" size="large" @change="checkedArch(checked)">
-        过滤非当前({{ sysConfStore.arch }})架构程序
+        过滤非当前({{ systemConfigStore.arch }})架构程序
       </el-checkbox><br>
       <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
         启动App自动检测商店版本
@@ -18,11 +18,11 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
-import { useSysConfStore } from "@/store/sysConf";
+import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 
-const sysConfStore = useSysConfStore();
+const systemConfigStore = useSystemConfigStore();
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
@@ -34,18 +34,18 @@ let checked = ref(true);
 let autoCheckUpdate = ref(true);
 // 切换源事件
 const changeEvent = (data: any) => {
-  sysConfStore.changeSourceUrl(data);
+  systemConfigStore.changeSourceUrl(data);
 }
 // 过滤不匹配架构程序事件
 const checkedArch = (data: boolean) => {
-  sysConfStore.changeFilterFlag(data);
+  systemConfigStore.changeFilterFlag(data);
   // 发送网络命令，获取源内所有应用
-  ipcRenderer.send('network', { url: sysConfStore.sourceUrl + '/api/v0/web-store/apps??page=1&size=100000' });
+  ipcRenderer.send('network', { url: systemConfigStore.sourceUrl + '/api/v0/web-store/apps??page=1&size=100000' });
   ipcRenderer.on('network-result', networkResult);
 }
 // 自动检测更新事件
 const checkedUpdate = (data: boolean) => {
-  sysConfStore.changeAutoCheckUpdate(data);
+  systemConfigStore.changeAutoCheckUpdate(data);
 }
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
@@ -57,9 +57,9 @@ const networkResult = (_event: any, res: any) => {
   }
 }
 onMounted(() => {
-  defaultSource.value = sysConfStore.sourceUrl;
-  checked.value = sysConfStore.filterFlag;
-  autoCheckUpdate.value = sysConfStore.autoCheckUpdate;
+  defaultSource.value = systemConfigStore.sourceUrl;
+  checked.value = systemConfigStore.filterFlag;
+  autoCheckUpdate.value = systemConfigStore.autoCheckUpdate;
 })
 onBeforeUnmount(() => {
   ipcRenderer.removeListener('network-result', networkResult)

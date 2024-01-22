@@ -1,8 +1,8 @@
-import { CardFace } from "@/components/CardFace";
 import { defineStore } from "pinia";
 import { reactive } from "vue";
-import { useInstalledItemsStore } from "@/store/installedItems";
+import { CardFace } from "@/interface/CardFace";
 import { LocationQuery } from "vue-router";
+import { useInstalledItemsStore } from "@/store/installedItems";
 
 const installedItemsStore = useInstalledItemsStore();
 

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useSysConfStore = defineStore('sysConf', {
+export const useSystemConfigStore = defineStore('systemConfig', {
     state: () => ({
         // 系统架构
         arch: ref('x86_64'),

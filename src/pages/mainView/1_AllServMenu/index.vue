@@ -35,7 +35,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import AllCard from "@/components/allCard.vue";
 import { useAllServItemsStore } from "@/store/allServItems";
-import { CardFace } from '@/components/CardFace';
+import { CardFace } from '@/interface/CardFace';
 
 const allServItemsStore = useAllServItemsStore();
 // 获取全部程序列表
@@ -175,4 +175,4 @@ onMounted(() => {
     box-sizing: border-box;
     background-color: #999999;
 }
-</style>
+</style>@/interface/CardFace

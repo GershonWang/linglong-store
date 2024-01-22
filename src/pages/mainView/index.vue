@@ -43,7 +43,7 @@ import { ipcRenderer } from 'electron';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
-import { CardFace } from '@/components/CardFace';
+import { CardFace } from '@/interface/CardFace';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
@@ -188,4 +188,4 @@ a:hover {
     padding: 12px;
     position: relative;
 }
-</style>@/store/allServItems
+</style>@/store/allServItems@/interface/CardFace

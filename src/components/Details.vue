@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
-import { CardFace } from './CardFace';
+import { CardFace } from '@/interface/CardFace';
 import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
@@ -201,4 +201,4 @@ onBeforeUnmount(() => {
     padding: 6px;
     height: 24px;
 }
-</style>
+</style>../interface/CardFace

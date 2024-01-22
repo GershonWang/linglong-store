@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import InstalledCard from "@/components/installedCard.vue";
+import InstalledCard from "@/components/installCard.vue";
 import { useInstalledItemsStore } from "@/store/installedItems";
 
 const installedStore = useInstalledItemsStore();
