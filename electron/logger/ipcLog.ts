@@ -21,5 +21,4 @@ log.transports.file.level = 'info';
 log.transports.file.maxSize = 1048576;
 log.transports.console.level = 'silly';
 
-
 export default log;

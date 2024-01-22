@@ -60,7 +60,6 @@ function createWindow() {
     }
     return { action: "deny" };
   });
-
 }
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
@@ -86,6 +85,7 @@ app.on('second-instance', () => {
     win.focus()
   }
 })
+// macOS事件(应用被激活时触发)
 app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows();
   log.info('活跃窗口个数：', allWindows.length);
@@ -95,10 +95,8 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
 // 处理应用程序关闭事件
 app.on('before-quit', () => {
   // 在这里进行必要的清理操作，如果有未完成的更新，取消它
-  // 例如，取消更新时，你可以使用以下代码
   win.webContents.send('removeDownListener');
 });
