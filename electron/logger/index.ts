@@ -2,6 +2,8 @@ import { app } from "electron";
 import log from "electron-log";
 import { join } from "node:path";
 import fs from "fs-extra";
+
+/* ******************************** updateLog ******************************** */
 // 在app缓存目录，创建目录
 const updatePendingPath = join(app.getPath('logs'), 'print-updater');
 // 检测更新日志目录是否存在
@@ -18,4 +20,5 @@ log.transports.file.maxSize = 1048576;
 log.transports.console.level = 'silly';
 // 打印日志
 log.warn('升级日志文件缓存路径:' + updatePendingPath);
-export default log
+
+export default log;

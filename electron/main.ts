@@ -1,8 +1,8 @@
 import { app, BrowserWindow, shell, Menu } from "electron";
-import log from "electron-log";
 import { join } from "node:path";
-import IPCHandler from "./ipc";
-import { updateHandle } from "./update/autoUpdater";
+import log from "./logger";
+import IPCHandler from "./ipcHandler";
+import { updateHandle } from "./update";
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron');
 process.env.DIST = join(__dirname, "../dist");
