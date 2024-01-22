@@ -78,8 +78,9 @@ const searchSoft = (msg: string) => {
     for (let index = 0; index < max; index++) {
         const element: CardFace = allItems[index];
         const name = element.name.toLowerCase();
+        const description = element.description?.toLowerCase();
         const message = msg.toLowerCase();
-        if (name.includes(message)) {
+        if (name.includes(message) || description?.includes(message)) {
             displayedItems.push(element);
         }
     }
