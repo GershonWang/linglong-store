@@ -98,10 +98,14 @@ const updateMessage = (_event: any, text: string) => {
       type: 'info',
       center: true,
     }).then(() => {
+      downloadModule.value = false;
+      updateStatusStore.changeUpdateWinStatus(downloadModule.value);
       ipcRenderer.send('isUpdateNow');
     }).catch(() => {
       updateBtnStatus.value = false;
       updateStatusStore.changeUpdateBtnStatus(updateBtnStatus.value);
+      downloadModule.value = false;
+      updateStatusStore.changeUpdateWinStatus(downloadModule.value);
       ElNotification({
         title: '提示',
         message: "已取消安装...",
@@ -109,6 +113,15 @@ const updateMessage = (_event: any, text: string) => {
         duration: 500,
       });
     })
+  } else if (text == '现在使用的就是最新版本，不用更新' || text == '检查更新出错') {
+    updateBtnStatus.value = false;
+    updateStatusStore.changeUpdateBtnStatus(updateBtnStatus.value);
+    ElNotification({
+      title: '提示',
+      message: text,
+      type: 'info',
+      duration: 3000,
+    });
   } else {
     ElNotification({
       title: '提示',
