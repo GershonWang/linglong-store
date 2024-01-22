@@ -24,10 +24,6 @@
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>卡片组件</span>
                     </el-menu-item>
-                    <el-menu-item index="6" @click="toPage('/update_menu')" style="display: none;">
-                        <el-icon><setting /></el-icon>
-                        <span>更新程序</span>
-                    </el-menu-item>
                     <el-menu-item index="999" @click="toPage('/')" style="display: none;">
                         <el-icon><Loading /></el-icon>
                         <span>返回首页</span>

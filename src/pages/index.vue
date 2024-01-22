@@ -162,6 +162,9 @@ onMounted(async () => {
 onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
     ipcRenderer.removeListener('network-result', networkResult);
+    ipcRenderer.removeListener('update-message', updateMessage);
+    ipcRenderer.removeAllListeners('downloadProgress');
+    ipcRenderer.removeAllListeners('isUpdateNow');
 });
 </script>
 <style scoped>
