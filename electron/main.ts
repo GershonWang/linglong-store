@@ -1,6 +1,6 @@
 import { app, BrowserWindow, shell, Menu } from "electron";
 import { join } from "node:path";
-import log from "electron-log";
+import { mainLog } from "./logger";
 import IPCHandler from "./ipcHandler";
 import { updateHandle } from "./update";
 
@@ -11,13 +11,6 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELE
 const preload = join(__dirname, 'preload.js')
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
-
-// Object.defineProperty(app,'isPackaged',{
-//   get() {
-//       return true;
-//   },
-// })
-log.info(app);
 
 let win: BrowserWindow | null;
 
@@ -36,8 +29,8 @@ function createWindow() {
       // webSecurity: false, // 禁用 Web 安全策略
     },
   });
-  log.info("dev环境的配置地址", VITE_DEV_SERVER_URL);
-  log.info("pro环境的配置地址", indexHtml);
+  mainLog.info("dev环境的配置地址", VITE_DEV_SERVER_URL);
+  mainLog.info("pro环境的配置地址", indexHtml);
   // 禁用菜单，一般情况下，不需要禁用
   Menu.setApplicationMenu(null);
   // 根据是否存在开发服务地址判断加载模式
@@ -53,7 +46,7 @@ function createWindow() {
   });
   // 设置所有链接通过默认浏览器打开，而非程序内打开
   win.webContents.setWindowOpenHandler(({ url }) => {
-    log.info("打开url", url);
+    mainLog.info("打开url", url);
     // 如果是http或https协议的链接，则通过默认浏览器打开
     if (url.startsWith("https:") || url.startsWith("http:")) {
       shell.openExternal(url);
@@ -88,7 +81,7 @@ app.on('second-instance', () => {
 // macOS事件(应用被激活时触发)
 app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows();
-  log.info('活跃窗口个数：', allWindows.length);
+  mainLog.info('活跃窗口个数：', allWindows.length);
   if (allWindows.length) {
     allWindows[0].focus()
   } else {

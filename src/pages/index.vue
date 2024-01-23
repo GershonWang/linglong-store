@@ -22,7 +22,6 @@ import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
 import { ElMessageBox } from 'element-plus'
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -30,7 +29,6 @@ import { useInstalledItemsStore } from "@/store/installedItems";
 const systemConfigStore = useSystemConfigStore();
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
-const { arch, sourceUrl, autoCheckUpdate } = storeToRefs(systemConfigStore);
 
 // 获取路由对象
 const router = useRouter();
@@ -49,54 +47,69 @@ const downloadPercent = ref(0);
 const downloadPercentMsg = ref('');
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
-    if ('uname -m' == res.param.command && 'stdout' == res.code) {
-        arch.value = res.result.trim();
-        watchData.archFlag = true;
-        message.value = "系统架构检测完成...";
-    }
-    if ('ll-cli' == res.param.command && 'stdout' == res.code) {
-        watchData.useFlag = true;
-        message.value = "玲珑环境存在...";
-        if (autoCheckUpdate.value) {
-            message.value = "检测商店版本号...";
-            ipcRenderer.send('checkForUpdate');
+    const code: string = res.code;
+    const result: any = res.result;
+    const command: string = res.param.command;
+    if (command == 'uname -m') {
+        if (code == 'stdout') {
+            systemConfigStore.changeArch(result.trim());
+            watchData.archFlag = true;
+            message.value = "系统架构检测完成...";
         } else {
-            watchData.updateFlag = true;
+            message.value = "系统架构检测异常...";
         }
-        message.value = "检测系统已安装的玲珑程序...";
-        ipcRenderer.send("command", { name: "查询已安装程序列表", command: "ll-cli list" });
-        message.value = "获取网络源玲珑程序列表...";
-        ipcRenderer.send('network', { url: sourceUrl.value + '/api/v0/web-store/apps??page=1&size=100000' });
     }
-    if ('ll-cli' == res.param.command && 'stdout' != res.code) {
-        message.value = "玲珑环境不存在...";
-        ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！', '警告', {
-            confirmButtonText: '前往',
-            cancelButtonText: '退出',
-            type: 'warning',
-            center: true,
-        }).then(() => {
-            window.open('https://linglong.dev/guide/start/install.html');
-            window.close();
-        }).catch(() => {
-            window.close();
-        })
+    if (command == 'll-cli') {
+        if(code == 'stdout') {
+            watchData.useFlag = true;
+            message.value = "玲珑环境存在...";
+            if (systemConfigStore.autoCheckUpdate) {
+                message.value = "检测商店版本号...";
+                ipcRenderer.send('checkForUpdate');
+            } else {
+                message.value = "跳过商店版本检测...";
+                watchData.updateFlag = true;
+            }
+            message.value = "正在检测系统已安装的玲珑程序...";
+            ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+            message.value = "正在获取网络源玲珑程序列表...";
+            const baseUrl: string = systemConfigStore.sourceUrl;
+            const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
+            ipcRenderer.send('network', { url: requestUrl });
+        } else {
+            message.value = "玲珑环境不存在...";
+            ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！', '警告', {
+                confirmButtonText: '前往',
+                cancelButtonText: '退出',
+                type: 'warning',
+                center: true,
+            }).then(() => {
+                window.open('https://linglong.dev/guide/start/install.html');
+                window.close();
+            }).catch(() => {
+                window.close();
+            })
+        }
     }
-    if ('ll-cli list' == res.param.command && 'stdout' == res.code) {
-        const result = res.result;
-        installedItemsStore.initInstalledItems(result);
+    if (command.startsWith('ll-cli list')) {
+        if (code == 'stdout') {
+            installedItemsStore.initInstalledItems(result);
+            message.value = "已安装的玲珑程序检测完成...";
+        } else {
+            message.value = "已安装的玲珑程序检测异常...";
+        }
         watchData.installFlag = true;
-        message.value = "已安装的玲珑程序检测完成...";
     }
 }
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
-    if (res.code == 200) {
+    const code = res.code;
+    const data = res.data;
+    if (code == 200) {
         message.value = "网络源玲珑程序列表获取完成...";
         // 初始化所有应用程序列表
-        const responseList = res.data.list;
         const installedItemList = installedItemsStore.installedItemList;
-        allServItemsStore.initAllItems(responseList, installedItemList);
+        allServItemsStore.initAllItems(data, installedItemList);
         // 更新已安装程序图标
         const allItems = allServItemsStore.allServItemList;
         installedItemsStore.updateInstalledItemsIcons(allItems);
@@ -118,11 +131,12 @@ const updateMessage = (_event: any, text: string) => {
             downloadPercent.value = 0
             ipcRenderer.send('downloadUpdate')
             // //注意：“downloadProgress”事件可能存在无法触发的问题，只需要限制一下下载网速就好了
-            ipcRenderer.on('downloadProgress', (_event, progressObj) => {
+            ipcRenderer.once('downloadProgress', (_event, progressObj) => {
                 downloadPercent.value = parseInt(progressObj.percent || 0)
                 downloadPercentMsg.value = "下载进度：" + parseInt(progressObj.percent || 0) + "%";
             })
         }).catch(() => {
+            message.value = "版本检测完成...";
             watchData.updateFlag = true;
         })
     } else if (text == '下载完毕，是否立刻更新？'){
@@ -132,11 +146,14 @@ const updateMessage = (_event: any, text: string) => {
             type: 'info',
             center: true,
         }).then(() => {
+            message.value = "下载完毕，正在更新中...";
             ipcRenderer.send('isUpdateNow');
         }).catch(() => {
+            message.value = "版本检测完成...";
             watchData.updateFlag = true;
         })
     } else if (text == '现在使用的就是最新版本，不用更新' || text == '检查更新出错'){
+        message.value = "版本检测完成...";
         watchData.updateFlag = true;
     }
 }

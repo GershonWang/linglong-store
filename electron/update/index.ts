@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
-import log from '../logger/updateLog'
+import { updateLog } from '../logger'
 
 // 检测更新，在你想要检查更新的时候执行，renderer事件触发后的操作自行编写
 export function updateHandle(mainWindow: BrowserWindow) {
@@ -22,7 +22,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
   })
   // 设置是否自动下载，默认是true,当点击检测到新版本时，会自动下载安装包，所以设置为false
   autoUpdater.autoDownload = false
-  autoUpdater.logger = log
+  autoUpdater.logger = updateLog
   // 正在检查更新
   autoUpdater.on('error', function (error) {
     sendUpdateMessage(message.error, mainWindow)
@@ -50,7 +50,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
   // 监听更新事件
   ipcMain.on('checkForUpdate', () => {
     // 执行自动更新检查
-    log.warn('执行自动更新检查, isDestroyed:', mainWindow.isDestroyed())
+    updateLog.warn('执行自动更新检查, isDestroyed:', mainWindow.isDestroyed())
     // 解决mac重启App 报错 的问题: object has been destroyed
     if (mainWindow && !mainWindow.isDestroyed()) {
       autoUpdater.checkForUpdates();
@@ -58,17 +58,17 @@ export function updateHandle(mainWindow: BrowserWindow) {
   })
   // 监听下载事件
   ipcMain.on('downloadUpdate', () => {
-    log.warn('执行应用下载');
+    updateLog.warn('执行应用下载');
     autoUpdater.downloadUpdate();
   })
   // 监听更新事件
   ipcMain.on('isUpdateNow', (e, arg) => {
-    log.warn('开始更新安装');
+    updateLog.warn('开始更新安装');
     autoUpdater.quitAndInstall();
   })
   // 监听更新事件
   ipcMain.on('removeDownListener', () => {
-    log.warn('移除下载完成后的监听事件');
+    updateLog.warn('移除下载完成后的监听事件');
     autoUpdater.removeAllListeners('update-downloaded');
   })
   // 通过main进程发送事件给renderer进程，提示更新信息
