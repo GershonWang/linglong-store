@@ -20,8 +20,14 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         // 清空原始对象
         clearItems();
         // 组装数据进入对象数组
-        for (let i = 0; i < array.length; i++) {
-            const item: CardFace = array[i];
+        const list:CardFace[] = array;
+        list.sort((a, b) => {
+            const aResult = a.id ? parseInt(a.id, 10) : 0;
+            const bResult = b.id ? parseInt(b.id, 10) : 0;
+            return aResult - bResult;
+        })
+        for (let i = 0; i < list.length; i++) {
+            const item: CardFace = list[i];
             const itemArch: string = item.arch.trim();
             if (systemConfigStore.filterFlag && itemArch != systemConfigStore.arch) {
                 continue;

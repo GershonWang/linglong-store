@@ -40,7 +40,9 @@ const changeEvent = (data: any) => {
 const checkedArch = (data: boolean) => {
   systemConfigStore.changeFilterFlag(data);
   // 发送网络命令，获取源内所有应用
-  ipcRenderer.send('network', { url: systemConfigStore.sourceUrl + '/api/v0/web-store/apps??page=1&size=100000' });
+  const baseUrl: string = systemConfigStore.sourceUrl;
+  const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
+  ipcRenderer.send('network', { url: requestUrl });
   ipcRenderer.on('network-result', networkResult);
 }
 // 自动检测更新事件
@@ -49,11 +51,12 @@ const checkedUpdate = (data: boolean) => {
 }
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {
-  if (res.code == 200) {
+  const code = res.code;
+  const data = res.data;
+  if (code == 200) {
     // 初始化所有应用程序列表
-    const responseList = res.data.list;
     const installedItemList = installedItemsStore.installedItemList;
-    allServItemsStore.initAllItems(responseList, installedItemList);
+    allServItemsStore.initAllItems(data, installedItemList);
   }
 }
 onMounted(() => {
