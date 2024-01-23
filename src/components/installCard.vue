@@ -3,7 +3,7 @@
         <div class="imageDiv" :title="desc" @click="openDetails">
             <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" />
         </div>
-        <span class="name" :title="name">{{ name }}</span>
+        <span class="name" :title="name">{{ smallName }}</span>
         <span class="version">{{ version }}</span>
         <div class="bottom"  v-loading="loading" :element-loading-svg="svg"
         element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
@@ -48,6 +48,9 @@ const props = withDefaults(defineProps<CardFace>(), {
 const desc = computed(() => {
     return props.description.replace(/(.{20})/g, '$1\n');
 });
+const smallName = computed(() => {
+    return props.name.substring(0,13);
+});
 // 加载的svg动画
 const svg = `
         <path class="path" d="
@@ -59,7 +62,6 @@ const svg = `
           L 15 15
         " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
       `
-
 // 打开不同版本页面
 const openDetails = () => {
     router.push({ path: '/details', query: {
@@ -132,14 +134,19 @@ const changeStatus = (item: CardFace,flag: string) => {
 .name {
     display: flex;
     justify-content: center;
+    text-align: center;
+    /* 居中显示 */
     color: #36D;
     font-weight: bold;
     font-size: 18px;
-    white-space: nowrap;
     margin: 3px auto 3px;
+    white-space: nowrap;
+    /* 文字不换行 */
     overflow: hidden;
     text-overflow: ellipsis;
+    /* 超出部分用省略号代替 */
     max-width: 150px;
+    /* 设置最大宽度 */
 }
 
 .version {
