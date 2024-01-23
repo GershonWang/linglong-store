@@ -51,7 +51,6 @@ const svg = `
           L 15 15
         " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
       `
-
 // 打开不同版本页面
 const openDetails = () => {
     router.push({ path: '/details', query: { 
@@ -91,14 +90,15 @@ const openDetails = () => {
 .name {
     display: flex;
     justify-content: center;
+    text-align: center; /* 居中显示 */
     color: #36D;
     font-weight: bold;
     font-size: 18px;
-    white-space: nowrap;
     margin: 3px auto 3px;
+    white-space: nowrap; /* 文字不换行 */
     overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
+    text-overflow: ellipsis; /* 超出部分用省略号代替 */
+    max-width: 150px; /* 设置最大宽度 */
 }
 
 .version {
