@@ -37,9 +37,9 @@
             <el-table-column fixed="right" label="操作" width="120">
                 <template #default="scope">
                     <el-button class="uninstallBtn" v-if="scope.row.isInstalled" :disabled="scope.row.loading"
-                        @click="changeStatus(scope.row,'uninstall')">卸载</el-button>
+                        @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
                     <el-button class="installBtn" v-else :disabled="scope.row.loading"
-                        @click="changeStatus(scope.row,'install')">安装</el-button>
+                        @click="changeStatus(scope.row, 'install')">安装</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -64,11 +64,11 @@ const difVersionItemsStore = useDifVersionItemsStore();
 const router = useRouter();
 const query = router.currentRoute.value.query;
 // 操作按钮的点击事件
-const changeStatus = async (item: CardFace,flag: string) => {
+const changeStatus = async (item: CardFace, flag: string) => {
     // 启用加载框
     allServItemsStore.updateItemLoadingStatus(item, true);
     installedItemsStore.updateItemLoadingStatus(item, true);
-    difVersionItemsStore.updateItemLoadingStatus(item,true);
+    difVersionItemsStore.updateItemLoadingStatus(item, true);
     // 根据flag判断是安装还是卸载
     let message: string = '正在安装' + item.name + '(' + item.version + ')';
     let command: string = 'll-cli install ' + item.appId + '/' + item.version;
@@ -108,7 +108,7 @@ const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
     if (command.startsWith('ll-cli query') && 'stdout' == res.code) {
         const data = res.result;
-        difVersionItemsStore.initDifVersionItems(data,query);
+        difVersionItemsStore.initDifVersionItems(data, query);
     }
 }
 // 启动时加载
@@ -124,12 +124,14 @@ onBeforeUnmount(() => {
 <style scoped>
 .firstMenu :deep(.el-breadcrumb__inner) {
     color: white;
-    cursor: pointer; 
+    cursor: pointer;
     font-weight: bold;
 }
+
 .secondMenu :deep(.el-breadcrumb__inner) {
     color: #999999;
 }
+
 .baseContainer {
     background-color: #999999;
     border-radius: 5px;
@@ -200,5 +202,15 @@ onBeforeUnmount(() => {
     color: white;
     padding: 6px;
     height: 24px;
+}
+
+@media (prefers-color-scheme: light) {
+    .firstMenu :deep(.el-breadcrumb__inner) {
+        color: #000;
+    }
+
+    .baseContainer {
+        color: #DCDCDC;
+    }
 }
 </style>

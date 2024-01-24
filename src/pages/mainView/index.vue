@@ -4,32 +4,46 @@
             <el-aside>
                 <el-menu default-active="1">
                     <el-menu-item index="1" @click="toPage('/all_serv_menu')">
-                        <el-icon color="#D3D3D3"><HomeFilled /></el-icon>
+                        <el-icon color="#D3D3D3">
+                            <HomeFilled />
+                        </el-icon>
                         <span>全部程序</span>
                     </el-menu-item>
                     <el-menu-item index="2" @click="toPage('/installed_menu')">
-                        <el-icon><GobletSquareFull /></el-icon>
+                        <el-icon>
+                            <GobletSquareFull />
+                        </el-icon>
                         <span>已安装程序</span>
                     </el-menu-item>
                     <el-menu-item index="3" @click="toPage('/update_menu')">
-                        <el-icon><UploadFilled /></el-icon>
+                        <el-icon>
+                            <UploadFilled />
+                        </el-icon>
                         <span>可更新程序</span>
                     </el-menu-item>
                     <el-menu-item index="98" @click="toPage('/config_menu')">
-                        <el-icon><setting /></el-icon>
+                        <el-icon>
+                            <setting />
+                        </el-icon>
                         <span>基础设置</span>
                     </el-menu-item>
                     <el-menu-item index="99" @click="toPage('/about_menu')">
-                        <el-icon><InfoFilled /></el-icon>
+                        <el-icon>
+                            <InfoFilled />
+                        </el-icon>
                         <span>关于程序</span>
                     </el-menu-item>
                     <hr style="display: none;">
                     <el-menu-item index="998" @click="toPage('/card_comp')" style="display: none;">
-                        <el-icon><GobletSquareFull /></el-icon>
+                        <el-icon>
+                            <GobletSquareFull />
+                        </el-icon>
                         <span>卡片组件</span>
                     </el-menu-item>
                     <el-menu-item index="999" @click="toPage('/')" style="display: none;">
-                        <el-icon><Loading /></el-icon>
+                        <el-icon>
+                            <Loading />
+                        </el-icon>
                         <span>返回首页</span>
                     </el-menu-item>
                 </el-menu>
@@ -60,7 +74,7 @@ const updateItemsStore = useUpdateItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
-const toPage = (url:string) => router.push(url);
+const toPage = (url: string) => router.push(url);
 // 重试次数
 let retryNum = ref(0);
 
@@ -99,11 +113,11 @@ const commandResult = (_event: any, res: any) => {
         // 安装成功后，更新全部应用中的应用状态
         allServItemsStore.updateItemInstallStatus(item);
         // 安装成功后，更新当前应用加载状态
-        allServItemsStore.updateItemLoadingStatus(item,false);
+        allServItemsStore.updateItemLoadingStatus(item, false);
         // 安装完成后，更新版本应用的应用状态
         difVersionItemsStore.updateItemInstallStatus(item);
         // 安装完成后，更新版本应用加载状态
-        difVersionItemsStore.updateItemLoadingStatus(item,false);
+        difVersionItemsStore.updateItemLoadingStatus(item, false);
         // 安装成功后，弹出通知
         ElNotification({
             title: '安装成功',
@@ -129,11 +143,11 @@ const commandResult = (_event: any, res: any) => {
         // 卸载成功后，更新全部应用中的应用状态
         allServItemsStore.updateItemInstallStatus(item);
         // 卸载成功后，更新当前应用加载状态
-        allServItemsStore.updateItemLoadingStatus(item,false);
+        allServItemsStore.updateItemLoadingStatus(item, false);
         // 卸载完成后，更新版本应用的应用状态
         difVersionItemsStore.updateItemInstallStatus(item);
         // 卸载完成后，更新版本应用加载状态
-        difVersionItemsStore.updateItemLoadingStatus(item,false);
+        difVersionItemsStore.updateItemLoadingStatus(item, false);
         // 卸载成功后，弹出通知
         ElNotification({
             title: '卸载成功',
@@ -168,20 +182,24 @@ onBeforeUnmount(() => {
     height: 100%;
     width: 100%;
 }
+
 .el-container {
     height: 100%;
 }
+
 .el-aside {
     width: 180px;
     margin: 12px 0 12px 12px;
     border-radius: 15px;
 }
+
 .el-menu {
     height: 100%;
     background-color: #2D2F2F;
     border-right-style: none;
     overflow-y: hidden;
 }
+
 .el-menu-item {
     color: white;
     font-weight: bold;
@@ -190,14 +208,17 @@ onBeforeUnmount(() => {
     text-align: center;
     margin: 5px;
 }
+
 a {
-  font-weight: bold;
-  color: #D3D3D3;
-  text-decoration: inherit;
+    font-weight: bold;
+    color: #D3D3D3;
+    text-decoration: inherit;
 }
+
 a:hover {
-  color: #2D2F2F;
+    color: #2D2F2F;
 }
+
 .views {
     background-color: #2D2F2F;
     overflow: hidden;
@@ -206,4 +227,18 @@ a:hover {
     padding: 12px;
     position: relative;
 }
-</style>
+
+@media (prefers-color-scheme: light) {
+    .el-menu {
+        background-color: #6e6e6e2e;
+    }
+
+    .el-menu-item {
+        color: #0e0101;
+        background-color: #6e6e6e2e;
+    }
+
+    .views {
+        background-color: #2d2f2f2b;
+    }
+}</style>

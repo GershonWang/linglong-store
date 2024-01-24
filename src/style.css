@@ -27,10 +27,10 @@ html,body {
   position: relative;
 }
 
-/* @media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
+    background-color: #F4F4F4;
   }
 
   a:hover {
@@ -40,4 +40,4 @@ html,body {
   button {
     background-color: #f9f9f9;
   }
-} */
+}

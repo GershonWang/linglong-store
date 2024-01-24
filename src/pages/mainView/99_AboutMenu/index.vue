@@ -196,4 +196,14 @@ onBeforeUnmount(() => {
 .progress :deep(.el-progress__text) {
   color: white;
 }
+
+@media (prefers-color-scheme: light) {
+  .title {
+    color: #000;
+  }
+
+  .link {
+    color: #0e0101;
+  }
+}
 </style>
