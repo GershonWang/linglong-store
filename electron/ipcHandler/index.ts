@@ -1,7 +1,7 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { exec } from "child_process";
 import axios from "axios";
-import { ipcLog } from "../logger";
+import { ipcLog, mainLog } from "../logger";
 
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
@@ -48,6 +48,18 @@ const IPCHandler = (win: BrowserWindow) => {
             win.webContents.send("network-result", result);
         });
     });
+    /* ********** 执行渲染进程日志请求 ********** */
+    ipcMain.on('logger', (_event, level,arg)=> {
+        if (level === "info") {
+            mainLog.info(arg);
+        } else if (level === 'warn') {
+            mainLog.warn(arg);
+        } else if (level === 'error') {
+            mainLog.error(arg);
+        } else if (level === 'debug') {
+            mainLog.debug(arg);
+        }
+    })
     /* ************************************************* ipcMain ********************************************** */
 }
 

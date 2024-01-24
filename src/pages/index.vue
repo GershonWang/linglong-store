@@ -166,6 +166,8 @@ watch(watchData, async (newQuestion, _oldQuestion) => {
         await new Promise(resolve => setTimeout(resolve, 500));
         // 跳转到主界面
         router.push('/main_view');
+    } else {
+        ipcRenderer.send('logger', 'error', JSON.stringify(newQuestion));
     }
 })
 // 加载前执行
