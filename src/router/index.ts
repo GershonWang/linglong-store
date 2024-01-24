@@ -10,24 +10,28 @@ const router = createRouter({
         },
         {
             path: '/main_view',
-            redirect: '/all_serv_page',
+            redirect: '/all_serv_menu',
             component: () => import("../pages/mainView/index.vue"),
             children: [
                 {
-                    path: '/all_serv_page',
+                    path: '/all_serv_menu',
                     component: () => import("../pages/mainView/1_AllServMenu/index.vue")
                 },
                 {
-                    path: '/installed_page',
+                    path: '/installed_menu',
                     component: () => import("../pages/mainView/2_InstalledMenu/index.vue")
                 },
                 {
+                    path: '/update_menu',
+                    component: () => import("../pages/mainView/3_UpdateMenu/index.vue")
+                },
+                {
                     path: '/config_menu',
-                    component: () => import("../pages/mainView/3_ConfigMenu/index.vue")
+                    component: () => import("../pages/mainView/98_ConfigMenu/index.vue")
                 },
                 {
                     path: '/about_menu',
-                    component: () => import("../pages/mainView/4_AboutMenu/index.vue")
+                    component: () => import("../pages/mainView/99_AboutMenu/index.vue")
                 },
                 {
                     path: '/details',

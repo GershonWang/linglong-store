@@ -3,24 +3,28 @@
         <el-container>
             <el-aside>
                 <el-menu default-active="1">
-                    <el-menu-item index="1" @click="toPage('/all_serv_page')">
+                    <el-menu-item index="1" @click="toPage('/all_serv_menu')">
                         <el-icon color="#D3D3D3"><HomeFilled /></el-icon>
                         <span>全部程序</span>
                     </el-menu-item>
-                    <el-menu-item index="2" @click="toPage('/installed_page')">
+                    <el-menu-item index="2" @click="toPage('/installed_menu')">
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>已安装程序</span>
                     </el-menu-item>
-                    <el-menu-item index="3" @click="toPage('/config_menu')">
+                    <el-menu-item index="3" @click="toPage('/update_menu')">
+                        <el-icon><UploadFilled /></el-icon>
+                        <span>可更新程序</span>
+                    </el-menu-item>
+                    <el-menu-item index="98" @click="toPage('/config_menu')">
                         <el-icon><setting /></el-icon>
                         <span>基础设置</span>
                     </el-menu-item>
-                    <el-menu-item index="4" @click="toPage('/about_menu')">
+                    <el-menu-item index="99" @click="toPage('/about_menu')">
                         <el-icon><InfoFilled /></el-icon>
                         <span>关于程序</span>
                     </el-menu-item>
                     <hr style="display: none;">
-                    <el-menu-item index="5" @click="toPage('/card_comp')" style="display: none;">
+                    <el-menu-item index="998" @click="toPage('/card_comp')" style="display: none;">
                         <el-icon><GobletSquareFull /></el-icon>
                         <span>卡片组件</span>
                     </el-menu-item>
