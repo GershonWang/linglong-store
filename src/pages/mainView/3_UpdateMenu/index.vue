@@ -8,13 +8,13 @@
         </div>
         <div class="card_container" v-else>
             <div style="position: absolute;left: 50%;transform: translate(-50%);text-align: center;">
-                <h1>功能暂未实现，请等待...</h1>
+                <h1>暂无可更新程序</h1>
             </div>
         </div>
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import updateCard from "@/components/updateCard.vue";
 import { useUpdateItemsStore } from "@/store/updateItems";
 
@@ -27,9 +27,6 @@ if (updateItems && updateItems.length > 0) {
     hasData.value = true;
 }
 
-onMounted(() => {
-    updateStore.initUpdateItems();
-})
 </script>
 <style scoped>
 .container {

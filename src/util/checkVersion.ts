@@ -1,4 +1,6 @@
 const hasUpdateVersion = (thisVersion: string, checkVersion: string) => {
+    console.log('thisVersion',thisVersion);
+    console.log('checkVersion',checkVersion);
     const thisArray: string[] = thisVersion.split('.');
     const checkArray: string[] = checkVersion.split('.');
     if(thisArray.length > checkArray.length) {

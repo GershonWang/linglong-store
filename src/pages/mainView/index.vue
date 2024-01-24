@@ -51,10 +51,12 @@ import { CardFace } from '@/interface/CardFace';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
+import { useUpdateItemsStore } from "@/store/updateItems";
 
 const installedItemsStore = useInstalledItemsStore();
 const allServItemsStore = useAllServItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
+const updateItemsStore = useUpdateItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
@@ -142,10 +144,22 @@ const commandResult = (_event: any, res: any) => {
     }
 }
 
+let timerId: NodeJS.Timeout; // 使用NodeJS.Timer类型
+
+const startTimer = () => {
+    timerId = setInterval(() => {
+        updateItemsStore.initUpdateItems();
+    }, 30000); // 30秒钟执行一次
+};
+
 onMounted(() => {
+    // startTimer();
     ipcRenderer.on('command-result', commandResult);
 });
 onBeforeUnmount(() => {
+    if (timerId) {
+        clearInterval(timerId);
+    }
     ipcRenderer.removeListener('command-result', commandResult)
 });
 </script>

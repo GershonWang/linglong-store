@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { reactive } from "vue";
 import { CardFace } from "@/interface/CardFace";
+import string2card from "@/util/string2card";
 import { LocationQuery } from "vue-router";
 import { useInstalledItemsStore } from "@/store/installedItems";
 
@@ -23,44 +24,9 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
         if (apps.length > 1) {
             // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
             for (let index = 1; index < apps.length - 1; index++) {
-                const element: string = apps[index].trim();
-                const item = {
-                    appId: "",name: "",version: "",arch: "",
-                    channel: "",module: "",description: "",
-                    isInstalled: false,loading: false,
-                }
-                const items: RegExpMatchArray | null = element.match(/'[^']+'|\S+/g);
-                if (items && items.some((value: string) => value === "linglong")) {
-                    const channelIndex = items.findIndex((value: string) => value === "linglong");
-                    let name = "";
-                    if (channelIndex > 4) {
-                        for (let index = 1; index < channelIndex - 2; index++) {
-                            name += items[index] + " ";
-                        }
-                    } else if (channelIndex < 4) {
-                        name = "-";
-                    } else {
-                        name = items[1];
-                    }
-                    item.appId = items[0];
-                    item.name = name.trim();
-                    item.version = items[channelIndex - 2];
-                    item.arch = items[channelIndex - 1];
-                    item.channel = items[channelIndex];
-                    item.module = items[channelIndex + 1];
-                    let description = "";
-                    if (items.length - channelIndex > 2) {
-                        for (let index = channelIndex + 2; index < items.length; index++) {
-                            description += items[index] + " ";
-                        }
-                    } else if (items.length - channelIndex < 2) {
-                        description = " ";
-                    } else {
-                        description = items[channelIndex + 2];
-                    }
-                    item.description = description.trim();
-                }
-                if (item.appId != seachAppId || item.module == 'devel') { // 去除空行和运行时服务
+                const item: CardFace | null = string2card(apps[index]);
+                // 去除空行和运行时服务
+                if (!item || item.appId != seachAppId || item.module == 'devel') {
                     continue;
                 }
                 item.isInstalled = installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
