@@ -36,10 +36,12 @@
             <el-table-column prop="description" label="描述" />
             <el-table-column fixed="right" label="操作" width="120">
                 <template #default="scope">
-                    <el-button class="uninstallBtn" v-if="scope.row.isInstalled" :disabled="scope.row.loading"
+                    <el-button class="uninstallBtn" v-if="scope.row.isInstalled && !scope.row.loading" 
                         @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
-                    <el-button class="installBtn" v-else :disabled="scope.row.loading"
+                    <el-button v-if="scope.row.isInstalled && scope.row.loading" loading >卸载中</el-button>
+                    <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading"
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
+                    <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading >安装中</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -198,6 +200,7 @@ onBeforeUnmount(() => {
     color: white;
     padding: 6px;
     height: 24px;
+    width: 92.6px;
 }
 
 .uninstallBtn {
@@ -205,6 +208,7 @@ onBeforeUnmount(() => {
     color: white;
     padding: 6px;
     height: 24px;
+    width: 92.6px;
 }
 
 @media (prefers-color-scheme: light) {
