@@ -65,22 +65,20 @@ import { CardFace } from '@/interface/CardFace';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
-import { useUpdateItemsStore } from "@/store/updateItems";
 
 const installedItemsStore = useInstalledItemsStore();
 const allServItemsStore = useAllServItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
-const updateItemsStore = useUpdateItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
 const toPage = (url: string) => router.push(url);
 // 重试次数
 let retryNum = ref(0);
-
+// 命令执行响应函数
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
-    const code = res.code;
+    const code: string = res.code;
     if ('stdout' != code) {
         if (retryNum.value <= 3) {
             retryNum.value++;
@@ -97,19 +95,23 @@ const commandResult = (_event: any, res: any) => {
         return;
     }
     // 返回结果 - 当前执行安装的应用信息
-    if (params.command.startsWith('ll-cli install')) {
+    const command: string = params.command;
+    if (command.startsWith('ll-cli install') || command.startsWith('ll-cli uninstall')) {
         const item: CardFace = {
-            icon: params.icon,
+            appId: params.appId,
             name: params.name,
             version: params.version,
             description: params.description,
             arch: params.arch,
-            isInstalled: true,
-            appId: params.appId,
-            loading: params.loading
+            isInstalled: command.startsWith('ll-cli install'),
+            loading: params.loading,
+            icon: params.icon,
         }
-        // 安装成功后，更新已安装应用列表
-        installedItemsStore.addItem(item);
+        if (command.startsWith('ll-cli install')) {
+            installedItemsStore.addItem(item);
+        } else {
+            installedItemsStore.removeItem(item);
+        }
         // 安装成功后，更新全部应用中的应用状态
         allServItemsStore.updateItemInstallStatus(item);
         // 安装成功后，更新当前应用加载状态
@@ -119,61 +121,21 @@ const commandResult = (_event: any, res: any) => {
         // 安装完成后，更新版本应用加载状态
         difVersionItemsStore.updateItemLoadingStatus(item, false);
         // 安装成功后，弹出通知
+        const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
         ElNotification({
-            title: '安装成功',
-            message: params.name + '(' + params.version + ')被成功安装!',
-            type: 'success',
-            duration: 500,
-        });
-    }
-    // 返回结果 - 当前执行卸载的应用信息
-    if (params.command.startsWith('ll-cli uninstall')) {
-        const item: CardFace = {
-            icon: params.icon,
-            name: params.name,
-            version: params.version,
-            description: params.description,
-            arch: params.arch,
-            isInstalled: false,
-            appId: params.appId,
-            loading: params.loading
-        }
-        // 卸载成功后，从已安装应用列表中移除该应用
-        installedItemsStore.removeItem(item);
-        // 卸载成功后，更新全部应用中的应用状态
-        allServItemsStore.updateItemInstallStatus(item);
-        // 卸载成功后，更新当前应用加载状态
-        allServItemsStore.updateItemLoadingStatus(item, false);
-        // 卸载完成后，更新版本应用的应用状态
-        difVersionItemsStore.updateItemInstallStatus(item);
-        // 卸载完成后，更新版本应用加载状态
-        difVersionItemsStore.updateItemLoadingStatus(item, false);
-        // 卸载成功后，弹出通知
-        ElNotification({
-            title: '卸载成功',
-            message: params.name + '(' + params.version + ')被成功卸载!',
+            title: msg + '成功!',
+            message: params.name + '(' + params.version + ')被成功' + msg + '!',
             type: 'success',
             duration: 500,
         });
     }
 }
-
-let timerId: NodeJS.Timeout; // 使用NodeJS.Timer类型
-
-const startTimer = () => {
-    timerId = setInterval(() => {
-        updateItemsStore.initUpdateItems();
-    }, 30000); // 30秒钟执行一次
-};
-
+// 页面初始化时执行
 onMounted(() => {
-    // startTimer();
     ipcRenderer.on('command-result', commandResult);
 });
+// 页面销毁前执行
 onBeforeUnmount(() => {
-    if (timerId) {
-        clearInterval(timerId);
-    }
     ipcRenderer.removeListener('command-result', commandResult)
 });
 </script>

@@ -81,7 +81,7 @@ const changeStatus = async (item: CardFace, flag: string) => {
     // 从所有程序列表中捞取程序图标icon
     let icon: string | undefined;
     const allItems = allServItemsStore.allServItemList;
-    const findItem = allItems.find(item => item.appId == item.appId && item.name == item.name);
+    const findItem = allItems.find(it => it.appId == item.appId && it.name == item.name);
     if (findItem) {
         icon = findItem.icon;
     }
@@ -94,15 +94,15 @@ const changeStatus = async (item: CardFace, flag: string) => {
     });
     // 发送操作命令
     ipcRenderer.send('command', {
-        icon: icon,
+        appId: item.appId,
         name: item.name,
         version: item.version,
-        description: item.description,
         arch: item.arch,
+        description: item.description,
         isInstalled: item.isInstalled,
-        appId: item.appId,
+        icon: icon,
         command: command,
-        loading: false
+        loading: false,
     });
 }
 // 查询同应用不同版本的列表
@@ -115,7 +115,7 @@ const commandResult = (_event: any, res: any) => {
 }
 // 启动时加载
 onMounted(() => {
-    ipcRenderer.send("command", { name: "查询该程序所有版本列表", command: "ll-cli query " + query.appId });
+    ipcRenderer.send("command", { command: "ll-cli query " + query.appId });
     ipcRenderer.on('command-result', commandResult);
 })
 // 关闭前销毁

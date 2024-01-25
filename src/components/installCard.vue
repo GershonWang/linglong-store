@@ -96,14 +96,14 @@ const changeStatus = (item: CardFace,flag: string) => {
     });
     // 发送操作命令
     ipcRenderer.send('command', {
-        icon: item.icon,
+        appId: item.appId,
         name: item.name,
+        arch: item.arch,
         version: item.version,
         description: item.description,
-        arch: item.arch,
         isInstalled: item.isInstalled,
-        appId: item.appId,
         command: command,
+        icon: item.icon,
         loading: false
     });
 }

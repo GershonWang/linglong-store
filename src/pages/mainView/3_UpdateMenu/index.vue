@@ -1,9 +1,9 @@
 <template>
     <div class="container">
-        <div class="card_container" v-if="hasData">
-            <div class="card_items" v-for="(item, index) in updateItems" :key="index">
+        <div class="card_container" v-if="updateItemsStore.updateItemList && updateItemsStore.updateItemList.length > 0">
+            <div class="card_items" v-for="(item, index) in updateItemsStore.updateItemList" :key="index">
                 <updateCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
+                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" />
             </div>
         </div>
         <div class="card_container" v-else>
@@ -14,19 +14,61 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted } from "vue";
 import updateCard from "@/components/updateCard.vue";
+import { ipcRenderer } from "electron";
+import string2card from "@/util/string2card";
+import hasUpdateVersion from "@/util/checkVersion";
+import { CardFace } from "@/interface/CardFace";
+import { useAllServItemsStore } from "@/store/allServItems";
+import { useInstalledItemsStore } from "@/store/installedItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
 
-const updateStore = useUpdateItemsStore();
-// 是否有列表数据
-let hasData = ref(false);
-const updateItems = updateStore.updateItemList;
-console.log(updateItems.length);
-if (updateItems && updateItems.length > 0) {
-    hasData.value = true;
+const allServItemsStore = useAllServItemsStore();
+const installedItemsStore = useInstalledItemsStore();
+const updateItemsStore = useUpdateItemsStore();
+// 监听命令事件
+const commandResult = (_event: any, res: any) => {
+    const command: string = res.param.command;
+    const appId: string = res.param.appId;
+    const version: string = res.param.version;
+    if (command.startsWith('ll-cli query') && 'stdout' == res.code) {
+        const apps: string[] = (res.result as string).split('\n');
+        if (apps.length > 2) {
+            for (let index = 2; index < apps.length - 1; index++) {
+                const card: CardFace | null = string2card(apps[index]);
+                if (card && appId == card.appId && card.version && hasUpdateVersion(version, card.version)) {
+                    // 从所有程序列表中捞取程序图标icon
+                    let icon: string | undefined;
+                    const allItems = allServItemsStore.allServItemList;
+                    const findItem = allItems.find(it => it.appId == appId);
+                    if (findItem) {
+                        icon = findItem.icon;
+                    }
+                    card.icon = icon;
+                    updateItemsStore.addItem(card);
+                    return;
+                }
+            }
+        }
+    }
 }
-
+// 页面打开时执行
+onMounted(() => {
+    updateItemsStore.clearItems(); // 清空列表数据
+    const installedItemList: CardFace[] = installedItemsStore.installedItemList;
+    installedItemList.forEach((installedItem) => {
+        const { appId, version } = installedItem;
+        if (!appId || !version) {
+            return;
+        }
+        ipcRenderer.send("command", { command: `ll-cli query ${appId}`, appId: appId, version: version });
+    })
+    ipcRenderer.on('command-result', commandResult);
+});
+onBeforeUnmount(() => {
+    ipcRenderer.removeListener('command-result', commandResult);
+})
 </script>
 <style scoped>
 .container {
@@ -38,7 +80,7 @@ if (updateItems && updateItems.length > 0) {
     display: grid;
     grid-gap: 10px;
     margin-right: 12px;
-    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 .card_items {

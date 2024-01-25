@@ -1,25 +1,19 @@
 const hasUpdateVersion = (thisVersion: string, checkVersion: string) => {
-    console.log('thisVersion',thisVersion);
-    console.log('checkVersion',checkVersion);
     const thisArray: string[] = thisVersion.split('.');
     const checkArray: string[] = checkVersion.split('.');
+    let len = thisArray.length;
     if(thisArray.length > checkArray.length) {
-        return false;
-    } else if (thisArray.length < checkArray.length) {
-        return true;
-    } else {
-        for(let i = 0; i < thisArray.length; i++) {
-            if(parseInt(thisArray[i]) < parseInt(checkArray[i])) {
-                return true;
-            } else if(parseInt(thisArray[i]) > parseInt(checkArray[i])) {
-                return false;
-            } else {
-                continue;
-            }
-        }
-        // 版本号相同
-        return false;
+        len = checkArray.length;
     }
+    for(let i = 0; i < len; i++) {
+        if (parseInt(thisArray[i]) < parseInt(checkArray[i])) {
+            return true;
+        } else if (parseInt(thisArray[i]) > parseInt(checkArray[i])) {
+            return false;
+        }
+    }
+    // 版本号相同
+    return false;
 }
 
 export default hasUpdateVersion;
