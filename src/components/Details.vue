@@ -13,17 +13,17 @@
             <div class="same">
                 <div class="soft">
                     <div>
-                        <a class="softTitle">应用程序名称：</a>{{ query.name }}
+                        <span class="softTitle">应用程序名称：</span>{{ query.name }}
                     </div>
                     <div>
-                        <a class="softTitle">AppID：</a>{{ query.appId }}
+                        <span class="softTitle">AppID：</span>{{ query.appId }}
                     </div>
                     <div>
-                        <a class="softTitle">应用架构：</a>{{ query.arch }}
+                        <span class="softTitle">应用架构：</span>{{ query.arch }}
                     </div>
                 </div>
                 <div>
-                    <a class="softTitle">应用简述：</a>{{ query.description }}
+                    <span class="softTitle">应用简述：</span>{{ query.description }}
                 </div>
             </div>
         </div>
@@ -176,6 +176,7 @@ onBeforeUnmount(() => {
 
 .same {
     width: 80%;
+    color: #606274;
 }
 
 .soft {
@@ -188,6 +189,8 @@ onBeforeUnmount(() => {
 
 .softTitle {
     font-size: 18px;
+    color: #0E0101;
+    font-weight: bold;
 }
 
 .installBtn {
@@ -211,6 +214,7 @@ onBeforeUnmount(() => {
 
     .baseContainer {
         color: #DCDCDC;
+        background-color: white;
     }
 }
 </style>
