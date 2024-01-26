@@ -32,13 +32,17 @@
         <div class="title">版本选择</div>
         <el-table :data="difVersionItemsStore.difVersionItemList" height="94%" style="width: 100%;border-radius: 5px">
             <el-table-column prop="name" label="名称" width="180" />
-            <el-table-column prop="version" label="版本号" width="180" />
+            <el-table-column prop="version" label="版本号" width="120" />
             <el-table-column prop="description" label="描述" />
             <el-table-column fixed="right" label="操作" width="120">
                 <template #default="scope">
+                    <!-- 卸载按钮 -->
                     <el-button class="uninstallBtn" v-if="scope.row.isInstalled && !scope.row.loading" 
                         @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
                     <el-button v-if="scope.row.isInstalled && scope.row.loading" loading >卸载中</el-button>
+                    <!-- 运行按钮 -->
+                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading" @click="toRun(scope.row)">运行</el-button>
+                    <!-- 安装按钮 -->
                     <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading"
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading >安装中</el-button>
@@ -102,6 +106,29 @@ const changeStatus = async (item: CardFace, flag: string) => {
         isInstalled: item.isInstalled,
         icon: icon,
         command: command,
+        loading: false,
+    });
+}
+// 运行按钮
+const toRun = (item: CardFace) => {
+    console.log('toRun',item);
+    // 弹出运行提示框
+    ElNotification({
+        title: '提示',
+        message: item.name + '(' + item.version + ')即将被启动！',
+        type: 'info',
+        duration: 500,
+    });
+    // 发送操作命令
+    ipcRenderer.send('command', {
+        appId: item.appId,
+        name: item.name,
+        version: item.version,
+        arch: item.arch,
+        description: item.description,
+        isInstalled: item.isInstalled,
+        icon: item.icon,
+        command: 'll-cli run ' + item.appId + '/' + item.version,
         loading: false,
     });
 }
@@ -200,7 +227,6 @@ onBeforeUnmount(() => {
     color: white;
     padding: 6px;
     height: 24px;
-    width: 92.6px;
 }
 
 .uninstallBtn {
@@ -208,7 +234,13 @@ onBeforeUnmount(() => {
     color: white;
     padding: 6px;
     height: 24px;
-    width: 92.6px;
+}
+
+.runBtn {
+    background-color: #5F9EA0;
+    color: white;
+    padding: 6px;
+    height: 24px;
 }
 
 @media (prefers-color-scheme: light) {
