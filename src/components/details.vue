@@ -111,7 +111,6 @@ const changeStatus = async (item: CardFace, flag: string) => {
 }
 // 运行按钮
 const toRun = (item: CardFace) => {
-    console.log('toRun',item);
     // 弹出运行提示框
     ElNotification({
         title: '提示',

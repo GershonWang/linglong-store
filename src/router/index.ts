@@ -26,6 +26,10 @@ const router = createRouter({
                     component: () => import("../pages/mainView/3_UpdateMenu/index.vue")
                 },
                 {
+                    path: '/runtime_menu',
+                    component: () => import("../pages/mainView/4_RuntimeMenu/index.vue")
+                },
+                {
                     path: '/config_menu',
                     component: () => import("../pages/mainView/98_ConfigMenu/index.vue")
                 },

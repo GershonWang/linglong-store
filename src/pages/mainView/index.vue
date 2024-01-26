@@ -21,6 +21,12 @@
                         </el-icon>
                         <span>可更新程序</span>
                     </el-menu-item>
+                    <el-menu-item index="4" @click="toPage('/runtime_menu')">
+                        <el-icon>
+                            <Odometer />
+                        </el-icon>
+                        <span>运行中程序</span>
+                    </el-menu-item>
                     <el-menu-item index="98" @click="toPage('/config_menu')">
                         <el-icon>
                             <setting />
