@@ -39,13 +39,10 @@ const commandResult = (_event: any, res: any) => {
                 const card: CardFace | null = string2card(apps[index]);
                 if (card && appId == card.appId && card.version && hasUpdateVersion(version, card.version)) {
                     // 从所有程序列表中捞取程序图标icon
-                    let icon: string | undefined;
-                    const allItems = allServItemsStore.allServItemList;
-                    const findItem = allItems.find(it => it.appId == appId);
+                    const findItem = allServItemsStore.allServItemList.find(it => it.appId == appId);
                     if (findItem) {
-                        icon = findItem.icon;
+                        card.icon = findItem.icon;
                     }
-                    card.icon = icon;
                     updateItemsStore.addItem(card);
                     return;
                 }
