@@ -16,19 +16,22 @@
         </el-table>
     </div>
     <div class="container" v-else>
-        <div style="position: absolute;left: 50%;transform: translate(-50%);text-align: center;">
+        <div class="noDataContainer">
+            <div class="imageDiv">
+                <img class="image" :src="defaultImage" alt="Image" />
+            </div>
             <h1>暂无运行中的程序</h1>
         </div>
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, reactive, watch } from 'vue';
+import { onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { RunTime } from "@/interface/RunTime";
+import defaultImage from '@/assets/logo.svg';
 
 const runtimeList = reactive<RunTime[]>([]);
-
 // 监听命令事件
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
@@ -93,5 +96,17 @@ onBeforeUnmount(() => {
     color: white;
     padding: 6px;
     height: 24px;
+}
+
+.noDataContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.imageDiv {
+    width: 180px;
+    height: 300px
 }
 </style>

@@ -6,20 +6,22 @@
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" />
             </div>
         </div>
-        <div class="card_container" v-else>
-            <div style="position: absolute;left: 50%;transform: translate(-50%);text-align: center;">
-                <h1>暂无可更新程序</h1>
+        <div class="noDataContainer" v-else>
+            <div class="imageDiv">
+                <img class="image" :src="defaultImage" alt="Image" />
             </div>
+            <h1>暂无可更新程序</h1>
         </div>
     </div>
 </template>
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from "vue";
-import updateCard from "@/components/updateCard.vue";
 import { ipcRenderer } from "electron";
+import { CardFace } from "@/interface/CardFace";
+import updateCard from "@/components/updateCard.vue";
 import string2card from "@/util/string2card";
 import hasUpdateVersion from "@/util/checkVersion";
-import { CardFace } from "@/interface/CardFace";
+import defaultImage from '@/assets/logo.svg';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
@@ -99,5 +101,17 @@ onBeforeUnmount(() => {
     border-radius: 5px;
     box-sizing: border-box;
     background-color: #999999;
+}
+
+.noDataContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.imageDiv {
+    width: 180px;
+    height: 300px
 }
 </style>

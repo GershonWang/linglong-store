@@ -17,16 +17,17 @@
         </div>
     </div>
     <div class="container" @scroll="handleScroll">
-        <div class="card_container" v-if="hasData">
+        <div class="card_container" v-if="displayedItems && displayedItems.length > 0">
             <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
                 <AllCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
         </div>
-        <div class="card_container" v-else>
-            <div style="position: absolute;left: 50%;transform: translate(-50%);text-align: center;">
-                <h1>查无数据</h1>
+        <div class="noDataContainer" v-else>
+            <div class="imageDiv">
+                <img class="image" :src="defaultImage" alt="Image" />
             </div>
+            <h1>查无数据</h1>
         </div>
     </div>
 </template>
@@ -34,8 +35,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import AllCard from "@/components/allCard.vue";
-import { useAllServItemsStore } from "@/store/allServItems";
 import { CardFace } from '@/interface/CardFace';
+import defaultImage from '@/assets/logo.svg';
+import { useAllServItemsStore } from "@/store/allServItems";
 
 const allServItemsStore = useAllServItemsStore();
 // 获取全部程序列表
@@ -53,8 +55,6 @@ let isScrollQuery = ref(true);
 // 记录当前页数
 let pageNo = ref(1);
 let pageSize = ref(50);
-// 是否有列表数据
-let hasData = ref(false);
 
 // 搜索框监听输入变更事件
 const searchSoft = (msg: string) => {
@@ -62,12 +62,10 @@ const searchSoft = (msg: string) => {
     displayedItems.splice(0, displayedItems.length);
     if (!allItems) {
         console.log("全部程序查询为空...");
-        hasData.value = false;
         return;
     }
     // 修改滚动条监听事件的状态
     isScrollQuery.value = !msg;
-    hasData.value = true;
     let max = msg ? allItems.length : 50;
     // 根据消息msg对象是否为空，设置页码重置
     if (!msg) {
@@ -175,5 +173,17 @@ onMounted(() => {
     border-radius: 5px;
     box-sizing: border-box;
     background-color: #999999;
+}
+
+.noDataContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.imageDiv {
+    width: 180px;
+    height: 300px
 }
 </style>

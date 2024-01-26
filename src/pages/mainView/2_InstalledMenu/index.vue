@@ -1,16 +1,23 @@
 <template>
     <div class="container">
-        <div class="card_container">
+        <div class="card_container" v-if="installedStore.installedItemList && installedStore.installedItemList.length > 0">
             <div class="card_items" v-for="(item, index) in installedStore.installedItemList" :key="index">
                 <InstalledCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
+        </div>
+        <div class="noDataContainer" v-else>
+            <div class="imageDiv">
+                <img class="image" :src="defaultImage" alt="Image" />
+            </div>
+            <h1>系统内无已安装程序</h1>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import InstalledCard from "@/components/installCard.vue";
+import defaultImage from '@/assets/logo.svg';
 import { useInstalledItemsStore } from "@/store/installedItems";
 
 const installedStore = useInstalledItemsStore();
@@ -37,5 +44,17 @@ const installedStore = useInstalledItemsStore();
     border-radius: 5px;
     box-sizing: border-box;
     background-color: #999999;
+}
+
+.noDataContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.imageDiv {
+    width: 180px;
+    height: 300px
 }
 </style>
