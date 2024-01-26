@@ -30,7 +30,7 @@
     </div>
     <div class="chooseVerson">
         <div class="title">版本选择</div>
-        <el-table :data="difVersionItemsStore.difVersionItemList" height="94%" style="width: 100%;border-radius: 5px">
+        <el-table :data="difVersionItemsStore.difVersionItemList" :default-sort="{ prop: 'version', order: 'descending' }" height="94%" style="width: 100%;border-radius: 5px">
             <el-table-column prop="name" label="名称" width="180" />
             <el-table-column prop="version" label="版本号" width="120" />
             <el-table-column prop="description" label="描述" />
