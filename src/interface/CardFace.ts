@@ -1,15 +1,15 @@
 // Card.ts
 export interface CardFace {
-    icon?: string,
+    id?: string,
+    appId: string,
     name: string,
-    version?: string,
+    version: string,
     description?: string,
     arch: string,
-    isInstalled?: boolean,
-    appId?: string,
-    id?: string,
+    icon?: string,
     channel?: string,
     module?: string,
     command?:string,
+    isInstalled?: boolean,
     loading?: boolean
 }

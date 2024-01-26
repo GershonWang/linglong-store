@@ -57,11 +57,22 @@ const commandResult = (_event: any, res: any) => {
 onMounted(() => {
     updateItemsStore.clearItems(); // 清空列表数据
     const installedItemList: CardFace[] = installedItemsStore.installedItemList;
+    const uniqueInstalledSet: CardFace[] = [];
     installedItemList.forEach((installedItem) => {
         const { appId, version } = installedItem;
-        if (!appId || !version) {
-            return;
+        if (uniqueInstalledSet.some((item) => item.appId == appId)) {
+            const item = uniqueInstalledSet.find((item) => item.appId == appId);
+            if (item && hasUpdateVersion(item.version,version)) {
+                const index = uniqueInstalledSet.findIndex((item) => item.appId == appId);
+                uniqueInstalledSet.splice(index,1);
+                uniqueInstalledSet.push(installedItem);
+            }
+        } else {
+            uniqueInstalledSet.push(installedItem);
         }
+    })
+    uniqueInstalledSet.forEach((item) => {
+        const { appId, version } = item;
         ipcRenderer.send("command", { command: `ll-cli query ${appId}`, appId: appId, version: version });
     })
     ipcRenderer.on('command-result', commandResult);

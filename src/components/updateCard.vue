@@ -8,10 +8,8 @@
         <div class="bottom"  v-loading="loading" :element-loading-svg="svg"
         element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
             <p class="arch">{{ arch }}</p>
-            <el-button class="uninstallBtn" v-if="isInstalled"
-                @click="changeStatus(props,'uninstall')">卸载</el-button>
-            <el-button class="installBtn" v-else
-                @click="changeStatus(props,'install')">安装</el-button>
+            <el-button class="installBtn" @click="openDetails">升级</el-button>
+            <!-- <el-button class="installBtn" @click="changeStatus(props,'update')">升级</el-button> -->
         </div>
     </el-card>
 </template>

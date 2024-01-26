@@ -1,3 +1,4 @@
+// 检测版本高于当前版本，返回true
 const hasUpdateVersion = (thisVersion: string, checkVersion: string) => {
     const thisArray: string[] = thisVersion.split('.');
     const checkArray: string[] = checkVersion.split('.');
