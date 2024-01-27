@@ -59,13 +59,16 @@ import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import defaultImage from '@/assets/logo.svg'
+import hasUpdateVersion from "@/util/checkVersion";
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
+const systemConfig = useSystemConfigStore();
 // 路由对象
 const router = useRouter();
 const query = router.currentRoute.value.query;
@@ -134,14 +137,20 @@ const toRun = (item: CardFace) => {
 // 查询同应用不同版本的列表
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
-    if (command.startsWith('ll-cli query') && 'stdout' == res.code) {
-        const data = res.result;
-        difVersionItemsStore.initDifVersionItems(data, query);
+    if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
+        if ('stdout' == res.code) {
+            const data = res.result;
+            difVersionItemsStore.initDifVersionItems(data, query);
+        }
     }
 }
 // 启动时加载
 onMounted(() => {
-    ipcRenderer.send("command", { command: "ll-cli query " + query.appId });
+    if (hasUpdateVersion('1.3.99',systemConfig.llVersion)) {
+        ipcRenderer.send("command", { command: "ll-cli search " + query.appId });
+    } else {
+        ipcRenderer.send("command", { command: "ll-cli query " + query.appId });
+    }
     ipcRenderer.on('command-result', commandResult);
 })
 // 关闭前销毁

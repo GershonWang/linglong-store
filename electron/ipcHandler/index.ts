@@ -10,6 +10,7 @@ const IPCHandler = (win: BrowserWindow) => {
         ipcLog.info('ipc-command：',JSON.stringify(data));
         // 在主进程中执行命令，并将结果返回到渲染进程
         exec(data.command, (error, stdout, stderr) => {
+            ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
             if (error) {
                 win.webContents.send("command-result", { code: 'error', param: data, result: error.message });
                 return;

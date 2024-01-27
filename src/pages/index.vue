@@ -47,22 +47,16 @@ const commandResult = (_event: any, res: any) => {
             systemConfigStore.changeArch(result.trim());
             message.value = "系统架构检测完成...";
             message.value = "检测是否存在玲珑环境...";
-            ipcRenderer.send('command', { command: 'll-cli' });
+            ipcRenderer.send('command', { command: 'll-cli --help' });
         } else {
             message.value = "系统架构检测异常,当前非Linux环境...";
         }
     }
-    if (command == 'll-cli') {
+    if (command == 'll-cli --help') {
         if(code == 'stdout') {
             message.value = "玲珑环境存在...";
-            if (systemConfigStore.autoCheckUpdate) {
-                message.value = "正在检测商店版本号...";
-                ipcRenderer.send('checkForUpdate');
-            } else {
-                message.value = "跳过商店版本号检测...";
-                message.value = "正在检测系统已安装的玲珑程序...";
-                ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
-            }
+            message.value = "检测玲珑版本...";
+            ipcRenderer.send('command', { command: 'll-cli --version' });
         } else {
             message.value = "检测玲珑环境不存在...";
             ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
@@ -76,6 +70,25 @@ const commandResult = (_event: any, res: any) => {
             }).catch(() => {
                 window.close();
             })
+        }
+    }
+    if (command == 'll-cli --version') {
+        if(code == 'stdout' && result.trim()) {
+            const items: RegExpMatchArray | null = result.trim().match(/'[^']+'|\S+/g);
+            if (items) {
+                systemConfigStore.changeLlVersion(items[2]);
+            } 
+        } else {
+            ipcRenderer.send('logger', 'error', "1.4.X以前旧版，检测不到版本号");
+        }
+        message.value = "版本检测完毕...";
+        if (systemConfigStore.autoCheckUpdate) {
+            message.value = "正在检测商店版本号...";
+            ipcRenderer.send('checkForUpdate');
+        } else {
+            message.value = "跳过商店版本号检测...";
+            message.value = "正在检测系统已安装的玲珑程序...";
+            ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
         }
     }
     if (command.startsWith('ll-cli list')) {
@@ -150,6 +163,7 @@ const networkResult = async (_event: any, res: any) => {
     }
     message.value = "加载完成...";
     downloadPercentMsg.value = "";
+    ipcRenderer.send('logger', 'error', systemConfigStore.getSystemConfigInfo);
     // 延时500毫秒进入
     await new Promise(resolve => setTimeout(resolve, 500));
     // 跳转到主界面
