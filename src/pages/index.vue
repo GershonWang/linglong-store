@@ -55,7 +55,7 @@ const commandResult = (_event: any, res: any) => {
     if (command == 'll-cli --help') {
         if(code == 'stdout') {
             message.value = "玲珑环境存在...";
-            message.value = "检测玲珑版本...";
+            message.value = "检测玲珑环境版本...";
             ipcRenderer.send('command', { command: 'll-cli --version' });
         } else {
             message.value = "检测玲珑环境不存在...";
@@ -81,15 +81,9 @@ const commandResult = (_event: any, res: any) => {
         } else {
             ipcRenderer.send('logger', 'error', "1.4.X以前旧版，检测不到版本号");
         }
-        message.value = "版本检测完毕...";
-        if (systemConfigStore.autoCheckUpdate) {
-            message.value = "正在检测商店版本号...";
-            ipcRenderer.send('checkForUpdate');
-        } else {
-            message.value = "跳过商店版本号检测...";
-            message.value = "正在检测系统已安装的玲珑程序...";
-            ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
-        }
+        message.value = "玲珑环境版本检测完毕...";
+        message.value = "正在检测系统已安装的玲珑程序...";
+        ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
     }
     if (command.startsWith('ll-cli list')) {
         if (code == 'stdout') {
@@ -122,9 +116,9 @@ const updateMessage = (_event: any, text: string) => {
                 downloadPercentMsg.value = "下载进度：" + parseInt(progressObj.percent || 0) + "%，网速：" + Math.ceil(progressObj.bytesPerSecond / 1000) + " kb/s";
             })
         }).catch(() => {
-            message.value = "取消更新，版本检测完成...";
-            message.value = "正在检测系统已安装的玲珑程序...";
-            ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+            message.value = "取消更新，商店版本检测完成...";
+            message.value = "检测当前系统架构...";
+            ipcRenderer.send('command', { command: 'uname -m' });
         })
     } else if (text == '下载完毕，是否立刻更新？'){
         ElMessageBox.confirm(text, '提示', {
@@ -136,14 +130,14 @@ const updateMessage = (_event: any, text: string) => {
             message.value = "下载完毕，正在更新中...";
             ipcRenderer.send('isUpdateNow');
         }).catch(() => {
-            message.value = "取消安装，版本检测完成...";
-            message.value = "正在检测系统已安装的玲珑程序...";
-            ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+            message.value = "取消安装，商店版本检测完成...";
+            message.value = "检测当前系统架构...";
+            ipcRenderer.send('command', { command: 'uname -m' });
         })
     } else if (text == '现在使用的就是最新版本，不用更新' || text == '检查更新出错'){
-        message.value = text + ",版本检测完成...";
-        message.value = "正在检测系统已安装的玲珑程序...";
-        ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+        message.value = text + ",商店版本检测完成...";
+        message.value = "检测当前系统架构...";
+        ipcRenderer.send('command', { command: 'uname -m' });
     }
 }
 // 网络执行返回结果
@@ -175,14 +169,20 @@ watch(message, (newQuestion, _oldQuestion) => {
 })
 // 加载前执行
 onMounted(async () => {
-    // 发送命令，获取当前系统架构
-    message.value = "开始环境检测...";
-    message.value = "检测当前系统架构...";
-    ipcRenderer.send('command', { command: 'uname -m' });
-    // 监听命令行执行结果
-    ipcRenderer.on('command-result', commandResult);
+    // 开启先检测商店版本号是否有更新
+    if (systemConfigStore.autoCheckUpdate) {
+        message.value = "正在检测商店版本号...";
+        ipcRenderer.send('checkForUpdate');
+    } else {
+        message.value = "跳过商店版本号检测...";
+        message.value = "开始环境检测...";
+        message.value = "检测当前系统架构...";
+        ipcRenderer.send('command', { command: 'uname -m' });
+    }
     // 监听自动更新事件
     ipcRenderer.on('update-message', updateMessage);
+    // 监听命令行执行结果
+    ipcRenderer.on('command-result', commandResult);
     // 监听网络请求执行结果
     ipcRenderer.on('network-result', networkResult);
 });
