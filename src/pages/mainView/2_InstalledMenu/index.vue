@@ -19,8 +19,26 @@
 import InstalledCard from "@/components/installCard.vue";
 import defaultImage from '@/assets/logo.svg';
 import { useInstalledItemsStore } from "@/store/installedItems";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { nextTick, onMounted } from "vue";
 
 const installedStore = useInstalledItemsStore();
+// 路由对象
+const router = useRouter();
+// 组件初始化时加载
+onMounted(async () => {
+    // 等待下一次 DOM 更新
+    await nextTick();
+    // 恢复保存的滚动位置
+    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+    container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
+});
+// 在router路由离开前执行
+onBeforeRouteLeave((to, _from, next) => {
+    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+    to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
+    next();
+})
 </script>
 
 <style scoped>

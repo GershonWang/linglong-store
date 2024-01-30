@@ -158,8 +158,9 @@ onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
 })
 onBeforeRouteLeave((to: any, from: any, next: any) => {
-    console.log('onBeforeRouteLeave',from.meta.savedPosition);
     to.meta.savedPosition = from.meta.savedPosition;
+    to.meta.savedPageNo = from.meta.savedPageNo;
+    to.meta.savedPageSize = from.meta.savedPageSize;
     next();
 })
 </script>
