@@ -55,7 +55,7 @@
 import { onBeforeUnmount, onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
 import { CardFace } from '@/interface/CardFace';
-import { useRouter } from 'vue-router';
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import defaultImage from '@/assets/logo.svg'
@@ -156,6 +156,11 @@ onMounted(() => {
 // 关闭前销毁
 onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
+})
+onBeforeRouteLeave((to: any, from: any, next: any) => {
+    console.log('onBeforeRouteLeave',from.meta.savedPosition);
+    to.meta.savedPosition = from.meta.savedPosition;
+    next();
 })
 </script>
 <style scoped>

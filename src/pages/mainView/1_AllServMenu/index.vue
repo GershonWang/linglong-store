@@ -33,11 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { nextTick, onMounted, reactive, ref } from 'vue';
 import AllCard from "@/components/allCard.vue";
 import { CardFace } from '@/interface/CardFace';
 import defaultImage from '@/assets/logo.svg';
 import { useAllServItemsStore } from "@/store/allServItems";
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
 
 const allServItemsStore = useAllServItemsStore();
 // 获取全部程序列表
@@ -52,6 +53,8 @@ const inputRef = ref<HTMLElement>();
 const searchName = ref('');
 // 记录是否启用滚动条查询
 let isScrollQuery = ref(true);
+// 路由对象
+const router = useRouter();
 // 记录当前页数
 let pageNo = ref(1);
 let pageSize = ref(50);
@@ -118,9 +121,21 @@ const handleScroll = () => {
     }
 }
 // 组件初始化时加载
-onMounted(() => {
+onMounted(async () => {
     searchSoft(searchName.value); // 查询程序展示软件列表
+    // 等待下一次 DOM 更新
+    await nextTick();
+    // 恢复保存的滚动位置
+    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+    container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0; // 恢复保存的滚动位置
 });
+onBeforeRouteLeave((to,from,next) => {
+    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+    const scrollPosition = container.scrollTop; // 获取滚动位置
+    console.log('scrollPosition',scrollPosition);
+    to.meta.savedPosition = scrollPosition; // 将滚动位置保存到路由元数据中
+    next();
+})
 </script>
 
 <style scoped>

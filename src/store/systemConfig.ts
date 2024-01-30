@@ -10,7 +10,7 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         // 玲珑源地址
         sourceUrl: ref('https://mirror-repo-linglong.deepin.com'),
         // 是否过滤非当前架构程序
-        filterFlag: ref(true),
+        filterFlag: ref(false),
         // 自动检测更新
         autoCheckUpdate: ref(true),
     }),

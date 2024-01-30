@@ -39,11 +39,28 @@ const router = createRouter({
                 },
                 {
                     path: '/details',
+                    name: 'Detail',
                     component: () => import("../components/details.vue")
                 },
             ],
         },
     ], // `routes: routes` 的缩写
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition) { // 如果有保存的滚动位置，则使用保存的位置
+            return savedPosition;
+        } else if (from.name === 'Detail') { // 如果是从明细页面返回，滚动到明细页面的位置
+            console.log('router-to',to);
+            console.log('router-from',from);
+            console.log('router-savedPosition',savedPosition);
+            return new Promise((resolve) => {
+                resolve({ left: 0, top: Number(from.meta.savedPosition) || 0 });
+            });
+        } else { // 默认滚动到页面顶部
+            return new Promise((resolve) => {
+                resolve({ left: 0, top: 0 });
+            });
+        }
+    },
 })
 
 export default router
