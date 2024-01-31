@@ -32,6 +32,11 @@ const string2card = (str: string) => {
         item.appId = items[0];
         // 第二列name,可为空
         item.name = name.trim();
+        // 特事特办(没办法，硬拆)
+        if (items[0] == 'github.cytle.wechat-web-devtoolswechat-devtools') {
+            item.appId = 'github.cytle.wechat-web-devtools';
+            item.name = 'wechat-devtools';
+        }
         // 第三列version,不为空
         item.version = items[channelIndex - 2];
         // 第四列arch,不为空

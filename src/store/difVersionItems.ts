@@ -20,11 +20,13 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
         clearItems();
         const apps: string[] = data.split("\n");
         const seachAppId = query.appId;
+        console.log('seachAppId',seachAppId);
         const installedItemList = installedItemsStore.installedItemList;
         if (apps.length > 1) {
             // 第0条是分类项不是应用，需要剔除，最后一行空，也需要剔除
             for (let index = 1; index < apps.length - 1; index++) {
                 const item: CardFace | null = string2card(apps[index]);
+                console.log('item',item);
                 // 去除空行和运行时服务
                 if (!item || item.appId != seachAppId || item.module == 'devel') {
                     continue;

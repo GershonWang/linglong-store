@@ -1,7 +1,8 @@
 <template>
     <el-card class="container">
         <div class="imageDiv" :title="desc" @click="openDetails">
-            <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" />
+            <!-- <img class="image" :src="icon || defaultImage" @error="(e: any) => e.target.src = defaultImage" alt="Image" /> -->
+            <img class="image" v-lazy="icon" alt="Image" />
         </div>
         <span class="name" :title="name">{{ smallName }}</span>
         <span class="version">{{ version }}</span>

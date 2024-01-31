@@ -7,8 +7,9 @@
         <div class="title">参数信息</div>
         <div class="baseMessage">
             <div class="imageDiv">
-                <img class="image" :src="query.icon as string || defaultImage"
-                    @error="(e: any) => e.target.src = defaultImage" alt="Image" />
+                <!-- <img class="image" :src="query.icon as string || defaultImage"
+                    @error="(e: any) => e.target.src = defaultImage" alt="Image" /> -->
+                <img class="image" v-lazy="query.icon" alt="Image" />
             </div>
             <div class="same">
                 <div class="soft">
@@ -161,6 +162,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     to.meta.savedPosition = from.meta.savedPosition;
     to.meta.savedPageNo = from.meta.savedPageNo;
     to.meta.savedPageSize = from.meta.savedPageSize;
+    to.meta.savedSearchName = from.meta.savedSearchName;
     next();
 })
 </script>

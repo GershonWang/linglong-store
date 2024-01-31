@@ -10,16 +10,16 @@
             <h3 style="color: chocolate;">PS注意：</h3>
             <p>1.刚程序运行时，会检测当前系统是否满足玲珑环境;如果环境不满足则弹出提示，程序不会进入到后续界面;这里需要您手动安装玲珑环境方可使用。</p>
             <p>2.点击安装时，受网速和程序大小的影响，程序安装比较缓慢甚至可能会没反应，此时无需操作耐心等待程序安装成功提示即可。</p>
+            <p>3.卡！卡！卡！！全部程序加载缓慢，甚至可能卡死。寻找前端大佬协助优化！</p>
         </div>
     </div>
     <div class="footer">
-        <el-progress :percentage="downloadPercent" :stroke-width="10" status="success" striped striped-flow :duration="10"
-            :show-text="false" />
+        <el-progress :percentage="downloadPercent" :stroke-width="10" status="success" striped striped-flow :duration="10" :show-text="false" />
     </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
-import { ElMessageBox } from 'element-plus'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ElMessageBox } from 'element-plus';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
 import { useSystemConfigStore } from "@/store/systemConfig";

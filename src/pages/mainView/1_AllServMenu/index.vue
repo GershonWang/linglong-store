@@ -132,9 +132,13 @@ const recover = (msg: string, savedPageNo: number, savedPageSize: number) => {
                 temp.push(element);
             }
         }
-        for (let index = 0; index < savedPageNo * savedPageSize; index++) {
-            const element: CardFace = temp[index];
-            displayedItems.push(element);
+        if (temp.length > 0) {
+            let endNum = savedPageNo * savedPageSize;
+            if (endNum > temp.length) endNum = temp.length;
+            for (let index = 0; index < endNum; index++) {
+                const element: CardFace = temp[index];
+                displayedItems.push(element);
+            }
         }
     }
 }
@@ -145,7 +149,9 @@ onMounted(async () => {
     if (meta.savedPageNo && meta.savedPageSize) {
         const savedPageNo = meta.savedPageNo as number;
         const savedPageSize = meta.savedPageSize as number;
-        recover(searchName.value, savedPageNo, savedPageSize);
+        const savedSearchName = meta.savedSearchName as string;
+        searchName.value = savedSearchName;
+        recover(savedSearchName, savedPageNo, savedPageSize);
     } else {
         searchSoft(searchName.value);
     }
@@ -161,6 +167,7 @@ onBeforeRouteLeave((to, _from, next) => {
     to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
     to.meta.savedPageNo = pageNo.value; // 将页码保存到路由元数据中
     to.meta.savedPageSize = pageSize.value; // 将每页条数保存到路由元数据中
+    to.meta.savedSearchName = searchName.value; // 将搜索内容保存到路由元数据中
     next();
 })
 </script>

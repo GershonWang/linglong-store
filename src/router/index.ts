@@ -23,6 +23,7 @@ const router = createRouter({
                             to.meta.savedPosition = 0;
                             to.meta.savedPageNo = 0; // 将页码保存到路由元数据中
                             to.meta.savedPageSize = 0; // 将每页条数保存到路由元数据中
+                            to.meta.savedSearchName = ''; // 将搜索内容保存到路由元数据中
                         }
                         // 如果需要继续导航，调用 next()
                         next();
