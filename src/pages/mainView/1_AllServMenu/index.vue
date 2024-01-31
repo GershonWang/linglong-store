@@ -60,7 +60,7 @@ let pageNo = ref(1);
 let pageSize = ref(50);
 
 // 搜索框监听输入变更事件
-const searchSoft = (msg: string) => {
+const searchSoft = async (msg: string) => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
     // 执行搜索前，都进行页码重置到第一页的操作
@@ -81,6 +81,11 @@ const searchSoft = (msg: string) => {
                 displayedItems.push(element);
             }
         }
+        // 等待下一次 DOM 更新
+        await nextTick();
+        // 恢复保存的滚动位置
+        const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+        container.scrollTop = 0;
     }
 }
 // 滚动条监听事件

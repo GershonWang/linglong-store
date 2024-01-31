@@ -22,9 +22,15 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         // 组装数据进入对象数组
         const list:CardFace[] = array;
         list.sort((a, b) => {
-            const aResult = a.id ? parseInt(a.id, 10) : 0;
-            const bResult = b.id ? parseInt(b.id, 10) : 0;
-            return aResult - bResult;
+            const nameA = a.name.toLowerCase(); // 将 name 转换为小写
+            const nameB = b.name.toLowerCase(); // 将 name 转换为小写
+            if (nameA < nameB) {
+                return -1;
+            }
+            if (nameA > nameB) {
+                return 1;
+            }
+            return 0;
         })
         for (let i = 0; i < list.length; i++) {
             const item: CardFace = list[i];

@@ -7,8 +7,6 @@
         <div class="title">参数信息</div>
         <div class="baseMessage">
             <div class="imageDiv">
-                <!-- <img class="image" :src="query.icon as string || defaultImage"
-                    @error="(e: any) => e.target.src = defaultImage" alt="Image" /> -->
                 <img class="image" v-lazy="query.icon" alt="Image" />
             </div>
             <div class="same">
@@ -31,22 +29,24 @@
     </div>
     <div class="chooseVerson">
         <div class="title">版本选择</div>
-        <el-table :data="difVersionItemsStore.difVersionItemList" :default-sort="{ prop: 'version', order: 'descending' }" height="94%" style="width: 100%;border-radius: 5px">
+        <el-table :data="difVersionItemsStore.difVersionItemList" :default-sort="{ prop: 'version', order: 'descending' }"
+            height="94%" style="width: 100%;border-radius: 5px">
             <el-table-column prop="name" label="名称" header-align="center" align="center" width="180" />
             <el-table-column prop="version" label="版本号" header-align="center" align="center" width="120" />
             <el-table-column prop="description" label="描述" header-align="center" />
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
-                    <el-button class="uninstallBtn" v-if="scope.row.isInstalled && !scope.row.loading" 
+                    <el-button class="uninstallBtn" v-if="scope.row.isInstalled && !scope.row.loading"
                         @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
-                    <el-button v-if="scope.row.isInstalled && scope.row.loading" loading >卸载中</el-button>
+                    <el-button v-if="scope.row.isInstalled && scope.row.loading" loading>卸载中</el-button>
                     <!-- 运行按钮 -->
-                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading" @click="toRun(scope.row)">运行</el-button>
+                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading"
+                        @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
                     <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading"
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
-                    <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading >安装中</el-button>
+                    <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -59,7 +59,6 @@ import { CardFace } from '@/interface/CardFace';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
-import defaultImage from '@/assets/logo.svg'
 import hasUpdateVersion from "@/util/checkVersion";
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -147,7 +146,7 @@ const commandResult = (_event: any, res: any) => {
 }
 // 启动时加载
 onMounted(() => {
-    if (hasUpdateVersion('1.3.99',systemConfig.llVersion)) {
+    if (hasUpdateVersion('1.3.99', systemConfig.llVersion)) {
         ipcRenderer.send("command", { command: "ll-cli search " + query.appId });
     } else {
         ipcRenderer.send("command", { command: "ll-cli query " + query.appId });

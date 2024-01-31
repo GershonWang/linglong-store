@@ -37,6 +37,10 @@ const string2card = (str: string) => {
             item.appId = 'github.cytle.wechat-web-devtools';
             item.name = 'wechat-devtools';
         }
+        if (items[0] == 'io.github.LiamRiddell.NoteMasterNoteMaster') {
+            item.appId = 'io.github.LiamRiddell.NoteMaster';
+            item.name = 'NoteMaster';
+        }
         // 第三列version,不为空
         item.version = items[channelIndex - 2];
         // 第四列arch,不为空
