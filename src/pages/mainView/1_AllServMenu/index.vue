@@ -70,7 +70,7 @@ const searchSoft = (msg: string) => {
     if (allItems) { // 网络应用数据不为空才进行后续操作
         let max = msg ? allItems.length : 50;
         // 根据消息msg对象是否为空，设置页码重置
-            pageSize.value = max;
+        pageSize.value = max;
         // 遍历数组，根据消息msg对象是否为空，设置数组显示内容
         for (let index = 0; index < max; index++) {
             const element: CardFace = allItems[index];
@@ -145,7 +145,7 @@ onMounted(async () => {
     if (meta.savedPageNo && meta.savedPageSize) {
         const savedPageNo = meta.savedPageNo as number;
         const savedPageSize = meta.savedPageSize as number;
-        recover(searchName.value,savedPageNo,savedPageSize);
+        recover(searchName.value, savedPageNo, savedPageSize);
     } else {
         searchSoft(searchName.value);
     }
