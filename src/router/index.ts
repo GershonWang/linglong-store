@@ -15,26 +15,52 @@ const router = createRouter({
             children: [
                 {
                     path: '/all_serv_menu',
-                    component: () => import("../pages/mainView/1_AllServMenu/index.vue")
+                    name: 'AllServMenu',
+                    component: () => import("../pages/mainView/1_AllServMenu/index.vue"),
+                    beforeEnter: (to, from, next) => {
+                        // 在路由进入时执行的操作(非明细页面重置元数据)
+                        if (from.name != 'Detail') {
+                            to.meta.savedPosition = 0;
+                            to.meta.savedPageNo = 0; // 将页码保存到路由元数据中
+                            to.meta.savedPageSize = 0; // 将每页条数保存到路由元数据中
+                        }
+                        // 如果需要继续导航，调用 next()
+                        next();
+                    },
                 },
                 {
                     path: '/installed_menu',
-                    component: () => import("../pages/mainView/2_InstalledMenu/index.vue")
+                    name: 'InstalledMenu',
+                    component: () => import("../pages/mainView/2_InstalledMenu/index.vue"),
+                    beforeEnter: (to, from, next) => {
+                        // 在路由进入时执行的操作(非明细页面重置元数据)
+                        if (from.name != 'Detail') {
+                            to.meta.savedPosition = 0;
+                            to.meta.savedPageNo = 0; // 将页码保存到路由元数据中
+                            to.meta.savedPageSize = 0; // 将每页条数保存到路由元数据中
+                        }
+                        // 如果需要继续导航，调用 next()
+                        next();
+                    },
                 },
                 {
                     path: '/update_menu',
+                    name: 'UpdateMenu',
                     component: () => import("../pages/mainView/3_UpdateMenu/index.vue")
                 },
                 {
                     path: '/runtime_menu',
+                    name: 'RuntimeMenu',
                     component: () => import("../pages/mainView/4_RuntimeMenu/index.vue")
                 },
                 {
                     path: '/config_menu',
+                    name: 'ConfigMenu',
                     component: () => import("../pages/mainView/98_ConfigMenu/index.vue")
                 },
                 {
                     path: '/about_menu',
+                    name: 'AboutMenu',
                     component: () => import("../pages/mainView/99_AboutMenu/index.vue")
                 },
                 {
@@ -45,22 +71,6 @@ const router = createRouter({
             ],
         },
     ], // `routes: routes` 的缩写
-    scrollBehavior(to, from, savedPosition) {
-        if (savedPosition) { // 如果有保存的滚动位置，则使用保存的位置
-            return savedPosition;
-        } else if (from.name === 'Detail') { // 如果是从明细页面返回，滚动到明细页面的位置
-            console.log('router-to',to);
-            console.log('router-from',from);
-            console.log('router-savedPosition',savedPosition);
-            return new Promise((resolve) => {
-                resolve({ left: 0, top: Number(from.meta.savedPosition) || 0 });
-            });
-        } else { // 默认滚动到页面顶部
-            return new Promise((resolve) => {
-                resolve({ left: 0, top: 0 });
-            });
-        }
-    },
 })
 
 export default router

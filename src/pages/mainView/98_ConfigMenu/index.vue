@@ -29,7 +29,7 @@ const installedItemsStore = useInstalledItemsStore();
 // 默认源
 const defaultSource = ref('');
 // 是否过滤不匹配架构程序
-let checked = ref(true);
+let checked = ref(false);
 // 自动检测更新
 let autoCheckUpdate = ref(true);
 // 切换源事件
