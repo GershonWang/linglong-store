@@ -10,7 +10,6 @@ mainLog.transports.file.level = 'info';
 mainLog.transports.file.maxSize = 1048576;
 mainLog.transports.console.level = 'silly';
 
-
 /* ******************************** ipcLog ******************************** */
 // 在app缓存目录，创建目录
 export const ipcLog = log.create({logId:'ipcLog'});

@@ -50,7 +50,7 @@ export function updateHandle(mainWindow: BrowserWindow) {
   // 监听更新事件
   ipcMain.on('checkForUpdate', () => {
     // 执行自动更新检查
-    updateLog.warn('执行自动更新检查, isDestroyed:', mainWindow.isDestroyed())
+    updateLog.warn('执行自动更新检查, isDestroyed:', mainWindow.isDestroyed());
     // 解决mac重启App 报错 的问题: object has been destroyed
     if (mainWindow && !mainWindow.isDestroyed()) {
       autoUpdater.checkForUpdates();
