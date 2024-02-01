@@ -92,17 +92,26 @@ app.on('activate', () => {
 // 处理应用程序关闭事件
 app.on('before-quit', () => {
   // 在这里进行必要的清理操作，如果有未完成的更新，取消它
+  clearUpdateCache();
+  win.webContents.send('removeDownListener');
+});
+// 清理升级缓存
+function clearUpdateCache() {
   try {
     const updateCachePath = join(app.getPath('home'), '/.cache/linglong_store-updater');
     mainLog.log('清除更新缓存', updateCachePath);
     // 检测更新日志目录是否存在
-    fs.pathExists(updateCachePath, (exists) => {
-      if (!exists) {
-        fs.rmSync(updateCachePath, { recursive: true });
+    fs.pathExists(updateCachePath, (err, exists) => {
+      if (err) {
+        mainLog.error('Error checking file existence:', err);
+      } else {
+        mainLog.log('exists', exists);
+        if (exists) {
+          fs.rmSync(updateCachePath, { recursive: true });
+        }
       }
     });
   } catch (error) {
     mainLog.error('Error clearing update cache:', error);
   }
-  win.webContents.send('removeDownListener');
-});
+}

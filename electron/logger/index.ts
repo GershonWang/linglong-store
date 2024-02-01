@@ -3,7 +3,16 @@ import { app } from "electron";
 import { join } from "node:path";
 import fs from "fs-extra";
 
+/* ******************************** mainLog ******************************** */
 export const mainLog = log.create({logId:'mainLog'});
+// 每次项目启动，删除历史日志，重新生成日志
+const mainPath = app.getPath('logs');
+fs.pathExists(mainPath, (err,_exists) => {
+    if (!err) {
+        // 重新生成空文件
+        fs.emptyDir(mainPath);
+    }
+});
 // mainLog.transports.file.format = '{y}-{m}-{d} {h}:{i}:{s} {level} {text}';
 mainLog.transports.file.level = 'info';
 // 达到最大上限后，备份文件并重命名为：main.old.log，有且仅有一个备份文件
