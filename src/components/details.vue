@@ -146,7 +146,7 @@ const commandResult = (_event: any, res: any) => {
 }
 // 启动时加载
 onMounted(() => {
-    if (hasUpdateVersion('1.3.99', systemConfig.llVersion)) {
+    if (hasUpdateVersion('1.3.99', systemConfig.llVersion) == 1) {
         ipcRenderer.send("command", { command: "ll-cli search " + query.appId });
     } else {
         ipcRenderer.send("command", { command: "ll-cli query " + query.appId });
