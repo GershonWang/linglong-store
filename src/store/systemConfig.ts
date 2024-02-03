@@ -13,6 +13,8 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         filterFlag: ref(false),
         // 自动检测更新
         autoCheckUpdate: ref(true),
+        // 网络状态
+        networkRunStatus: ref(true),
     }),
     getters: {
         getSystemConfigInfo: (state) => {
@@ -21,6 +23,7 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             + ',sourceUrl:' + state.sourceUrl 
             + ',filterFlag:' + state.filterFlag 
             + ',autoCheckUpdate:' + state.autoCheckUpdate
+            + ',networkRunStatus:' + state.networkRunStatus
         },
         getFilterFlag: (state) => state.filterFlag,
     },
@@ -49,6 +52,11 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         changeAutoCheckUpdate(autoCheckUpdate: boolean){
             const that = this;
             that.autoCheckUpdate = autoCheckUpdate;
+        },
+        // 自动检测更新
+        changeNetworkRunStatus(networkRunStatus: boolean){
+            const that = this;
+            that.networkRunStatus = networkRunStatus;
         },
     },
     persist: true

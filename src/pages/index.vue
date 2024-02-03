@@ -18,7 +18,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { ElMessageBox } from 'element-plus';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
@@ -46,19 +46,25 @@ const commandResult = (_event: any, res: any) => {
         if (code == 'stdout') {
             systemConfigStore.changeArch(result.trim());
             message.value = "系统架构检测完成...";
+            ipcRenderer.send('logger', 'info', "系统架构检测完成...");
             message.value = "检测是否存在玲珑环境...";
+            ipcRenderer.send('logger', 'info', "检测是否存在玲珑环境...");
             ipcRenderer.send('command', { command: 'll-cli --help' });
         } else {
             message.value = "系统架构检测异常,当前非Linux环境...";
+            ipcRenderer.send('logger', 'error', "系统架构检测异常,当前非Linux环境...");
         }
     }
     if (command == 'll-cli --help') {
         if(code == 'stdout') {
             message.value = "玲珑环境存在...";
+            ipcRenderer.send('logger', 'info', "玲珑环境存在...");
             message.value = "检测玲珑环境版本...";
+            ipcRenderer.send('logger', 'info', "检测玲珑环境版本...");
             ipcRenderer.send('command', { command: 'll-cli --version' });
         } else {
             message.value = "检测玲珑环境不存在...";
+            ipcRenderer.send('logger', 'error', "检测玲珑环境不存在...");
             ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
                 confirmButtonText: '前往',
                 cancelButtonText: '退出',
@@ -82,17 +88,22 @@ const commandResult = (_event: any, res: any) => {
             ipcRenderer.send('logger', 'error', "1.4.X以前旧版，检测不到版本号");
         }
         message.value = "玲珑环境版本检测完毕...";
+        ipcRenderer.send('logger', 'info', "玲珑环境版本检测完毕...");
         message.value = "正在检测系统已安装的玲珑程序...";
+        ipcRenderer.send('logger', 'info', "正在检测系统已安装的玲珑程序...");
         ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
     }
     if (command.startsWith('ll-cli list')) {
         if (code == 'stdout') {
             installedItemsStore.initInstalledItems(result);
             message.value = "已安装的玲珑程序检测完成...";
+            ipcRenderer.send('logger', 'info', "已安装的玲珑程序检测完成...");
         } else {
             message.value = "已安装的玲珑程序检测异常...";
+            ipcRenderer.send('logger', 'error', "已安装的玲珑程序检测异常...");
         }
         message.value = "正在获取网络源玲珑程序列表...";
+        ipcRenderer.send('logger', 'info', "正在获取网络源玲珑程序列表...");
         const baseUrl: string = systemConfigStore.sourceUrl;
         const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
         ipcRenderer.send('network', { url: requestUrl });
@@ -108,6 +119,7 @@ const updateMessage = (_event: any, text: string) => {
             center: true,
         }).then(() => {
             message.value = "新版本更新下载中...";
+            ipcRenderer.send('logger', 'info', "新版本更新下载中...");
             downloadPercent.value = 0
             ipcRenderer.send('downloadUpdate')
             // //注意：“downloadProgress”事件可能存在无法触发的问题，只需要限制一下下载网速就好了
@@ -117,7 +129,9 @@ const updateMessage = (_event: any, text: string) => {
             })
         }).catch(() => {
             message.value = "取消更新，商店版本检测完成...";
+            ipcRenderer.send('logger', 'warn', "取消更新，商店版本检测完成...");
             message.value = "检测当前系统架构...";
+            ipcRenderer.send('logger', 'info', "检测当前系统架构...");
             ipcRenderer.send('command', { command: 'uname -m' });
         })
     } else if (text == '下载完毕，是否立刻更新？'){
@@ -128,15 +142,20 @@ const updateMessage = (_event: any, text: string) => {
             center: true,
         }).then(() => {
             message.value = "下载完毕，正在更新中...";
+            ipcRenderer.send('logger', 'info', "下载完毕，正在更新中...");
             ipcRenderer.send('isUpdateNow');
         }).catch(() => {
             message.value = "取消安装，商店版本检测完成...";
+            ipcRenderer.send('logger', 'warn', "取消安装，商店版本检测完成...");
             message.value = "检测当前系统架构...";
+            ipcRenderer.send('logger', 'info', "检测当前系统架构...");
             ipcRenderer.send('command', { command: 'uname -m' });
         })
     } else if (text == '现在使用的就是最新版本，不用更新' || text == '检查更新出错'){
         message.value = text + ",商店版本检测完成...";
+        ipcRenderer.send('logger', 'info', text + ",商店版本检测完成...");
         message.value = "检测当前系统架构...";
+        ipcRenderer.send('logger', 'info', "检测当前系统架构...");
         ipcRenderer.send('command', { command: 'uname -m' });
     }
 }
@@ -146,6 +165,9 @@ const networkResult = async (_event: any, res: any) => {
     const data = res.data;
     if (code == 200) {
         message.value = "网络源玲珑程序列表获取完成...";
+        ipcRenderer.send('logger', 'info', "网络源玲珑程序列表获取完成...");
+        // 设定当前网络状态为可用状态
+        systemConfigStore.changeNetworkRunStatus(true);
         // 初始化所有应用程序列表
         const installedItemList = installedItemsStore.installedItemList;
         allServItemsStore.initAllItems(data, installedItemList);
@@ -154,29 +176,33 @@ const networkResult = async (_event: any, res: any) => {
         installedItemsStore.updateInstalledItemsIcons(allItems);
     } else {
         message.value = "网络源玲珑程序列表获取失败...";
+        ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
+        // 设定当前网络状态为不可用状态
+        systemConfigStore.changeNetworkRunStatus(false);
     }
     message.value = "加载完成...";
+    ipcRenderer.send('logger', 'info', "加载完成...");
     downloadPercentMsg.value = "";
-    ipcRenderer.send('logger', 'error', systemConfigStore.getSystemConfigInfo);
+    ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
     // 延时500毫秒进入
     await new Promise(resolve => setTimeout(resolve, 500));
     // 跳转到主界面
     router.push('/main_view');
 }
-// 监听message对象，如果等于‘加载完成’，则跳转到主界面
-watch(message, (newQuestion, _oldQuestion) => {
-    ipcRenderer.send('logger', 'error', newQuestion);
-})
 // 加载前执行
 onMounted(async () => {
     // 开启先检测商店版本号是否有更新
     if (systemConfigStore.autoCheckUpdate) {
         message.value = "正在检测商店版本号...";
+        ipcRenderer.send('logger', 'info', "正在检测商店版本号...");
         ipcRenderer.send('checkForUpdate');
     } else {
         message.value = "跳过商店版本号检测...";
+        ipcRenderer.send('logger', 'warn', "跳过商店版本号检测...");
         message.value = "开始环境检测...";
+        ipcRenderer.send('logger', 'info', "开始环境检测...");
         message.value = "检测当前系统架构...";
+        ipcRenderer.send('logger', 'info', "检测当前系统架构...");
         ipcRenderer.send('command', { command: 'uname -m' });
     }
     // 监听自动更新事件

@@ -146,6 +146,15 @@ const commandResult = (_event: any, res: any) => {
 }
 // 启动时加载
 onMounted(() => {
+    if (!systemConfig.networkRunStatus) {
+        ElNotification({
+            title: '提示',
+            message: "网络状态不可用！请检查网络后,再重启商店使用...",
+            type: 'error',
+            duration: 5000,
+        });
+        return;
+    }
     if (hasUpdateVersion('1.3.99', systemConfig.llVersion) == 1) {
         ipcRenderer.send("command", { command: "ll-cli search " + query.appId });
     } else {

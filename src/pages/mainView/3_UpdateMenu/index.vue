@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
+import { ElNotification } from 'element-plus';
 import { CardFace } from "@/interface/CardFace";
 import updateCard from "@/components/updateCard.vue";
 import string2card from "@/util/string2card";
@@ -35,6 +36,16 @@ const loading = ref(true);
 // 页面打开时执行
 onMounted(() => {
     updateItemsStore.clearItems(); // 清空列表数据
+    if (!systemConfig.networkRunStatus) {
+        loading.value = false;
+        ElNotification({
+            title: '提示',
+            message: "网络状态不可用！请检查网络后,再重启商店使用...",
+            type: 'error',
+            duration: 5000,
+        });
+        return;
+    }
     const installedItemList: CardFace[] = installedItemsStore.installedItemList;
     const uniqueInstalledSet: CardFace[] = [];
     installedItemList.forEach((installedItem) => {
@@ -81,6 +92,8 @@ onMounted(() => {
                                 }
                             }
                         }
+                    } else {
+                        systemConfig.changeNetworkRunStatus(false);
                     }
                     // 执行下一个循环
                     currentIndex++;

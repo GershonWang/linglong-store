@@ -35,12 +35,15 @@
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
+import { ElNotification } from 'element-plus';
 import AllCard from "@/components/allCard.vue";
 import { CardFace } from '@/interface/CardFace';
 import defaultImage from '@/assets/logo.svg';
 import { useAllServItemsStore } from "@/store/allServItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
 
 const allServItemsStore = useAllServItemsStore();
+const systemConfigStore = useSystemConfigStore();
 // 获取全部程序列表
 const allItems = allServItemsStore.allServItemList;
 // 获取显示的程序列表
@@ -67,7 +70,7 @@ const searchSoft = async (msg: string) => {
     pageNo.value = 1;
     // 消息内容存在时，修改滚动条监听事件的状态为false
     isScrollQuery.value = !msg;
-    if (allItems) { // 网络应用数据不为空才进行后续操作
+    if (allItems && allItems.length > 0) { // 网络应用数据不为空才进行后续操作
         let max = msg ? allItems.length : 50;
         // 根据消息msg对象是否为空，设置页码重置
         pageSize.value = max;
@@ -149,6 +152,15 @@ const recover = (msg: string, savedPageNo: number, savedPageSize: number) => {
 }
 // 组件初始化时加载
 onMounted(async () => {
+    if (!systemConfigStore.networkRunStatus) {
+        ElNotification({
+            title: '提示',
+            message: "网络状态不可用！请检查网络后,再重启商店使用...",
+            type: 'error',
+            duration: 5000,
+        });
+        return;
+    }
     // 查询程序展示软件列表
     const meta = router.currentRoute.value.meta;
     if (meta.savedPageNo && meta.savedPageSize) {
