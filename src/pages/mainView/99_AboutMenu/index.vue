@@ -2,13 +2,13 @@
   <div>
     <h1>关于程序</h1>
     <el-divider />
-    <!-- <li>
+    <li>
       <a class="title">项目环境</a>
     </li>
     <div class="item">Node版本：{{ versions.node }}</div>
     <div class="item">Electron版本：{{ versions.electron }}</div>
     <div class="item">Chrome版本：{{ versions.chrome }}</div>
-    <br> -->
+    <br>
     <li>
       <a class="title">玲珑信息</a>
     </li>
@@ -50,8 +50,7 @@ import { ElNotification, ElMessageBox } from 'element-plus'
 import { useUpdateStatusStore } from "@/store/updateStatus";
 
 const updateStatusStore = useUpdateStatusStore();
-// const versions = process.versions;
-
+const versions = process.versions;
 const updateBtnStatus = ref(false);
 const downloadModule = ref(false);
 const downloadPercent = ref(0);
