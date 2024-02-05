@@ -39,6 +39,8 @@ import { ElNotification } from 'element-plus';
 import AllCard from "@/components/allCard.vue";
 import { CardFace } from '@/interface/CardFace';
 import defaultImage from '@/assets/logo.svg';
+// 引入 lodash 中的 debounce 函数
+import debounce from 'lodash/debounce';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 
@@ -63,11 +65,12 @@ let pageNo = ref(1);
 let pageSize = ref(50);
 
 // 搜索框监听输入变更事件
-const searchSoft = async (msg: string) => {
+const searchSoft = debounce(async () => {
     // 执行搜索前，都进行数组的重置操作
     displayedItems.splice(0, displayedItems.length);
     // 执行搜索前，都进行页码重置到第一页的操作
     pageNo.value = 1;
+    const msg = searchName.value;
     // 消息内容存在时，修改滚动条监听事件的状态为false
     isScrollQuery.value = !msg;
     if (allItems && allItems.length > 0) { // 网络应用数据不为空才进行后续操作
@@ -89,6 +92,41 @@ const searchSoft = async (msg: string) => {
         // 恢复保存的滚动位置
         const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
         container.scrollTop = 0;
+    }
+},500) 
+// 明细页返回执行事件
+const recover = async (msg: string, savedPageNo: number, savedPageSize: number) => {
+    // 执行搜索前，都进行数组的重置操作
+    displayedItems.splice(0, displayedItems.length);
+    // 执行搜索前，都进行页码重置到第一页的操作
+    pageNo.value = savedPageNo;
+    pageSize.value = savedPageSize;
+    // 消息内容存在时，修改滚动条监听事件的状态为false
+    isScrollQuery.value = !msg;
+    if (allItems && allItems.length > 0) { // 网络应用数据不为空才进行后续操作
+        const temp = reactive<CardFace[]>([]);
+        for (let index = 0; index < allItems.length; index++) {
+            const element: CardFace = allItems[index];
+            const name = element.name.toLowerCase();
+            const description = element.description?.toLowerCase();
+            const message = msg.toLowerCase();
+            if (name.includes(message) || description?.includes(message)) {
+                temp.push(element);
+            }
+        }
+        if (temp.length > 0) {
+            let endNum = savedPageNo * savedPageSize;
+            if (endNum > temp.length) endNum = temp.length;
+            for (let index = 0; index < endNum; index++) {
+                const element: CardFace = temp[index];
+                displayedItems.push(element);
+            }
+        }
+        // 等待下一次 DOM 更新
+        await nextTick();
+        // 恢复保存的滚动位置
+        const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+        container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
     }
 }
 // 滚动条监听事件
@@ -120,38 +158,8 @@ const openInput = (status: boolean) => {
         }
     }
 }
-// 明细页返回执行事件
-const recover = (msg: string, savedPageNo: number, savedPageSize: number) => {
-    // 执行搜索前，都进行数组的重置操作
-    displayedItems.splice(0, displayedItems.length);
-    // 执行搜索前，都进行页码重置到第一页的操作
-    pageNo.value = savedPageNo;
-    pageSize.value = savedPageSize;
-    // 消息内容存在时，修改滚动条监听事件的状态为false
-    isScrollQuery.value = !msg;
-    if (allItems) { // 网络应用数据不为空才进行后续操作
-        const temp = reactive<CardFace[]>([]);
-        for (let index = 0; index < allItems.length; index++) {
-            const element: CardFace = allItems[index];
-            const name = element.name.toLowerCase();
-            const description = element.description?.toLowerCase();
-            const message = msg.toLowerCase();
-            if (name.includes(message) || description?.includes(message)) {
-                temp.push(element);
-            }
-        }
-        if (temp.length > 0) {
-            let endNum = savedPageNo * savedPageSize;
-            if (endNum > temp.length) endNum = temp.length;
-            for (let index = 0; index < endNum; index++) {
-                const element: CardFace = temp[index];
-                displayedItems.push(element);
-            }
-        }
-    }
-}
 // 组件初始化时加载
-onMounted(async () => {
+onMounted(() => {
     if (!systemConfigStore.networkRunStatus) {
         ElNotification({
             title: '提示',
@@ -170,13 +178,8 @@ onMounted(async () => {
         searchName.value = savedSearchName;
         recover(savedSearchName, savedPageNo, savedPageSize);
     } else {
-        searchSoft(searchName.value);
+        searchSoft();
     }
-    // 等待下一次 DOM 更新
-    await nextTick();
-    // 恢复保存的滚动位置
-    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
-    container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
 });
 // 在router路由离开前执行
 onBeforeRouteLeave((to, _from, next) => {

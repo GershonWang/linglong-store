@@ -23,6 +23,7 @@
     "electron-updater": "^6.1.7",
     "element-plus": "^2.3.12",
     "fs-extra": "^11.2.0",
+    "lodash": "^4.17.21",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "vue": "^3.2.47",
