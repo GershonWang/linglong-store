@@ -25,14 +25,14 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, reactive, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { RunTime } from "@/interface/RunTime";
 import defaultImage from '@/assets/logo.svg';
 
 const loading = ref(true);
-const runtimeList = reactive<RunTime[]>([]);
+let runtimeList = ref([] as RunTime[]);
 // 监听命令事件
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
@@ -49,15 +49,16 @@ const commandResult = (_event: any, res: any) => {
                         Pid: items[2],
                         Path: items[3],
                     }
-                    runtimeList.push(runTime);
+                    runtimeList.value.push(runTime);
                 }
             }
         }
         loading.value = false;
+        // 刷新表格视图
+        runtimeList.value = [...runtimeList.value];
     }
     if (command.startsWith('ll-cli kill') && 'stdout' == res.code) {
-        const apps: string[] = (res.result as string).split('\n');
-        if (apps && apps[0].endsWith('success')) {
+        if ((res.result as string).trim().endsWith('success')) {
             // 弹出提示框
             ElNotification({
                 title: '提示',
@@ -65,10 +66,10 @@ const commandResult = (_event: any, res: any) => {
                 type: 'info',
                 duration: 500,
             });
-            runtimeList.splice(0, runtimeList.length);
-            // 发送操作命令
-            ipcRenderer.send('command', { command: "ll-cli ps" });
+            runtimeList.value.splice(0, runtimeList.value.length);
         }
+        // 发送操作命令
+        ipcRenderer.send('command', { command: "ll-cli ps" });
     }
 }
 // 停止服务按钮点击事件
