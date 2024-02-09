@@ -10,7 +10,7 @@ const router = createRouter({
         },
         {
             path: '/main_view',
-            redirect: '/all_serv_menu',
+            redirect: '/welcome_menu',
             component: () => import("../pages/mainView/index.vue"),
             children: [
                 {
@@ -53,6 +53,11 @@ const router = createRouter({
                     path: '/runtime_menu',
                     name: 'RuntimeMenu',
                     component: () => import("../pages/mainView/4_RuntimeMenu/index.vue")
+                },
+                {
+                    path: '/welcome_menu',
+                    name: 'WelcomeMenu',
+                    component: () => import("../pages/mainView/5_welcomeMenu/index.vue")
                 },
                 {
                     path: '/config_menu',

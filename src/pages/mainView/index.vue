@@ -3,25 +3,31 @@
         <el-container>
             <el-aside>
                 <el-menu default-active="1">
-                    <el-menu-item index="1" @click="toPage('/all_serv_menu')">
+                    <el-menu-item index="1" @click="toPage('/welcome_menu')">
+                        <el-icon  color="#D3D3D3">
+                            <Star />
+                        </el-icon>
+                        <span>猜你所想</span>
+                    </el-menu-item>
+                    <el-menu-item index="2" @click="toPage('/all_serv_menu')">
                         <el-icon color="#D3D3D3">
                             <HomeFilled />
                         </el-icon>
                         <span>全部程序</span>
                     </el-menu-item>
-                    <el-menu-item index="2" @click="toPage('/installed_menu')">
+                    <el-menu-item index="3" @click="toPage('/installed_menu')">
                         <el-icon>
                             <GobletSquareFull />
                         </el-icon>
                         <span>已安装程序</span>
                     </el-menu-item>
-                    <el-menu-item index="3" @click="toPage('/update_menu')">
+                    <el-menu-item index="4" @click="toPage('/update_menu')">
                         <el-icon>
                             <UploadFilled />
                         </el-icon>
                         <span>可更新程序</span>
                     </el-menu-item>
-                    <el-menu-item index="4" @click="toPage('/runtime_menu')">
+                    <el-menu-item index="5" @click="toPage('/runtime_menu')">
                         <el-icon>
                             <Odometer />
                         </el-icon>
