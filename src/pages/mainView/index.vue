@@ -7,7 +7,7 @@
                         <el-icon  color="#D3D3D3">
                             <Star />
                         </el-icon>
-                        <span>猜你所想</span>
+                        <span>珑珑推荐</span>
                     </el-menu-item>
                     <el-menu-item index="2" @click="toPage('/all_serv_menu')">
                         <el-icon color="#D3D3D3">
