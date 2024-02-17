@@ -4,7 +4,7 @@
             <el-aside>
                 <el-menu default-active="1">
                     <el-menu-item index="1" @click="toPage('/welcome_menu')">
-                        <el-icon  color="#D3D3D3">
+                        <el-icon color="#D3D3D3">
                             <Star />
                         </el-icon>
                         <span>珑珑推荐</span>
@@ -74,6 +74,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus'
 import { CardFace } from '@/interface/CardFace';
+import { InstalledEntity } from '@/interface/InstalledEntity';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
@@ -109,6 +110,34 @@ const commandResult = (_event: any, res: any) => {
     // 返回结果 - 当前执行安装的应用信息
     const command: string = params.command;
     if (command.startsWith('ll-cli install') || command.startsWith('ll-cli uninstall')) {
+        const installedEntity: InstalledEntity = {
+            appId: params.appId,
+            name: params.name,
+            version: params.version,
+            description: params.description,
+            arch: params.arch,
+            loading: params.loading,
+            icon: params.icon,
+            channel: '',
+            kind: '',
+            module: '',
+            repoName: '',
+            runtime: '',
+            size: '',
+            uabUrl: '',
+            user: '',
+            isInstalled: false
+        }
+        if (command.startsWith('ll-cli install')) {
+            installedEntity.isInstalled = true;
+            installedItemsStore.addItem(installedEntity);
+        } else {
+            installedItemsStore.removeItem(installedEntity);
+        }
+        // 安装完成后，更新版本应用的应用状态
+        difVersionItemsStore.updateItemInstallStatus(installedEntity);
+        // 安装完成后，更新版本应用加载状态
+        difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
         const item: CardFace = {
             appId: params.appId,
             name: params.name,
@@ -119,19 +148,10 @@ const commandResult = (_event: any, res: any) => {
             loading: params.loading,
             icon: params.icon,
         }
-        if (command.startsWith('ll-cli install')) {
-            installedItemsStore.addItem(item);
-        } else {
-            installedItemsStore.removeItem(item);
-        }
         // 安装成功后，更新全部应用中的应用状态
         allServItemsStore.updateItemInstallStatus(item);
         // 安装成功后，更新当前应用加载状态
         allServItemsStore.updateItemLoadingStatus(item, false);
-        // 安装完成后，更新版本应用的应用状态
-        difVersionItemsStore.updateItemInstallStatus(item);
-        // 安装完成后，更新版本应用加载状态
-        difVersionItemsStore.updateItemLoadingStatus(item, false);
         // 安装成功后，弹出通知
         const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
         ElNotification({
@@ -215,4 +235,5 @@ a:hover {
     .views {
         background-color: #2d2f2f2b;
     }
-}</style>
+}
+</style>

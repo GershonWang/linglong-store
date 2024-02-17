@@ -1,0 +1,18 @@
+export interface InstalledEntity {
+    appId: string,
+    arch: string,
+    channel: string,
+    description: string,
+    icon: string,
+    kind: string,
+    module: string,
+    name: string,
+    repoName: string,
+    runtime: string,
+    size: string,
+    uabUrl: string,
+    user: string,
+    version: string,
+    isInstalled: boolean,
+    loading: boolean,
+}

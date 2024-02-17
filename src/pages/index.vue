@@ -91,9 +91,10 @@ const commandResult = (_event: any, res: any) => {
         ipcRenderer.send('logger', 'info', "玲珑环境版本检测完毕...");
         message.value = "正在检测系统已安装的玲珑程序...";
         ipcRenderer.send('logger', 'info', "正在检测系统已安装的玲珑程序...");
-        ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+        // ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+        ipcRenderer.send("command", { command: "ll-cli list --json" });
     }
-    if (command.startsWith('ll-cli list')) {
+    if (command.startsWith('ll-cli list --json')) {
         if (code == 'stdout') {
             installedItemsStore.initInstalledItems(result);
             message.value = "已安装的玲珑程序检测完成...";

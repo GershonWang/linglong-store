@@ -73,7 +73,7 @@ const systemConfig = useSystemConfigStore();
 const router = useRouter();
 const query = router.currentRoute.value.query;
 // 操作按钮的点击事件
-const changeStatus = async (item: CardFace, flag: string) => {
+const changeStatus = async (item: any, flag: string) => {
     // 启用加载框
     allServItemsStore.updateItemLoadingStatus(item, true);
     installedItemsStore.updateItemLoadingStatus(item, true);
@@ -156,7 +156,7 @@ onMounted(() => {
         return;
     }
     if (hasUpdateVersion('1.3.99', systemConfig.llVersion) == 1) {
-        ipcRenderer.send("command", { command: "ll-cli search " + query.appId });
+        ipcRenderer.send("command", { command: "ll-cli search " + query.appId + " --json"});
     } else {
         ipcRenderer.send("command", { command: "ll-cli query " + query.appId });
     }
