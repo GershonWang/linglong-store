@@ -25,10 +25,12 @@ import { useRouter } from 'vue-router';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
+import { useWelcomeItemsStore } from "@/store/welcomeItems";
 
 const systemConfigStore = useSystemConfigStore();
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
+const welcomeItemsStore = useWelcomeItemsStore();
 
 // 获取路由对象
 const router = useRouter();
@@ -175,6 +177,8 @@ const networkResult = async (_event: any, res: any) => {
         // 更新已安装程序图标
         const allItems = allServItemsStore.allServItemList;
         installedItemsStore.updateInstalledItemsIcons(allItems);
+        // 初始化推荐程序列表
+        welcomeItemsStore.initWelcomeItems();
     } else {
         message.value = "网络源玲珑程序列表获取失败...";
         ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
