@@ -15,6 +15,7 @@
     <div class="item">玲珑官网：<a class="link" href="https://linglong.dev/" target="_blank">https://linglong.dev/</a></div>
     <div class="item">玲珑网页版商店：<a class="link" href="https://store.linglong.dev/"
         target="_blank">https://store.linglong.dev/</a></div>
+    <div class="item">当前共收录玲珑程序数: {{ allServItemsStore.allServItemList.length }} 个</div>
     <br>
     <li>
       <a class="title">版本信息</a>
@@ -47,8 +48,10 @@ import { ipcRenderer } from 'electron';
 import pkg from '../../../../package.json';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { ElNotification, ElMessageBox } from 'element-plus'
+import { useAllServItemsStore } from "@/store/allServItems";
 import { useUpdateStatusStore } from "@/store/updateStatus";
 
+const allServItemsStore = useAllServItemsStore();
 const updateStatusStore = useUpdateStatusStore();
 const versions = process.versions;
 const updateBtnStatus = ref(false);
