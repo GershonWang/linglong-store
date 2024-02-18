@@ -3,8 +3,10 @@ import { ref } from "vue";
 import { InstalledEntity } from "@/interface/InstalledEntity";
 import { LocationQuery } from "vue-router";
 import { useInstalledItemsStore } from "@/store/installedItems";
+import { useInstallingItemsStore } from "@/store/installingItems";
 
 const installedItemsStore = useInstalledItemsStore();
+const installingItemsStore = useInstallingItemsStore();
 
 export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
 
@@ -26,6 +28,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                     continue;
                 }
                 item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+                item.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
                 difVersionItemList.value.push(item);
             }
         }

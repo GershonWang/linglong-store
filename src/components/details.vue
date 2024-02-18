@@ -64,12 +64,14 @@ import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
+import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
+const installingItemsStore = useInstallingItemsStore();
 const systemConfig = useSystemConfigStore();
 // 路由对象
 const router = useRouter();
@@ -81,6 +83,8 @@ const changeStatus = async (item: any, flag: string) => {
     installedItemsStore.updateItemLoadingStatus(item, true);
     difVersionItemsStore.updateItemLoadingStatus(item, true);
     welcomeItemsStore.updateItemLoadingStatus(item,true);
+    // 新增到加载中列表
+    installingItemsStore.addItem(item);
     // 根据flag判断是安装还是卸载
     let message: string = '正在安装' + item.name + '(' + item.version + ')';
     let command: string = 'll-cli install ' + item.appId + '/' + item.version;

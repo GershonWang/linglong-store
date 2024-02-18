@@ -79,11 +79,13 @@ import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
+import { useInstallingItemsStore } from "@/store/installingItems";
 
 const installedItemsStore = useInstalledItemsStore();
 const allServItemsStore = useAllServItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
+const installingItemsStore = useInstallingItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
@@ -155,6 +157,8 @@ const commandResult = (_event: any, res: any) => {
         }
         allServItemsStore.updateItemInstallStatus(item);
         allServItemsStore.updateItemLoadingStatus(item, false);
+        // 移除加载中列表
+        installingItemsStore.removeItem(installedEntity);
         // 安装成功后，弹出通知
         const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
         ElNotification({
