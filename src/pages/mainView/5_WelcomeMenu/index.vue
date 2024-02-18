@@ -18,7 +18,7 @@ import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { onMounted, ref } from "vue";
 
 const welcomeItemsStore = useWelcomeItemsStore();
-const welcomeItems: InstalledEntity[] = welcomeItemsStore.welcomeItems;
+const welcomeItems: InstalledEntity[] = welcomeItemsStore.welcomeItemList;
 const result = ref<InstalledEntity[][]>([]);
 
 const groupedItems = () => {

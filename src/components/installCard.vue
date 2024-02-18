@@ -22,6 +22,7 @@ import { useRouter } from 'vue-router';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
+import { InstalledEntity } from "@/interface/InstalledEntity";
 
 const router = useRouter();
 const allServItemsStore = useAllServItemsStore();
@@ -64,8 +65,26 @@ const openDetails = () => {
 const changeStatus = (item: CardFace) => {
     // 启用加载框
     allServItemsStore.updateItemLoadingStatus(item, true);
-    installedItemsStore.updateItemLoadingStatus(item, true);
-    difVersionItemsStore.updateItemLoadingStatus(item, true);
+    const installedItem: InstalledEntity = {
+        appId: item.appId,
+        arch: item.arch,
+        channel: item.channel ? item.channel : '',
+        description: item.description ? item.description : '',
+        icon: item.icon ? item.icon : '',
+        kind: "",
+        module: "",
+        name: item.name,
+        repoName: "",
+        runtime: "",
+        size: "",
+        uabUrl: "",
+        user: "",
+        version: item.version,
+        isInstalled: false,
+        loading: false
+    }
+    installedItemsStore.updateItemLoadingStatus(installedItem, true);
+    difVersionItemsStore.updateItemLoadingStatus(installedItem, true);
     // 弹出提示框
     ElNotification({
         title: '提示',

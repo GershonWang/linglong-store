@@ -7,7 +7,7 @@
             <span :style="spanStyle" :title="name">{{ name }}</span>
             <div class="bottom" v-loading="loading" :element-loading-svg="svg" element-loading-svg-view-box="-10, -10, 50, 50"
                 element-loading-background="rgba(122, 122, 122, 0.8)">
-                <el-button class="uninstallBtn" v-if="isInstalled" @click="openDetails">卸载</el-button>
+                <el-button class="uninstallBtn" v-if="isInstalled" @click="openDetails">已安装</el-button>
                 <el-button class="installBtn" v-else @click="openDetails">安装</el-button>
             </div>
         </div>
@@ -134,8 +134,6 @@ const spanStyle = computed(() => {
 }
 
 .uninstallBtn {
-    background-color: red;
-    color: white;
     padding: 6px;
     height: 24px;
 }

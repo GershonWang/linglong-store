@@ -57,29 +57,13 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
      * @param item 要更新的对象
      */
     const updateItemInstallStatus = (item: CardFace) => {
-        const index = allServItemList.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+        const index = allServItemList.findIndex((it) => it.name === item.name && it.appId === item.appId);
         if (index !== -1) {
             const aItem = allServItemList[index];
             aItem.isInstalled = item.isInstalled;
             allServItemList.splice(index, 1, aItem);
         }
     }
-    /**
-     * 移除对象
-     * @param item 要移除的对象
-     */
-    const removeItem = (item: CardFace) => {
-        const index = allServItemList.findIndex((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
-        if (index !== -1) {
-            allServItemList.splice(index, 1);
-        }
-    };
-    /**
-     * 清空所有应用对象列表
-     */
-    const clearItems = () => {
-        allServItemList.splice(0, allServItemList.length);
-    };
     /**
      * 更新对象的加载状态
      * @param item 要更新的对象
@@ -92,14 +76,11 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
             allServItemList.splice(index, 1, aItem);
         }
     }
-    const getItem = (name: string) => {
-        return allServItemList.find((item) => item.name === name);
-    };
-    const getItemIndex = (name: string) => {
-        return allServItemList.findIndex((item) => item.name === name);
-    };
-    const getItemByName = (name: string) => {
-        return allServItemList.find((item) => item.name === name);
+    /**
+     * 清空所有应用对象列表
+     */
+    const clearItems = () => {
+        allServItemList.splice(0, allServItemList.length);
     };
 
     return {
@@ -107,12 +88,7 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         initAllItems,
         addItem,
         updateItemInstallStatus,
-        removeItem,
-        clearItems,
         updateItemLoadingStatus,
-        
-        getItem,
-        getItemIndex,
-        getItemByName,
+        clearItems,
     };
 });

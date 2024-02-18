@@ -78,10 +78,12 @@ import { InstalledEntity } from '@/interface/InstalledEntity';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
+import { useWelcomeItemsStore } from "@/store/welcomeItems";
 
 const installedItemsStore = useInstalledItemsStore();
 const allServItemsStore = useAllServItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
+const welcomeItemsStore = useWelcomeItemsStore();
 // 路由对象
 const router = useRouter();
 // 路由跳转
@@ -134,10 +136,13 @@ const commandResult = (_event: any, res: any) => {
         } else {
             installedItemsStore.removeItem(installedEntity);
         }
-        // 安装完成后，更新版本应用的应用状态
+        // 更新版本列表
         difVersionItemsStore.updateItemInstallStatus(installedEntity);
-        // 安装完成后，更新版本应用加载状态
         difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
+        // 更新推荐列表
+        welcomeItemsStore.updateItemInstallStatus(installedEntity);
+        welcomeItemsStore.updateItemLoadingStatus(installedEntity,false);
+        // 更新全部应用列表
         const item: CardFace = {
             appId: params.appId,
             name: params.name,
@@ -148,9 +153,7 @@ const commandResult = (_event: any, res: any) => {
             loading: params.loading,
             icon: params.icon,
         }
-        // 安装成功后，更新全部应用中的应用状态
         allServItemsStore.updateItemInstallStatus(item);
-        // 安装成功后，更新当前应用加载状态
         allServItemsStore.updateItemLoadingStatus(item, false);
         // 安装成功后，弹出通知
         const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
