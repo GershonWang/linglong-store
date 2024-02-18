@@ -57,7 +57,7 @@ const router = createRouter({
                 {
                     path: '/welcome_menu',
                     name: 'WelcomeMenu',
-                    component: () => import("../pages/mainView/5_welcomeMenu/index.vue")
+                    component: () => import("../pages/mainView/5_WelcomeMenu/index.vue")
                 },
                 {
                     path: '/config_menu',

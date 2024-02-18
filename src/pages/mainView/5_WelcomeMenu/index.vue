@@ -15,6 +15,7 @@
     </div>
 </template>
 <script setup lang="ts">
+import InstalledCard from "@/components/installCard.vue";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import defaultImage from '@/assets/logo.svg';
 
