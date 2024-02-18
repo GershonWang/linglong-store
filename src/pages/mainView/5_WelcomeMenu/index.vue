@@ -1,25 +1,37 @@
 <template>
     <div class="container">
-        <div class="card_container" v-if="welcomeItemsStore.welcomeItems && welcomeItemsStore.welcomeItems.length > 0">
-            <div class="card_items" v-for="(item, index) in welcomeItemsStore.welcomeItems" :key="index">
-                <InstalledCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
+        <h1 style="text-align: center;">珑珑推荐</h1>
+        <el-divider />
+        <div v-for="(group, groupIndex) in result" :key="groupIndex" class="row">
+            <!-- 每五个一组的项目 -->
+            <div v-for="(item, itemIndex) in group" :key="itemIndex" class="card_items">
+                <WelcomeCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
+                :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
-        </div>
-        <div class="noDataContainer" v-else>
-            <div class="imageDiv">
-                <img class="image" :src="defaultImage" alt="Image" />
-            </div>
-            <h1>系统内无已安装程序</h1>
         </div>
     </div>
 </template>
 <script setup lang="ts">
-import InstalledCard from "@/components/installCard.vue";
+import WelcomeCard from "@/components/welcomeCard.vue";
+import { InstalledEntity } from "@/interface/InstalledEntity";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
-import defaultImage from '@/assets/logo.svg';
+import { onMounted, ref } from "vue";
 
 const welcomeItemsStore = useWelcomeItemsStore();
+const welcomeItems: InstalledEntity[] = welcomeItemsStore.welcomeItems;
+const result = ref<InstalledEntity[][]>([]);
+
+const groupedItems = () => {
+    const chunkSize = 5;
+    for (let i = 0; i < welcomeItems.length; i += chunkSize) {
+        const items = welcomeItems.slice(i, i + chunkSize);
+        result.value.push(items);
+    }
+}
+
+onMounted(() => {
+    groupedItems();
+})
 </script>
 <style scoped>
 .container {
@@ -27,15 +39,14 @@ const welcomeItemsStore = useWelcomeItemsStore();
     overflow-y: auto;
 }
 
-.card_container {
-    display: grid;
-    grid-gap: 10px;
-    margin-right: 12px;
-    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+.row {
+    display: flex;
+    flex-wrap: nowrap; /* 不换行 */
+    margin: 20px; /* 调整子元素之间的间距 */
 }
-
 .card_items {
     padding: 10px;
+    margin: 10px;
     flex: 1;
     min-width: 180px;
     border: 1px solid #ccc;
@@ -44,15 +55,4 @@ const welcomeItemsStore = useWelcomeItemsStore();
     background-color: #999999;
 }
 
-.noDataContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-.imageDiv {
-    width: 180px;
-    height: 300px
-}
 </style>
