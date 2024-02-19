@@ -18,10 +18,8 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
      * @returns 将数据放入后的对象数组
      */
     const initWelcomeItems = () => {
-        // 当对象存在数据时，直接返回，不进行后续得初始化操作
-        if (welcomeItemList.value.length > 0) {
-            return;
-        }
+        // 清除welcomeItemList数组对象
+        welcomeItemList.value = [];
         const allItems = allServItemsStore.allServItemList;
         for (let index = 0; index < allItems.length; index++) {
             const element: CardFace = allItems[index];
@@ -43,11 +41,65 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
                 isInstalled: false,
                 loading: false
             }
-            if (element.appId == 'linux.qq.com' || element.appId == 'com.jetbrains.intellij-idea-ultimate' || element.appId == 'io.github.fsearch' || element.appId == 'com.qq.wemeet'
-                || element.appId == 'cn.google.chrome' || element.appId == 'com.visualstudio.code' || element.appId == 'com.qq.music' || element.appId == 'net.supertuxkart'
-                || element.appId == 'com.qianxin.browser-stable' || element.appId == 'cc.modao.mockitt') {
-                    installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name && it.version === element.version);
-                    welcomeItemList.value.push(installedEntity);
+            if (element.appId == 'com.jetbrains.intellij-idea-ultimate') {
+                installedEntity.name = 'Idea(旗舰版)';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'io.github.fsearch') {
+                installedEntity.name = 'fsearch搜索工具';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'com.qq.wemeet') {
+                installedEntity.name = '腾讯会议';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'cn.google.chrome') {
+                installedEntity.name = '谷歌浏览器';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'com.qq.music') {
+                installedEntity.name = 'QQ音乐';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'com.qianxin.browser-stable') {
+                installedEntity.name = '奇安信浏览器';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'net.supertuxkart') {
+                installedEntity.name = '超级赛车游戏';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'cc.modao.mockitt') {
+                installedEntity.name = '墨刀';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'com.visualstudio.code') {
+                installedEntity.name = 'VS Code';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
+            if (element.appId == 'linux.qq.com') {
+                installedEntity.name = 'LinuxQQ';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
             }
         }
         return welcomeItemList;
