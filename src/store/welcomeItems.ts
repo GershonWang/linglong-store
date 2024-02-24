@@ -41,6 +41,12 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
                 isInstalled: false,
                 loading: false
             }
+            if (element.appId == 'cn.wps.wps-office') {
+                installedEntity.name = 'WPS办公';
+                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                welcomeItemList.value.push(installedEntity);
+                continue;
+            }
             if (element.appId == 'com.jetbrains.intellij-idea-ultimate') {
                 installedEntity.name = 'Idea(旗舰版)';
                 installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
@@ -91,12 +97,6 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
             }
             if (element.appId == 'com.visualstudio.code') {
                 installedEntity.name = 'VS Code';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
-                welcomeItemList.value.push(installedEntity);
-                continue;
-            }
-            if (element.appId == 'linux.qq.com') {
-                installedEntity.name = 'LinuxQQ';
                 installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;

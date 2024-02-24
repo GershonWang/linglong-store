@@ -21,6 +21,21 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         clearItems();
         // 组装数据进入对象数组
         const list:CardFace[] = array;
+        // 添加wps
+        const index = list.findIndex((i) => i.appId === "cn.wps.wps-office");
+        if (index == -1) {
+            const wpsItem: CardFace = {
+                "id": "100000",
+                "appId": "cn.wps.wps-office",
+                "name": "wps-office",
+                "version": "11.1.0.10920",
+                "description": "WPS Office 2019 for Linux 办公软件，是一款兼容、开放、高效、安全并极具中文本土化优势的办公软件。",
+                "arch": "x86_64",
+                "icon": "https://ee.wpscdn.cn/wpscn/images/icon/wps-default.57da6711.svg",
+            }
+            list.push(wpsItem);
+        }
+        // 排序
         list.sort((a, b) => {
             const nameA = a.name.toLowerCase(); // 将 name 转换为小写
             const nameB = b.name.toLowerCase(); // 将 name 转换为小写
