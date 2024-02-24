@@ -19,7 +19,7 @@
     <div class="container" @scroll="handleScroll">
         <div class="card_container" v-if="displayedItems && displayedItems.length > 0">
             <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
-                <AllCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
+                <allServCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" />
             </div>
         </div>
@@ -36,7 +36,7 @@
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus';
-import AllCard from "@/components/allCard.vue";
+import allServCard from "@/components/allServCard.vue";
 import { CardFace } from '@/interface/CardFace';
 import defaultImage from '@/assets/logo.svg';
 // 引入 lodash 中的 debounce 函数

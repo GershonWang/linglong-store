@@ -20,7 +20,12 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         // 清空原始对象
         clearItems();
         // 组装数据进入对象数组
-        const list:CardFace[] = array;
+        let list:CardFace[] = array;
+        // 过滤无图标程序
+        if (!systemConfigStore.isShowNoIcon) {
+            // 过滤无icon的CardFace对象
+            list = list.filter((i) => "https://mirror-repo-linglong.deepin.com/icon/application-x-executable.svg" != i.icon);
+        }
         // 添加wps
         const index = list.findIndex((i) => i.appId === "cn.wps.wps-office");
         if (index == -1) {
@@ -47,15 +52,24 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
             }
             return 0;
         })
-        for (let i = 0; i < list.length; i++) {
-            const item: CardFace = list[i];
-            const itemArch: string = item.arch.trim();
-            if (systemConfigStore.filterFlag && itemArch != systemConfigStore.arch) {
-                continue;
+        // 过滤非当前架构程序
+        if (systemConfigStore.isShowDisArch) {
+            for (let i = 0; i < list.length; i++) {
+                const item: CardFace = list[i];
+                item.isInstalled = installedItemList.some((it) => it.name === item.name && it.appId === item.appId);
+                item.loading = false;
+                allServItemList.push(item);
             }
-            item.isInstalled = installedItemList.some((it) => it.name === item.name && it.appId === item.appId);
-            item.loading = false;
-            allServItemList.push(item);
+        } else {
+            for (let i = 0; i < list.length; i++) {
+                const item: CardFace = list[i];
+                const itemArch: string = item.arch.trim();
+                if (itemArch == systemConfigStore.arch) {
+                    item.isInstalled = installedItemList.some((it) => it.name === item.name && it.appId === item.appId);
+                    item.loading = false;
+                    allServItemList.push(item);
+                }
+            }
         }
         return allServItemList;
     }

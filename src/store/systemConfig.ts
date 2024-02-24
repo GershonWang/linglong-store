@@ -9,8 +9,12 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         llVersion: ref('1.3.8'),
         // 玲珑源地址
         sourceUrl: ref('https://mirror-repo-linglong.deepin.com'),
-        // 是否过滤非当前架构程序
-        filterFlag: ref(false),
+        // 是否显示非当前架构程序
+        isShowDisArch: ref(true),
+        // 是否显示无图标玲珑程序
+        isShowNoIcon: ref(false),
+        // 是否显示基础运行服务
+        isShowBaseService: ref(false),
         // 自动检测更新
         autoCheckUpdate: ref(true),
         // 网络状态
@@ -21,11 +25,13 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             return 'arch:' + state.arch 
             + ',llVersion:' + state.llVersion 
             + ',sourceUrl:' + state.sourceUrl 
-            + ',filterFlag:' + state.filterFlag 
+            + ',isShowDisArch:' + state.isShowDisArch 
+            + ',isShowNoIcon:' + state.isShowNoIcon 
+            + ',isShowBaseService:' + state.isShowBaseService 
             + ',autoCheckUpdate:' + state.autoCheckUpdate
             + ',networkRunStatus:' + state.networkRunStatus
         },
-        getFilterFlag: (state) => state.filterFlag,
+        getIsShowDisArch: (state) => state.isShowDisArch,
     },
     actions: {
         // 修改系统架构信息
@@ -43,10 +49,20 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             const that = this;
             that.sourceUrl = inSourceUrl;
         },
-        // 修改过滤非当前架构程序
-        changeFilterFlag(inFilterFlag: boolean){
+        // 修改是否显示非当前架构程序
+        changeIsShowDisArch(inShowDisArch: boolean){
             const that = this;
-            that.filterFlag = inFilterFlag;
+            that.isShowDisArch = inShowDisArch;
+        },
+        // 修改是否显示无图标玲珑程序
+        changeIsShowNoIcon(inShowNoIcon: boolean){
+            const that = this;
+            that.isShowNoIcon = inShowNoIcon;
+        },
+        // 修改是否显示基础运行服务
+        changeIsShowBaseService(inShowBaseService: boolean){
+            const that = this;
+            that.isShowBaseService = inShowBaseService;
         },
         // 自动检测更新
         changeAutoCheckUpdate(autoCheckUpdate: boolean){

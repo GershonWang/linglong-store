@@ -41,11 +41,11 @@
                         @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
                     <el-button v-if="scope.row.isInstalled && scope.row.loading" loading>卸载中</el-button>
                     <!-- 运行按钮 -->
-                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading"
-                        @click="toRun(scope.row)">运行</el-button>
+                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading 
+                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics'" @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
-                    <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading"
-                        @click="changeStatus(scope.row, 'install')">安装</el-button>
+                    <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading
+                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics'" @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                 </template>
             </el-table-column>
@@ -72,7 +72,7 @@ const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
-const systemConfig = useSystemConfigStore();
+const systemConfigStore = useSystemConfigStore();
 // 路由对象
 const router = useRouter();
 const query = router.currentRoute.value.query;
@@ -163,7 +163,7 @@ const commandResult = (_event: any, res: any) => {
 }
 // 启动时加载
 onMounted(() => {
-    if (!systemConfig.networkRunStatus) {
+    if (!systemConfigStore.networkRunStatus) {
         ElNotification({
             title: '提示',
             message: "网络状态不可用！请检查网络后,再重启商店使用...",
@@ -172,7 +172,7 @@ onMounted(() => {
         });
         return;
     }
-    if (hasUpdateVersion('1.3.99', systemConfig.llVersion) == 1) {
+    if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
         ipcRenderer.send("command", { command: "ll-cli search " + query.appId + " --json"});
     } else {
         ipcRenderer.send("command", { command: "ll-cli query " + query.appId });

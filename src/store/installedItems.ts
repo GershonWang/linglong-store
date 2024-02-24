@@ -2,7 +2,9 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { CardFace } from "@/interface/CardFace";
 import { InstalledEntity } from "@/interface/InstalledEntity";
+import { useSystemConfigStore } from "@/store/systemConfig";
 
+const systemConfigStore = useSystemConfigStore();
 /**
  * 已安装的全部应用
  */
@@ -15,14 +17,19 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
      * @returns 将数据放入后的对象数组
      */
     const initInstalledItems = (data: string) => {
+        clearItems(); // 清空已安装列表
         const installedItemList11 = data.trim() ? JSON.parse(data.trim()) : [];
         if (installedItemList11.length > 0) {
-            installedItemList11.forEach((item: InstalledEntity) => {
-                // 去除空行和运行时服务
-                if (item && item.appId != "org.deepin.Runtime" && item.appId != 'org.deepin.basics') {
-                    installedItemList.value.push(item);
-                }
-            })
+            if (systemConfigStore.isShowBaseService) {
+                installedItemList.value = installedItemList11;
+            } else {
+                installedItemList11.forEach((item: InstalledEntity) => {
+                    // 去除空行和运行时服务
+                    if (item && item.appId != "org.deepin.Runtime" && item.appId != 'org.deepin.basics') {
+                        installedItemList.value.push(item);
+                    }
+                })
+            }
         }
         return installedItemList;
     }

@@ -10,7 +10,7 @@
             <div class="imageDiv">
                 <img class="image" :src="defaultImage" alt="Image" />
             </div>
-            <h1>暂无可更新程序</h1>
+            <h1>暂无数据</h1>
         </div>
     </div>
 </template>

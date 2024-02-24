@@ -66,6 +66,7 @@ const updateBtnStatus = ref(false);
 const downloadModule = ref(false);
 const downloadPercent = ref(0);
 const netspeed = ref(0.00);
+
 const colors = [
   { color: '#f56c6c', percentage: 20 },
   { color: '#e6a23c', percentage: 40 },
@@ -73,11 +74,11 @@ const colors = [
   { color: '#1989fa', percentage: 80 },
   { color: '#6f7ad3', percentage: 100 },
 ]
-
+// 检查更新
 const checkVersion = () => {
   updateBtnStatus.value = true;
   updateStatusStore.changeUpdateBtnStatus(updateBtnStatus.value);
-  ipcRenderer.send('checkForUpdate') // 检查更新
+  ipcRenderer.send('checkForUpdate');
 }
 // 监听主进程发送的更新消息
 const updateMessage = (_event: any, text: string) => {

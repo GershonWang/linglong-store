@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { ipcRenderer } from "electron";
-import { ElNotification } from 'element-plus'
+import { ElNotification, ElMessageBox } from 'element-plus'
 import { CardFace } from "@/interface/CardFace";
 import { useRouter } from 'vue-router';
 import { useAllServItemsStore } from "@/store/allServItems";
@@ -63,47 +63,54 @@ const openDetails = () => {
 }
 // 按钮点击操作事件
 const changeStatus = (item: CardFace) => {
-    // 启用加载框
-    allServItemsStore.updateItemLoadingStatus(item, true);
-    const installedItem: InstalledEntity = {
-        appId: item.appId,
-        arch: item.arch,
-        channel: item.channel ? item.channel : '',
-        description: item.description ? item.description : '',
-        icon: item.icon ? item.icon : '',
-        kind: "",
-        module: "",
-        name: item.name,
-        repoName: "",
-        runtime: "",
-        size: "",
-        uabUrl: "",
-        user: "",
-        version: item.version,
-        isInstalled: false,
-        loading: false
-    }
-    installedItemsStore.updateItemLoadingStatus(installedItem, true);
-    difVersionItemsStore.updateItemLoadingStatus(installedItem, true);
-    // 弹出提示框
-    ElNotification({
-        title: '提示',
-        message: '正在卸载' + item.name + '(' + item.version + ')',
-        type: 'info',
-        duration: 500,
-    });
-    // 发送操作命令
-    ipcRenderer.send('command', {
-        appId: item.appId,
-        name: item.name,
-        arch: item.arch,
-        version: item.version,
-        description: item.description,
-        isInstalled: item.isInstalled,
-        command: 'll-cli uninstall ' + item.appId + '/' + item.version,
-        icon: item.icon,
-        loading: false
-    });
+    ElMessageBox.confirm('确定要卸载当前程序吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true,
+    }).then(() => {
+        // 启用加载框
+        allServItemsStore.updateItemLoadingStatus(item, true);
+        const installedItem: InstalledEntity = {
+            appId: item.appId,
+            arch: item.arch,
+            channel: item.channel ? item.channel : '',
+            description: item.description ? item.description : '',
+            icon: item.icon ? item.icon : '',
+            kind: "",
+            module: "",
+            name: item.name,
+            repoName: "",
+            runtime: "",
+            size: "",
+            uabUrl: "",
+            user: "",
+            version: item.version,
+            isInstalled: false,
+            loading: false
+        }
+        installedItemsStore.updateItemLoadingStatus(installedItem, true);
+        difVersionItemsStore.updateItemLoadingStatus(installedItem, true);
+        // 弹出提示框
+        ElNotification({
+            title: '提示',
+            message: '正在卸载' + item.name + '(' + item.version + ')',
+            type: 'info',
+            duration: 500,
+        });
+        // 发送操作命令
+        ipcRenderer.send('command', {
+            appId: item.appId,
+            name: item.name,
+            arch: item.arch,
+            version: item.version,
+            description: item.description,
+            isInstalled: item.isInstalled,
+            command: 'll-cli uninstall ' + item.appId + '/' + item.version,
+            icon: item.icon,
+            loading: false
+        });
+    })
 };
 // 计算文字的宽度
 const textWidth = computed(() => {
