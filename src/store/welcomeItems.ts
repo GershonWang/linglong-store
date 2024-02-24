@@ -90,7 +90,7 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
                 continue;
             }
             if (element.appId == 'cc.modao.mockitt') {
-                installedEntity.name = '墨刀';
+                installedEntity.name = '墨刀办公';
                 installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;

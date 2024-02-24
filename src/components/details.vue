@@ -31,9 +31,9 @@
         <div class="title">版本选择</div>
         <el-table :data="difVersionItemsStore.difVersionItemList" :default-sort="{ prop: 'version', order: 'descending' }"
             height="94%" style="width: 100%;border-radius: 5px">
-            <el-table-column prop="name" label="名称" header-align="center" align="center" width="180" />
             <el-table-column prop="version" label="版本号" header-align="center" align="center" width="120" />
-            <el-table-column prop="description" label="描述" header-align="center" />
+            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="280" :formatter="formatRuntime" />
+            <el-table-column prop="description" label="描述" />
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
@@ -57,7 +57,7 @@ import { onBeforeUnmount, onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
 import { CardFace } from '@/interface/CardFace';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
-import { ElNotification } from 'element-plus'
+import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import hasUpdateVersion from "@/util/checkVersion";
 import { useAllServItemsStore } from "@/store/allServItems";
@@ -76,6 +76,15 @@ const systemConfig = useSystemConfigStore();
 // 路由对象
 const router = useRouter();
 const query = router.currentRoute.value.query;
+// 格式化运行时字段
+function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
+    // 假设 column 中有一个名为 value 的属性
+    const runtime = row.runtime;
+    if (!runtime) return '';
+    const values: string[] = (runtime as string).split("/");
+    const value = values[0] + "/" + values[1];
+    return value; // 做一些格式化处理并返回字符串
+};
 // 操作按钮的点击事件
 const changeStatus = async (item: any, flag: string) => {
     // 启用加载框
@@ -148,6 +157,7 @@ const commandResult = (_event: any, res: any) => {
         if ('stdout' == res.code) {
             const data = res.result;
             difVersionItemsStore.initDifVersionItems(data, query);
+            console.log('difVersionItemsStore.difVersionItemList',difVersionItemsStore.difVersionItemList);
         }
     }
 }

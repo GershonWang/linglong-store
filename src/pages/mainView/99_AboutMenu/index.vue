@@ -2,13 +2,13 @@
   <div>
     <h1>关于程序</h1>
     <el-divider />
-    <li>
+    <!-- <li>
       <a class="title">项目环境</a>
     </li>
     <div class="item">Node版本：{{ versions.node }}</div>
     <div class="item">Electron版本：{{ versions.electron }}</div>
     <div class="item">Chrome版本：{{ versions.chrome }}</div>
-    <br>
+    <br> -->
     <li>
       <a class="title">玲珑信息</a>
     </li>
@@ -37,6 +37,14 @@
       github地址：<a class="link" href="https://github.com/GershonWang/linglong_store"
         target="_blank">https://github.com/GershonWang/linglong_store</a>
     </div>
+    <br>
+    <li>
+      <a class="title">赞助支持</a>
+    </li>
+    <div class="item" style="padding-top: 10px;">
+      <img class="image" src="@/assets/aliPay.png" alt="Image"/>
+      <img class="image" src="@/assets/wePay.jpg" alt="Image"/>
+    </div>
   </div>
   <div class="progress" v-show="downloadModule">
     <el-progress type="dashboard" :percentage="downloadPercent" :color="colors" :stroke-width="15" />
@@ -53,7 +61,7 @@ import { useUpdateStatusStore } from "@/store/updateStatus";
 
 const allServItemsStore = useAllServItemsStore();
 const updateStatusStore = useUpdateStatusStore();
-const versions = process.versions;
+// const versions = process.versions;
 const updateBtnStatus = ref(false);
 const downloadModule = ref(false);
 const downloadPercent = ref(0);
@@ -182,6 +190,12 @@ onBeforeUnmount(() => {
 .updateBtn {
   color: black;
   margin-left: 10px;
+}
+
+.image {
+  width: 250px;
+  margin-right: 30px;
+  border-radius: 10px;
 }
 
 .progress {

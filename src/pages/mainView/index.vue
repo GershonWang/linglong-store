@@ -19,19 +19,19 @@
                         <el-icon>
                             <GobletSquareFull />
                         </el-icon>
-                        <span>已安装程序</span>
+                        <span>卸载程序</span>
                     </el-menu-item>
                     <el-menu-item index="4" @click="toPage('/update_menu')">
                         <el-icon>
                             <UploadFilled />
                         </el-icon>
-                        <span>可更新程序</span>
+                        <span>更新程序</span>
                     </el-menu-item>
                     <el-menu-item index="5" @click="toPage('/runtime_menu')">
                         <el-icon>
                             <Odometer />
                         </el-icon>
-                        <span>运行中程序</span>
+                        <span>玲珑进程</span>
                     </el-menu-item>
                     <el-menu-item index="98" @click="toPage('/config_menu')">
                         <el-icon>
@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
 }
 
 .el-aside {
-    width: 180px;
+    width: 150px;
     margin: 12px 0 12px 12px;
     border-radius: 15px;
 }
@@ -202,9 +202,11 @@ onBeforeUnmount(() => {
 }
 
 .el-menu-item {
+    height: 45px;
     color: white;
+    font-size: 12px;
     font-weight: bold;
-    border-radius: 15px;
+    border-radius: 10px;
     background-color: #6E6E6E;
     text-align: center;
     margin: 5px;
