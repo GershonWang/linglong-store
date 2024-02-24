@@ -48,13 +48,13 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
                 continue;
             }
             if (element.appId == 'com.jetbrains.intellij-idea-ultimate') {
-                installedEntity.name = 'Idea(旗舰版)';
+                installedEntity.name = 'IDEA开发工具';
                 installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
-            if (element.appId == 'io.github.fsearch') {
-                installedEntity.name = 'fsearch搜索工具';
+            if (element.appId == 'com.xunlei.download') {
+                installedEntity.name = 'Linux迅雷';
                 installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
