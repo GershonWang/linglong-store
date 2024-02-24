@@ -21,11 +21,6 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         clearItems();
         // 组装数据进入对象数组
         let list:CardFace[] = array;
-        // 过滤无图标程序
-        if (!systemConfigStore.isShowNoIcon) {
-            // 过滤无icon的CardFace对象
-            list = list.filter((i) => "https://mirror-repo-linglong.deepin.com/icon/application-x-executable.svg" != i.icon);
-        }
         // 添加wps
         const index = list.findIndex((i) => i.appId === "cn.wps.wps-office");
         if (index == -1) {
@@ -39,6 +34,12 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
                 "icon": "https://ee.wpscdn.cn/wpscn/images/icon/wps-default.57da6711.svg",
             }
             list.push(wpsItem);
+        }
+        // 将请求的数据条数记录到系统参数store中
+        systemConfigStore.changeLinglongCount(list.length);
+        // 过滤无图标程序
+        if (!systemConfigStore.isShowNoIcon) {
+            list = list.filter((i) => "https://mirror-repo-linglong.deepin.com/icon/application-x-executable.svg" != i.icon);
         }
         // 排序
         list.sort((a, b) => {
