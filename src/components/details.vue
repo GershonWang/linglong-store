@@ -31,8 +31,8 @@
         <div class="title">版本选择</div>
         <el-table :data="difVersionItemsStore.difVersionItemList" :default-sort="{ prop: 'version', order: 'descending' }"
             height="94%" style="width: 100%;border-radius: 5px">
-            <el-table-column prop="version" label="版本号" header-align="center" align="center" width="120" />
-            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="280" :formatter="formatRuntime" />
+            <el-table-column prop="version" label="版本号" width="120" />
+            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240" :formatter="formatRuntime" />
             <el-table-column prop="description" label="描述" />
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                 <template #default="scope">
@@ -42,10 +42,12 @@
                     <el-button v-if="scope.row.isInstalled && scope.row.loading" loading>卸载中</el-button>
                     <!-- 运行按钮 -->
                     <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading 
-                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics'" @click="toRun(scope.row)">运行</el-button>
+                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics' && scope.row.appId != 'org.deepin.Wine'" 
+                        @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
                     <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading
-                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics'" @click="changeStatus(scope.row, 'install')">安装</el-button>
+                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics' && scope.row.appId != 'org.deepin.Wine'" 
+                        @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                 </template>
             </el-table-column>
