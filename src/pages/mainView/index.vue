@@ -121,24 +121,10 @@ const commandResult = (_event: any, res: any) => {
     // 返回结果 - 当前执行安装的应用信息
     const command: string = params.command;
     if (command.startsWith('ll-cli install') || command.startsWith('ll-cli uninstall')) {
-        const installedEntity: InstalledEntity = {
-            appId: params.appId,
-            name: params.name,
-            version: params.version,
-            description: params.description,
-            arch: params.arch,
-            loading: params.loading,
-            icon: params.icon,
-            channel: '',
-            kind: '',
-            module: '',
-            repoName: '',
-            runtime: '',
-            size: '',
-            uabUrl: '',
-            user: '',
-            isInstalled: false
-        }
+        const installedEntity: InstalledEntity = params;
+        installedEntity.isInstalled = false;
+        // 移除加载中列表
+        installingItemsStore.removeItem(installedEntity);
         if (command.startsWith('ll-cli install')) {
             installedEntity.isInstalled = true;
             installedItemsStore.addItem(installedEntity);
@@ -150,24 +136,14 @@ const commandResult = (_event: any, res: any) => {
         difVersionItemsStore.updateItemInstallStatus(installedEntity);
         welcomeItemsStore.updateItemInstallStatus(installedEntity);
         // 更新全部应用列表
-        const item: CardFace = {
-            appId: params.appId,
-            name: params.name,
-            version: params.version,
-            description: params.description,
-            arch: params.arch,
-            isInstalled: command.startsWith('ll-cli install'),
-            loading: params.loading,
-            icon: params.icon,
-        }
+        const item: CardFace = params;
+        item.isInstalled = command.startsWith('ll-cli install');
         allServItemsStore.updateItemLoadingStatus(item, false);
         // 判断当前应用安装版本个数小于两个，才进行状态更新
         const app = installedItemsStore.installedItemList.findIndex(item => item.appId === params.appId);
         if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
             allServItemsStore.updateItemInstallStatus(item);
         }
-        // 移除加载中列表
-        installingItemsStore.removeItem(installedEntity);
         // 安装成功后，弹出通知
         const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
         ElNotification({
