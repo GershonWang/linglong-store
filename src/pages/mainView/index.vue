@@ -102,6 +102,13 @@ const commandResult = (_event: any, res: any) => {
             ipcRenderer.send('command', params);
         } else {
             retryNum.value = 0;
+            // 执行异常时，停止相关的加载状态
+            installingItemsStore.removeItem(params as InstalledEntity);
+            allServItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+            installedItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+            difVersionItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+            welcomeItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+            // 弹框提示
             ElNotification({
                 title: '请求错误',
                 message: '命令执行异常！',
@@ -159,7 +166,6 @@ const commandResult = (_event: any, res: any) => {
         if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
             allServItemsStore.updateItemInstallStatus(item);
         }
-
         // 移除加载中列表
         installingItemsStore.removeItem(installedEntity);
         // 安装成功后，弹出通知
