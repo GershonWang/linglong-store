@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { InstalledEntity } from "@/interface/InstalledEntity";
 import { LocationQuery } from "vue-router";
+import hasUpdateVersion from "@/util/checkVersion";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 
@@ -17,20 +18,22 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
      * @returns 将数据放入后的对象数组
      */
     const initDifVersionItems = (data: string, query: LocationQuery) => {
-        const seachAppId = query.appId;
         clearItems(); // 清空原始对象
-        const installedItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
-        if (installedItemList.length > 0) {
-            for (let index = 0; index < installedItemList.length; index++) {
-                const item: InstalledEntity = installedItemList[index];
-                // 去除空行和运行时服务
-                if (!item || item.appId != seachAppId || item.module == 'devel') {
-                    continue;
-                }
+        let searchVersionItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
+        if (searchVersionItemList.length > 0) {
+            // 过滤不同appId和时devel的数据
+            searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == query.appId && item.module != 'devel');
+            for (let index = 0; index < searchVersionItemList.length; index++) {
+                const item: InstalledEntity = searchVersionItemList[index];
+                // 处理wps没有kind种类的问题
+                item.kind = item.appId == 'cn.wps.wps-office' ? 'app' : item.kind;
+                // 处理当前版本是否已安装状态
                 item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+                // 处理当前版本是否加载中状态
                 item.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
-                difVersionItemList.value.push(item);
+                // difVersionItemList.value.push(item);
             }
+            difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
         }
         return difVersionItemList;
     }
@@ -42,6 +45,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
     const addItem = (item: InstalledEntity) => {
         difVersionItemList.value.push(item);
     };
+
     /**
      * 从对象数组中移除对象
      * @param item 要移除的对象
@@ -52,12 +56,14 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
             difVersionItemList.value.splice(index, 1);
         }
     };
+
     /**
      * 清空所有应用对象列表
      */
     const clearItems = () => {
         difVersionItemList.value.splice(0, difVersionItemList.value.length);
     };
+
     /**
      * 更新对象的安装状态
      * @param item 要更新的对象
@@ -70,6 +76,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
             difVersionItemList.value.splice(index, 1, aItem);
         }
     }
+    
     /**
      * 更新对象的加载状态
      * @param item 要更新的对象

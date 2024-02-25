@@ -1,7 +1,11 @@
-// 检测版本高于当前版本
-// 版本相同返回0
-// 第一个参数大于第二个参数，返回-1
-// 第一个参数小于第二个参数，返回1
+/**
+ * 当比较的两个版本相同时返回值为 0<br>
+ * 当检测版本低于基数版本时返回值为 -1<br>
+ * 当检测版本高于基数版本时返回值为 1
+ * @param thisVersion 作为比较的基数版本
+ * @param checkVersion 要比较检测的版本
+ * @returns 
+ */
 const hasUpdateVersion = (thisVersion: string, checkVersion: string) => {
     const thisArray: string[] = thisVersion.split('.');
     const checkArray: string[] = checkVersion.split('.');

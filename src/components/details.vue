@@ -6,24 +6,14 @@
     <div class="baseContainer">
         <div class="title">参数信息</div>
         <div class="baseMessage">
-            <div class="imageDiv">
-                <img class="image" v-lazy="query.icon" alt="Image" />
-            </div>
+            <div class="imageDiv"><img class="image" v-lazy="query.icon" alt="Image" /></div>
             <div class="same">
                 <div class="soft">
-                    <div>
-                        <span class="softTitle">应用程序名称：</span>{{ query.name }}
-                    </div>
-                    <div>
-                        <span class="softTitle">AppID：</span>{{ query.appId }}
-                    </div>
-                    <div>
-                        <span class="softTitle">应用架构：</span>{{ query.arch }}
-                    </div>
+                    <div><span class="softTitle">应用程序名称：</span>{{ query.name }}</div>
+                    <div><span class="softTitle">AppID：</span>{{ query.appId }}</div>
+                    <div><span class="softTitle">应用架构：</span>{{ query.arch }}</div>
                 </div>
-                <div>
-                    <span class="softTitle">应用简述：</span>{{ query.description }}
-                </div>
+                <div><span class="softTitle">应用简述：</span>{{ query.description }}</div>
             </div>
         </div>
     </div>
@@ -102,19 +92,8 @@ const changeStatus = async (item: any, flag: string) => {
         command = 'll-cli uninstall ' + item.appId + '/' + item.version;
     }
     // 从所有程序列表中捞取程序图标icon
-    let icon: string | undefined;
     const allItems = allServItemsStore.allServItemList;
     const findItem = allItems.find(it => it.appId == item.appId && it.name == item.name);
-    if (findItem) {
-        icon = findItem.icon;
-    }
-    // 弹出提示框
-    ElNotification({
-        title: '提示',
-        message: message,
-        type: 'info',
-        duration: 500,
-    });
     // 发送操作命令
     ipcRenderer.send('command', {
         appId: item.appId,
@@ -123,20 +102,20 @@ const changeStatus = async (item: any, flag: string) => {
         arch: item.arch,
         description: item.description,
         isInstalled: item.isInstalled,
-        icon: icon,
+        icon: findItem ? findItem.icon : '',
         command: command,
         loading: false,
+    });
+    // 弹出提示框
+    ElNotification({
+        title: '提示',
+        message: message,
+        type: 'info',
+        duration: 500,
     });
 }
 // 运行按钮
 const toRun = (item: CardFace) => {
-    // 弹出运行提示框
-    ElNotification({
-        title: '提示',
-        message: item.name + '(' + item.version + ')即将被启动！',
-        type: 'info',
-        duration: 500,
-    });
     // 发送操作命令
     ipcRenderer.send('command', {
         appId: item.appId,
@@ -149,15 +128,19 @@ const toRun = (item: CardFace) => {
         command: 'll-cli run ' + item.appId + '/' + item.version,
         loading: false,
     });
+    // 弹出运行提示框
+    ElNotification({
+        title: '提示',
+        message: item.name + '(' + item.version + ')即将被启动！',
+        type: 'info',
+        duration: 500,
+    });
 }
 // 查询同应用不同版本的列表
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
-    if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
-        if ('stdout' == res.code) {
-            const data = res.result;
-            difVersionItemsStore.initDifVersionItems(data, query);
-        }
+    if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search') && 'stdout' == res.code) {
+        difVersionItemsStore.initDifVersionItems(res.result, query);
     }
 }
 // 启动时加载
