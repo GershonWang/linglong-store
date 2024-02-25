@@ -84,11 +84,15 @@ const commandResult = (_event: any, res: any) => {
     if (command == 'll-cli --version') {
         if(code == 'stdout' && result.trim()) {
             const items: RegExpMatchArray | null = result.trim().match(/'[^']+'|\S+/g);
-            if (items) {
+            if (items && items.length == 3) {
                 systemConfigStore.changeLlVersion(items[2]);
-            } 
+            } else {
+                systemConfigStore.changeLlVersion('1.3.8');
+                ipcRenderer.send('logger', 'error', "非异常返回！1.4.X以前旧版，检测不到版本号，设置默认1.3.8");
+            }
         } else {
-            ipcRenderer.send('logger', 'error', "1.4.X以前旧版，检测不到版本号");
+            systemConfigStore.changeLlVersion('1.3.8');
+            ipcRenderer.send('logger', 'error', "异常返回！1.4.X以前旧版，检测不到版本号，设置默认1.3.8");
         }
         message.value = "玲珑环境版本检测完毕...";
         ipcRenderer.send('logger', 'info', "玲珑环境版本检测完毕...");
@@ -207,6 +211,8 @@ const networkResult = async (_event: any, res: any) => {
 }
 // 加载前执行
 onMounted(async () => {
+    // 开启系统参数中的网络标识
+    systemConfigStore.changeNetworkRunStatus(true);
     // 开启先检测商店版本号是否有更新
     if (systemConfigStore.autoCheckUpdate) {
         message.value = "正在检测商店版本号...";
