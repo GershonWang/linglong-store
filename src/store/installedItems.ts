@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import string2card from "@/util/string2card";
 import { CardFace } from "@/interface/CardFace";
 import { InstalledEntity } from "@/interface/InstalledEntity";
 import { useSystemConfigStore } from "@/store/systemConfig";
@@ -12,7 +13,24 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
 
     let installedItemList = ref<InstalledEntity[]>([]);
     /**
-     * 初始化已安装程序数组
+     * 初始化已安装程序数组(1.4以前的版本)
+     * @param data 待处理的数据
+     * @returns 将数据放入后的对象数组
+     */
+    const initInstalledItemsOld = (data: string) => {
+        clearItems(); // 清空已安装列表
+        const apps: string[] = data.split('\n');
+        if (apps.length > 2) {
+            for (let index = 2; index < apps.length - 1; index++) {
+                const card: CardFace | null = string2card(apps[index]);
+                if (card) {
+                    addItem(card as InstalledEntity);
+                }
+            }
+        }
+    }
+    /**
+     * 初始化已安装程序数组(1.4以后的版本)
      * @param data 待处理的数据
      * @returns 将数据放入后的对象数组
      */
@@ -78,6 +96,7 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
     
     return {
         installedItemList,
+        initInstalledItemsOld,
         initInstalledItems,
         updateInstalledItemsIcons,
         addItem,

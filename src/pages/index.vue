@@ -22,6 +22,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { ElMessageBox } from 'element-plus';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
+import hasUpdateVersion from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -93,15 +94,25 @@ const commandResult = (_event: any, res: any) => {
         ipcRenderer.send('logger', 'info', "玲珑环境版本检测完毕...");
         message.value = "正在检测系统已安装的玲珑程序...";
         ipcRenderer.send('logger', 'info', "正在检测系统已安装的玲珑程序...");
-        // ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
-        ipcRenderer.send("command", { command: "ll-cli list --json" });
+        if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
+            ipcRenderer.send("command", { command: "ll-cli list --json" });
+        } else {
+            ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+        }
     }
-    if (command.startsWith('ll-cli list --json')) {
+    if (command =='ll-cli list --json' || command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
         if (code == 'stdout') {
-            installedItemsStore.initInstalledItems(result);
+            if (command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
+                installedItemsStore.initInstalledItemsOld(result);
+            }
+            if (command == 'll-cli list --json') {
+                installedItemsStore.initInstalledItems(result);
+            }
             message.value = "已安装的玲珑程序检测完成...";
             ipcRenderer.send('logger', 'info', "已安装的玲珑程序检测完成...");
         } else {
+            // 网络异常，变更标识
+            systemConfigStore.changeNetworkRunStatus(false);
             message.value = "已安装的玲珑程序检测异常...";
             ipcRenderer.send('logger', 'error', "已安装的玲珑程序检测异常...");
         }

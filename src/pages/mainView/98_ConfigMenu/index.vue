@@ -2,28 +2,29 @@
   <div>
     <h1>基础设置</h1>
     <el-divider />
-      玲珑源：
-      <el-select style="width: 300px;" v-model="defaultSource" @change="changeEvent">
-        <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com"
-          :key="1" />
-      </el-select><br>
-      <el-checkbox v-model="isShowDisArch" size="large" @change="checkedArch(isShowDisArch)">
-        是否显示非当前({{ systemConfigStore.arch }})架构程序
-      </el-checkbox><br>
-      <el-checkbox v-model="isShowNoIcon" size="large" @change="checkedNoIcon(isShowNoIcon)">
-        是否显示无图标玲珑程序
-      </el-checkbox><br>
-      <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
-        是否显示基础运行服务
-      </el-checkbox><br>
-      <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
-        启动App自动检测商店版本
-      </el-checkbox><br>
+    玲珑源：
+    <el-select style="width: 300px;" v-model="defaultSource" @change="changeEvent">
+      <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com"
+        :key="1" />
+    </el-select><br>
+    <el-checkbox v-model="isShowDisArch" size="large" @change="checkedArch(isShowDisArch)">
+      是否显示非当前({{ systemConfigStore.arch }})架构程序
+    </el-checkbox><br>
+    <el-checkbox v-model="isShowNoIcon" size="large" @change="checkedNoIcon(isShowNoIcon)">
+      是否显示无图标玲珑程序
+    </el-checkbox><br>
+    <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
+      是否显示基础运行服务
+    </el-checkbox><br>
+    <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
+      启动App自动检测商店版本
+    </el-checkbox><br>
   </div>
 </template>
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
+import hasUpdateVersion from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -72,7 +73,11 @@ const checkedNoIcon = (data: boolean) => {
 // 是否显示基础运行服务的变更事件
 const checkedBaseService = (data: boolean) => {
   systemConfigStore.changeIsShowBaseService(data);
-  ipcRenderer.send("command", { command: "ll-cli list --json" });
+  if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
+    ipcRenderer.send("command", { command: "ll-cli list --json" });
+  } else {
+    ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+  }
   ipcRenderer.on("command-result", commandResult);
 }
 // 自动检测更新事件
@@ -91,17 +96,24 @@ const networkResult = (_event: any, res: any) => {
 }
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
-    const code: string = res.code;
-    const result: any = res.result;
-    const command: string = res.param.command;
-    if (command.startsWith('ll-cli list --json')) {
-        if (code == 'stdout') {
-          installedItemsStore.initInstalledItems(result);
-          // 更新已安装程序图标
-          const allItems = allServItemsStore.allServItemList;
-          installedItemsStore.updateInstalledItemsIcons(allItems);
-        }
+  const result: any = res.result;
+  const command: string = res.param.command;
+  if (command == 'll-cli list --json' || command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
+    if (res.code == 'stdout') {
+      if (command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
+        installedItemsStore.initInstalledItemsOld(result);
+      }
+      if (command == 'll-cli list --json') {
+        installedItemsStore.initInstalledItems(result);
+      }
+      // 更新已安装程序图标
+      const allItems = allServItemsStore.allServItemList;
+      installedItemsStore.updateInstalledItemsIcons(allItems);
+    } else {
+      // 网络异常，变更标识
+      systemConfigStore.changeNetworkRunStatus(false);
     }
+  }
 }
 // 页面启动时加载
 onMounted(() => {
