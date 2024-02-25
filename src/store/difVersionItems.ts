@@ -31,7 +31,6 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                 item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
                 // 处理当前版本是否加载中状态
                 item.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
-                // difVersionItemList.value.push(item);
             }
             difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
         }
@@ -76,7 +75,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
             difVersionItemList.value.splice(index, 1, aItem);
         }
     }
-    
+
     /**
      * 更新对象的加载状态
      * @param item 要更新的对象
