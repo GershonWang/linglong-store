@@ -18,18 +18,9 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
      */
     const initInstalledItems = (data: string) => {
         clearItems(); // 清空已安装列表
-        const installedItemList11 = data.trim() ? JSON.parse(data.trim()) : [];
-        if (installedItemList11.length > 0) {
-            if (systemConfigStore.isShowBaseService) {
-                installedItemList.value = installedItemList11;
-            } else {
-                installedItemList11.forEach((item: InstalledEntity) => {
-                    // 去除空行和运行时服务
-                    if (item && item.appId != "org.deepin.Runtime" && item.appId != 'org.deepin.basics') {
-                        installedItemList.value.push(item);
-                    }
-                })
-            }
+        installedItemList.value = data.trim() ? JSON.parse(data.trim()) : [];
+        if (installedItemList.value.length > 0 && !systemConfigStore.isShowBaseService) {
+            installedItemList.value = installedItemList.value.filter((item: InstalledEntity) => item.kind == "app")
         }
         return installedItemList;
     }

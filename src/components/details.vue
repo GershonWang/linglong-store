@@ -41,12 +41,10 @@
                         @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
                     <el-button v-if="scope.row.isInstalled && scope.row.loading" loading>卸载中</el-button>
                     <!-- 运行按钮 -->
-                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading 
-                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics' && scope.row.appId != 'org.deepin.Wine'" 
+                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'" 
                         @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
-                    <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading
-                        && scope.row.appId != 'org.deepin.Runtime' && scope.row.appId != 'org.deepin.basics' && scope.row.appId != 'org.deepin.Wine'" 
+                    <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'" 
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                 </template>
@@ -84,7 +82,7 @@ function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, 
     const runtime = row.runtime;
     if (!runtime) return '';
     const values: string[] = (runtime as string).split("/");
-    const value = values[0] + "/" + values[1];
+    const value = values.length > 2 ? values[0] + "/" + values[1] : values[0];
     return value; // 做一些格式化处理并返回字符串
 };
 // 操作按钮的点击事件
@@ -159,7 +157,6 @@ const commandResult = (_event: any, res: any) => {
         if ('stdout' == res.code) {
             const data = res.result;
             difVersionItemsStore.initDifVersionItems(data, query);
-            console.log('difVersionItemsStore.difVersionItemList',difVersionItemsStore.difVersionItemList);
         }
     }
 }
