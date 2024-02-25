@@ -19,6 +19,7 @@ import { onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus';
 import { CardFace } from "@/interface/CardFace";
+import { InstalledEntity } from "@/interface/InstalledEntity";
 import updateCard from "@/components/updateCard.vue";
 import string2card from "@/util/string2card";
 import hasUpdateVersion from "@/util/checkVersion";
@@ -32,10 +33,82 @@ const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const updateItemsStore = useUpdateItemsStore();
 const systemConfig = useSystemConfigStore();
+// 页面加载状态
 const loading = ref(true);
+// 记录循环次数的标记值
+let currentIndex = 0;
+// 嵌套循环获取所有已安装的玲珑程序是否有更新版本
+const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
+    if (currentIndex < uniqueInstalledSet.length) {
+        const item = uniqueInstalledSet[currentIndex];
+        const { appId, version } = item;
+        if (hasUpdateVersion('1.3.99', systemConfig.llVersion) == 1) {
+            ipcRenderer.send("command", { command: `ll-cli search ${appId} --json`, appId: appId, version: version });
+        } else {
+            ipcRenderer.send("command", { command: `ll-cli query ${appId}`, appId: appId, version: version });
+        }
+        ipcRenderer.once('command-result', (_event: any, res: any) => {
+            const command: string = res.param.command;
+            if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
+                // 返回异常判定为网络异常
+                if ('stdout' != res.code) {
+                    systemConfig.changeNetworkRunStatus(false);
+                    return;
+                }
+                const appId: string = res.param.appId;
+                const result: string = res.result;
+                // 用于存放不同版本的玲珑集合
+                let searchVersionItemList: InstalledEntity[] = [];
+                // 1.4版本以前的命令
+                if (command.startsWith('ll-cli query')) {
+                    const apps: string[] = result.split('\n');
+                    if (apps.length > 2) {
+                        for (let index = 2; index < apps.length - 1; index++) {
+                            const card: CardFace | null = string2card(apps[index]);
+                            if (card && appId == card.appId && item.module != 'devel') {
+                                searchVersionItemList.push(card as InstalledEntity);
+                            }
+                        }
+                    }
+                }
+                // 1.4版本以后的命令
+                if (command.startsWith('ll-cli search')) {
+                    searchVersionItemList = result.trim() ? JSON.parse(result.trim()) : [];
+                    if (searchVersionItemList.length > 0) {
+                        // 过滤不同appId和时devel的数据
+                        searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == appId && item.module != 'devel');
+                    }
+                }
+                // 当版本数组数量大于2时才进行比较
+                if (searchVersionItemList.length > 1) {
+                    // 版本号从大到小排序
+                    searchVersionItemList = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
+                    const entity: InstalledEntity = searchVersionItemList[0];
+                    if (hasUpdateVersion(res.param.version, entity.version) == 1) {
+                        // 从所有程序列表中捞取程序图标icon
+                        const allServItemList = allServItemsStore.allServItemList;
+                        if (allServItemList && allServItemList.length > 0) {
+                            const findItem = allServItemList.find(it => it.appId == appId);
+                            entity.icon = findItem ? (findItem.icon ? findItem.icon : '') : '';
+                        }
+                        updateItemsStore.addItem(entity);
+                    }
+                }
+                // 执行下一个循环
+                currentIndex++;
+                searchLingLongHasUpdate(uniqueInstalledSet);
+            }
+        });
+    } else {
+        // 查询结束，标记值归零并且停止加载
+        currentIndex = 0;
+        loading.value = false;
+    }
+}
 // 页面打开时执行
 onMounted(() => {
-    updateItemsStore.clearItems(); // 清空列表数据
+    updateItemsStore.clearItems(); // 清空页面列表数据
+    // 检查网络状态
     if (!systemConfig.networkRunStatus) {
         loading.value = false;
         ElNotification({
@@ -46,8 +119,8 @@ onMounted(() => {
         });
         return;
     }
-    const installedItemList: CardFace[] = installedItemsStore.installedItemList;
-    const uniqueInstalledSet: CardFace[] = [];
+    const installedItemList: InstalledEntity[] = installedItemsStore.installedItemList;
+    const uniqueInstalledSet: InstalledEntity[] = [];
     installedItemList.forEach((installedItem) => {
         const { appId, version } = installedItem;
         if (uniqueInstalledSet.some((item) => item.appId == appId)) {
@@ -59,53 +132,7 @@ onMounted(() => {
         }
         uniqueInstalledSet.push(installedItem);
     })
-    let currentIndex = 0;
-    const sendIpcAndContinue = () => {
-        if (currentIndex < uniqueInstalledSet.length) {
-            const item = uniqueInstalledSet[currentIndex];
-            const { appId, version } = item;
-            if (hasUpdateVersion('1.3.99', systemConfig.llVersion) == 1) {
-                ipcRenderer.send("command", { command: `ll-cli search ${appId}`, appId: appId, version: version });
-            } else {
-                ipcRenderer.send("command", { command: `ll-cli query ${appId}`, appId: appId, version: version });
-            }
-            ipcRenderer.once('command-result', (_event: any, res: any) => {
-                const command: string = res.param.command;
-                const appId: string = res.param.appId;
-                const version: string = res.param.version;
-                if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
-                    if ('stdout' == res.code) {
-                        const apps: string[] = (res.result as string).split('\n');
-                        if (apps.length > 2) {
-                            for (let index = 2; index < apps.length - 1; index++) {
-                                const card: CardFace | null = string2card(apps[index]);
-                                if (card && appId == card.appId && card.version && hasUpdateVersion(version, card.version) == 1) {
-                                    // 从所有程序列表中捞取程序图标icon
-                                    const allServItemList = allServItemsStore.allServItemList;
-                                    if (allServItemList && allServItemList.length > 0) {
-                                        const findItem = allServItemList.find(it => it.appId == appId);
-                                        if (findItem) {
-                                            card.icon = findItem.icon;
-                                        }
-                                    }
-                                    updateItemsStore.addItem(card);
-                                }
-                            }
-                        }
-                    } else {
-                        systemConfig.changeNetworkRunStatus(false);
-                    }
-                    // 执行下一个循环
-                    currentIndex++;
-                    sendIpcAndContinue();
-                }
-            });
-        } else {
-            // 查询结束，停止加载
-            loading.value = false;
-        }
-    }
-    sendIpcAndContinue();
+    searchLingLongHasUpdate(uniqueInstalledSet);
 });
 </script>
 <style scoped>

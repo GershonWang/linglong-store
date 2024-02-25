@@ -165,6 +165,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
 })
+// 路由跳转离开前
 onBeforeRouteLeave((to: any, from: any, next: any) => {
     to.meta.savedPosition = from.meta.savedPosition;
     to.meta.savedPageNo = from.meta.savedPageNo;

@@ -42,7 +42,7 @@ const svg = `<path class="path" d="M 30 15 L 28 17 M 25.61 25.61 A 15 15, 0, 0, 
 const openDetails = () => {
     router.push({
         path: '/details', query: {
-            menuName: '可更新程序',
+            menuName: '更新程序',
             appId: props.appId,
             name: props.name,
             version: props.version,
