@@ -109,7 +109,7 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
      * @param item 要更新的对象
      */
     const updateItemInstallStatus = (item: InstalledEntity) => {
-        const index = welcomeItemList.value.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+        const index = welcomeItemList.value.findIndex((it) => it.appId === item.appId);
         if (index !== -1 && item.isInstalled != undefined) {
             const aItem = welcomeItemList.value[index];
             aItem.isInstalled = item.isInstalled;
@@ -121,7 +121,7 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
      * @param item 要更新的对象
      */
     const updateItemLoadingStatus = (item: InstalledEntity, flag: boolean) => {
-        const index = welcomeItemList.value.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+        const index = welcomeItemList.value.findIndex((it) => it.appId === item.appId);
         if (index !== -1) {
             const aItem = welcomeItemList.value[index];
             aItem.loading = flag;

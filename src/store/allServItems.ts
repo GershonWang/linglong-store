@@ -17,8 +17,7 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
      * @returns 存入数据的对象数组
      */
     const initAllItems = (array: any, installedItemList: CardFace[]) => {
-        // 清空原始对象
-        clearItems();
+        clearItems(); // 清空原始对象
         // 组装数据进入对象数组
         let list:CardFace[] = array;
         // 添加wps
@@ -87,7 +86,7 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
      * @param item 要更新的对象
      */
     const updateItemInstallStatus = (item: CardFace) => {
-        const index = allServItemList.findIndex((it) => it.name === item.name && it.appId === item.appId);
+        const index = allServItemList.findIndex((it) => it.appId === item.appId);
         if (index !== -1) {
             const aItem = allServItemList[index];
             aItem.isInstalled = item.isInstalled;
@@ -99,7 +98,7 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
      * @param item 要更新的对象
      */
     const updateItemLoadingStatus = (item: CardFace,flag: boolean) => {
-        const index = allServItemList.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+        const index = allServItemList.findIndex((it) => it.appId === item.appId);
         if (index !== -1) {
             const aItem = allServItemList[index];
             aItem.loading = flag;

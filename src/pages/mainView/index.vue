@@ -138,12 +138,10 @@ const commandResult = (_event: any, res: any) => {
         } else {
             installedItemsStore.removeItem(installedEntity);
         }
-        // 更新版本列表
-        difVersionItemsStore.updateItemInstallStatus(installedEntity);
         difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
-        // 更新推荐列表
-        welcomeItemsStore.updateItemInstallStatus(installedEntity);
         welcomeItemsStore.updateItemLoadingStatus(installedEntity,false);
+        difVersionItemsStore.updateItemInstallStatus(installedEntity);
+        welcomeItemsStore.updateItemInstallStatus(installedEntity);
         // 更新全部应用列表
         const item: CardFace = {
             appId: params.appId,
@@ -155,8 +153,13 @@ const commandResult = (_event: any, res: any) => {
             loading: params.loading,
             icon: params.icon,
         }
-        allServItemsStore.updateItemInstallStatus(item);
         allServItemsStore.updateItemLoadingStatus(item, false);
+        // 判断当前应用安装版本个数小于两个，才进行状态更新
+        const app = installedItemsStore.installedItemList.findIndex(item => item.appId === params.appId);
+        if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
+            allServItemsStore.updateItemInstallStatus(item);
+        }
+
         // 移除加载中列表
         installingItemsStore.removeItem(installedEntity);
         // 安装成功后，弹出通知

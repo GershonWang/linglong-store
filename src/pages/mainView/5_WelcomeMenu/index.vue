@@ -18,10 +18,11 @@ import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { onMounted, ref } from "vue";
 
 const welcomeItemsStore = useWelcomeItemsStore();
-const welcomeItems: InstalledEntity[] = welcomeItemsStore.welcomeItemList;
+
 const result = ref<InstalledEntity[][]>([]);
 
 const groupedItems = () => {
+    const welcomeItems: InstalledEntity[] = welcomeItemsStore.welcomeItemList;
     const chunkSize = 5;
     for (let i = 0; i < welcomeItems.length; i += chunkSize) {
         const items = welcomeItems.slice(i, i + chunkSize);
