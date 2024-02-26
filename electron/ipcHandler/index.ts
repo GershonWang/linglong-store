@@ -49,6 +49,21 @@ const IPCHandler = (win: BrowserWindow) => {
             win.webContents.send("network-result", result);
         });
     });
+    /* ********** 执行操作记录请求 ********** */
+    ipcMain.on("visit", (_event, data) => {
+        ipcLog.info('ipc-visit：', JSON.stringify(data));
+        axios.defaults.headers.common['Content-Type'] = 'application/json';
+        axios.defaults.timeout = 30000;
+        const params = {
+            appId: data.appId,
+            name: data.name,
+            version: data.version,
+            command: data.command,
+        };
+        axios.post("http://120.26.202.221:8687/visit/save", params)
+        .then(response => ipcLog.info('ipc-visit-success：',JSON.stringify(response)))
+        .catch(error => ipcLog.info('ipc-visit-error：',JSON.stringify(error)));
+    });
     /* ********** 执行渲染进程日志请求 ********** */
     ipcMain.on('logger', (_event, level, arg) => {
         if (level === "info") {

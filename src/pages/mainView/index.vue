@@ -144,6 +144,8 @@ const commandResult = (_event: any, res: any) => {
         if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
             allServItemsStore.updateItemInstallStatus(item);
         }
+        // 发送操作命令
+        ipcRenderer.send('visit', params);
         // 安装成功后，弹出通知
         const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
         ElNotification({
