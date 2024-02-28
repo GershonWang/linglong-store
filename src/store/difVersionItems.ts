@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { InstalledEntity } from "@/interface/InstalledEntity";
+import string2card from "@/util/string2card";
 import { LocationQuery } from "vue-router";
 import hasUpdateVersion from "@/util/checkVersion";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
+import { CardFace } from "@/interface/CardFace";
 
 const installedItemsStore = useInstalledItemsStore();
 const installingItemsStore = useInstallingItemsStore();
@@ -12,6 +14,42 @@ const installingItemsStore = useInstallingItemsStore();
 export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
 
     let difVersionItemList = ref<InstalledEntity[]>([]);
+
+    /**
+     * 初始化已安装程序数组
+     * @param data 待处理的数据
+     * @returns 将数据放入后的对象数组
+     */
+    const initDifVersionItemsOld = (data: string, query: LocationQuery) => {
+        clearItems(); // 清空原始对象
+        let searchVersionItemList: InstalledEntity[] = [];
+        const apps: string[] = data.split('\n');
+        if (apps.length > 2) {
+            for (let index = 1; index < apps.length - 1; index++) {
+                const card: CardFace | null = string2card(apps[index]);
+                if (card) {
+                    const item: InstalledEntity = card as InstalledEntity;
+                    if (item.appId == query.appId && item.module != 'devel') {
+                        // 处理没有kind种类的问题
+                        item.kind = item.kind ? item.kind : 'app';
+                        if (item.appId == 'org.deepin.Runtime' || item.appId == 'org.deepin.base' || item.appId == 'org.deepin.basics' 
+                            || item.appId == 'org.deepin.Wine' || item.appId == 'org.deepin.Bootstrap') {
+                            item.kind = 'runtime'
+                        }
+                        console.log('item',item);
+                        // 处理当前版本是否已安装状态
+                        item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+                        // 处理当前版本是否加载中状态
+                        item.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+                        searchVersionItemList.push(item);
+                    }
+                }
+            }
+            difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
+        }
+        return difVersionItemList;
+    }
+
     /**
      * 初始化已安装程序数组
      * @param data 待处理的数据
@@ -91,6 +129,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
 
     return {
         difVersionItemList,
+        initDifVersionItemsOld,
         initDifVersionItems,
         addItem,
         removeItem,

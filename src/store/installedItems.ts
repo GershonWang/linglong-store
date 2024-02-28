@@ -21,7 +21,7 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         clearItems(); // 清空已安装列表
         const apps: string[] = data.split('\n');
         if (apps.length > 2) {
-            for (let index = 2; index < apps.length - 1; index++) {
+            for (let index = 1; index < apps.length - 1; index++) {
                 const card: CardFace | null = string2card(apps[index]);
                 if (card) {
                     addItem(card as InstalledEntity);

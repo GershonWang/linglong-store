@@ -140,7 +140,12 @@ const toRun = (item: CardFace) => {
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
     if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search') && 'stdout' == res.code) {
-        difVersionItemsStore.initDifVersionItems(res.result, query);
+        if (command.startsWith("ll-cli query")) {
+            difVersionItemsStore.initDifVersionItemsOld(res.result, query);
+        }
+        if (command.startsWith("ll-cli search")) {
+            difVersionItemsStore.initDifVersionItems(res.result, query);
+        }
     }
 }
 // 启动时加载
