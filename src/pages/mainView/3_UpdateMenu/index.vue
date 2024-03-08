@@ -120,18 +120,23 @@ onMounted(() => {
         return;
     }
     const installedItemList: InstalledEntity[] = installedItemsStore.installedItemList;
+    // 初始化一个数组用于存储去重后当前已安装程序列表
     const uniqueInstalledSet: InstalledEntity[] = [];
     installedItemList.forEach((installedItem) => {
         const { appId, version } = installedItem;
-        if (uniqueInstalledSet.some((item) => item.appId == appId)) {
-            const item = uniqueInstalledSet.find((item) => item.appId == appId);
-            if (item && hasUpdateVersion(item.version, version) == 1) {
-                const index = uniqueInstalledSet.findIndex((item) => item.appId == appId);
-                uniqueInstalledSet.splice(index, 1);
+        if (appId != 'org.deepin.Runtime' && appId != 'org.deepin.basics' 
+            && appId != 'org.deepin.Wine' && appId != 'org.deepin.base' && appId != 'org.deepin.Bootstrap') {
+            if (uniqueInstalledSet.some((item) => item.appId == appId)) {
+                const item = uniqueInstalledSet.find((item) => item.appId == appId);
+                if (item && hasUpdateVersion(item.version, version) == 1) {
+                    const index = uniqueInstalledSet.findIndex((item) => item.appId == appId);
+                    uniqueInstalledSet.splice(index, 1);
+                }
             }
+            uniqueInstalledSet.push(installedItem);
         }
-        uniqueInstalledSet.push(installedItem);
     })
+    // 查找是否含有高级版本
     searchLingLongHasUpdate(uniqueInstalledSet);
 });
 </script>
