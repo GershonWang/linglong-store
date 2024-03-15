@@ -6,8 +6,10 @@
     <div class="baseContainer">
         <div class="title">参数信息</div>
         <div class="baseMessage">
-            <div class="imageDiv"><img class="image" v-lazy="query.icon" alt="Image" /></div>
-            <div class="same">
+            <div class="imageDiv">
+                <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px"/>
+            </div>
+            <div style="width: 80%;color: #606274;">
                 <div class="soft">
                     <div><span class="softTitle">应用程序名称：</span>{{ query.name }}</div>
                     <div><span class="softTitle">AppID：</span>{{ query.appId }}</div>
@@ -20,7 +22,7 @@
     <div class="chooseVerson">
         <div class="title">版本选择</div>
         <el-table :data="difVersionItemsStore.difVersionItemList" :default-sort="{ prop: 'version', order: 'descending' }"
-            height="94%" style="width: 100%;border-radius: 5px">
+            style="width: 100%;border-radius: 5px;flex-grow: 1;">
             <el-table-column prop="version" label="版本号" width="120" />
             <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240" :formatter="formatRuntime" />
             <el-table-column prop="description" label="描述" />
@@ -184,6 +186,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     color: white;
     cursor: pointer;
     font-weight: bold;
+    font-size: 16px;
 }
 
 .secondMenu :deep(.el-breadcrumb__inner) {
@@ -191,7 +194,8 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 }
 
 .baseContainer {
-    background-color: #999999;
+    display: flex;
+    flex-direction: column;
     border-radius: 5px;
     margin-top: 10px;
     margin-bottom: 3px;
@@ -199,7 +203,8 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 }
 
 .chooseVerson {
-    background-color: #999999;
+    display: flex;
+    flex-direction: column;
     border-radius: 5px;
     height: 67%;
 }
@@ -215,26 +220,18 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 }
 
 .baseMessage {
+    flex-grow: 1;
     padding: 12px;
     display: flex;
+    background-color: white;
+    border-radius: 5px
 }
 
 .imageDiv {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 20%;
-    height: 150px;
-}
-
-.image {
-    width: 120px;
-    height: 120px;
-}
-
-.same {
-    width: 80%;
-    color: #606274;
+    width: 15%;
 }
 
 .soft {
