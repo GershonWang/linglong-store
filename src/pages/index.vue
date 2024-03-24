@@ -22,6 +22,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { ElMessageBox } from 'element-plus';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
+import pkg from '../../package.json';
 import hasUpdateVersion from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
@@ -204,6 +205,8 @@ const networkResult = async (_event: any, res: any) => {
     ipcRenderer.send('logger', 'info', "加载完成...");
     downloadPercentMsg.value = "";
     ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
+    // 发送通知APP登陆了！
+    ipcRenderer.send('appLogin', { llVersion: systemConfigStore.llVersion, appVersion: pkg.version })
     // 延时500毫秒进入
     await new Promise(resolve => setTimeout(resolve, 500));
     // 跳转到主界面

@@ -49,10 +49,11 @@ const IPCHandler = (win: BrowserWindow) => {
             win.webContents.send("network-result", result);
         });
     });
-    /* ********** 执行操作记录请求 ********** */
+    /* ********** 执行安装卸载操作时的记录请求 ********** */
     ipcMain.on("visit", (_event, data) => {
         ipcLog.info('ipc-visit：', JSON.stringify(data));
-        const url = "http://linglong.dongpl.com:8687/visit/save";
+        // const url = "http://linglong.dongpl.com:8687/visit/save";
+        const url = "http://120.26.202.221:8687/visit/save";
         const params = {  
             appId: data.appId,  
             name: data.name,  
@@ -67,7 +68,22 @@ const IPCHandler = (win: BrowserWindow) => {
         .then(response => ipcLog.info('ipc-visit-success：',JSON.stringify(response)))  
         .catch(error => ipcLog.info('ipc-visit-error：',JSON.stringify(error)));
     });
-    /* ********** 执行渲染进程日志请求 ********** */
+    /* ********** 执行APP登陆时的记录请求 ********** */
+    ipcMain.on("appLogin", (_event, data) => {
+        ipcLog.info('ipc-appLogin：', JSON.stringify(data));
+        // const url = "http://linglong.dongpl.com:8687/visit/appLogin";
+        const url = "http://120.26.202.221:8687/visit/appLogin";
+        const params = {  
+            llVersion: data.llVersion,  
+            appVersion: data.appVersion,  
+        };  
+        axios.post(url, JSON.stringify(params), {  
+            headers: { 'Content-Type': 'application/json' }  
+        }) 
+        .then(response => ipcLog.info('ipc-appLogin-success：',JSON.stringify(response)))  
+        .catch(error => ipcLog.info('ipc-appLogin-error：',JSON.stringify(error)));
+    });
+    /* ********** 执行渲染进程的操作日志记录请求 ********** */
     ipcMain.on('logger', (_event, level, arg) => {
         if (level === "info") {
             mainLog.info(arg);
