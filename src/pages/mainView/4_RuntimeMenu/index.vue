@@ -28,7 +28,7 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
-import { RunTime } from "@/interface/RunTime";
+import { RunTime } from "@/interface/CardFace";
 import defaultImage from '@/assets/logo.svg';
 
 const loading = ref(true);

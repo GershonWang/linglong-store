@@ -7,7 +7,7 @@
         <div class="title">参数信息</div>
         <div class="baseMessage">
             <div class="imageDiv">
-                <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px"/>
+                <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px" />
             </div>
             <div style="width: 80%;color: #606274;">
                 <div class="soft">
@@ -21,11 +21,11 @@
     </div>
     <div class="chooseVerson">
         <div class="title">版本选择</div>
-        <el-table :data="difVersionItemsStore.difVersionItemList" :default-sort="{ prop: 'version', order: 'descending' }"
-            style="width: 100%;border-radius: 5px;flex-grow: 1;">
+        <el-table :data="difVersionItemsStore.difVersionItemList" style="width: 100%;border-radius: 5px;flex-grow: 1;">
             <el-table-column prop="version" label="版本号" width="120" />
-            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240" :formatter="formatRuntime" />
-            <el-table-column prop="description" label="描述" />
+            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240"
+                :formatter="formatRuntime" />
+            <el-table-column prop="description" label="描述"/>
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
@@ -33,10 +33,12 @@
                         @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
                     <el-button v-if="scope.row.isInstalled && scope.row.loading" loading>卸载中</el-button>
                     <!-- 运行按钮 -->
-                    <el-button class="runBtn" v-if="scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'" 
+                    <el-button class="runBtn"
+                        v-if="scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'"
                         @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
-                    <el-button class="installBtn" v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'" 
+                    <el-button class="installBtn"
+                        v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'"
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                 </template>
@@ -47,7 +49,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
-import { CardFace } from '@/interface/CardFace';
+import { CardFace, CommandData } from '@/interface/CardFace';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
@@ -67,10 +69,10 @@ const installingItemsStore = useInstallingItemsStore();
 const systemConfigStore = useSystemConfigStore();
 // 路由对象
 const router = useRouter();
+// 路由传递的对象
 const query = router.currentRoute.value.query;
 // 格式化运行时字段
 function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
-    // 假设 column 中有一个名为 value 的属性
     const runtime = row.runtime;
     if (!runtime) return '';
     const values: string[] = (runtime as string).split("/");
@@ -83,7 +85,7 @@ const changeStatus = async (item: any, flag: string) => {
     allServItemsStore.updateItemLoadingStatus(item, true);
     installedItemsStore.updateItemLoadingStatus(item, true);
     difVersionItemsStore.updateItemLoadingStatus(item, true);
-    welcomeItemsStore.updateItemLoadingStatus(item,true);
+    welcomeItemsStore.updateItemLoadingStatus(item, true);
     // 新增到加载中列表
     installingItemsStore.addItem(item);
     // 根据flag判断是安装还是卸载
@@ -141,11 +143,11 @@ const toRun = (item: CardFace) => {
 // 查询同应用不同版本的列表
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
-    if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search') && 'stdout' == res.code) {
-        if (command.startsWith("ll-cli query")) {
+    if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
+        if (command.startsWith("ll-cli query") && 'stdout' == res.code) {
             difVersionItemsStore.initDifVersionItemsOld(res.result, query);
         }
-        if (command.startsWith("ll-cli search")) {
+        if (command.startsWith("ll-cli search") && 'stdout' == res.code) {
             difVersionItemsStore.initDifVersionItems(res.result, query);
         }
     }
@@ -161,11 +163,15 @@ onMounted(() => {
         });
         return;
     }
+    let ipcData: CommandData = {
+        command: ''
+    };
     if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
-        ipcRenderer.send("command", { command: "ll-cli search " + query.appId + " --json"});
+        ipcData.command = "ll-cli search " + query.appId + " --json";
     } else {
-        ipcRenderer.send("command", { command: "ll-cli query " + query.appId });
+        ipcData.command = "ll-cli query " + query.appId;
     }
+    ipcRenderer.send("command", ipcData);
     ipcRenderer.on('command-result', commandResult);
 })
 // 关闭前销毁

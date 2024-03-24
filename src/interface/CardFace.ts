@@ -13,3 +13,14 @@ export interface CardFace {
     isInstalled?: boolean,
     loading?: boolean
 }
+// 运行中对象
+export interface RunTime {
+    App: string,
+    ContainerID: string,
+    Pid: string,
+    Path: string
+}
+
+export interface CommandData {
+    command: string,
+}
