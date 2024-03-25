@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from "electron";
+import { BrowserWindow, ipcMain, shell } from "electron";
 import { exec } from "child_process";
 import axios from "axios";
 import { ipcLog, mainLog } from "../logger";
@@ -21,6 +21,22 @@ const IPCHandler = (win: BrowserWindow) => {
             }
             win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
         });
+        // const installProcess = exec(data.command);
+        // installProcess.stdout.on('data', (data1) => {
+        //     console.log(`stdout: ${data1}`);
+        //     // ipcLog.info('data:',data);
+        //     win.webContents.send("command-result", { code: 'stdout', param: data, result: data1 });
+        // })
+        // installProcess.stderr.on('data', (data1) => {
+        //     console.log(`stderr: ${data1}`);
+        //     // ipcLog.info('data:',data);
+        //     // win.webContents.send("command-result", { code: 'stderr', param: data, result: data });
+        // })
+        // installProcess.on('close', (code) => {
+        //     console.log(`child process exited with code ${code}`);
+        //     // ipcLog.info('code:',code);
+        //     // win.webContents.send("command-result", { code: 'stdout', param: data, result: code });
+        // })
     });
     /* ********** 执行网络请求 ********** */
     ipcMain.on("network", (_event, data) => {
@@ -52,6 +68,8 @@ const IPCHandler = (win: BrowserWindow) => {
     /* ********** 执行安装卸载操作时的记录请求 ********** */
     ipcMain.on("visit", (_event, data) => {
         ipcLog.info('ipc-visit：', JSON.stringify(data));
+        axios.defaults.headers.common['Content-Type'] = 'application/json';
+        axios.defaults.timeout = 30000;
         // const url = "http://linglong.dongpl.com:8687/visit/save";
         const url = "http://120.26.202.221:8687/visit/save";
         const params = {  
@@ -60,28 +78,30 @@ const IPCHandler = (win: BrowserWindow) => {
             version: data.version,  
             command: data.command,  
         };  
-        axios.post(url, JSON.stringify(params), {  
-            headers: {  
-                'Content-Type': 'application/json'  
-            }  
-        })  
-        .then(response => ipcLog.info('ipc-visit-success：',JSON.stringify(response)))  
-        .catch(error => ipcLog.info('ipc-visit-error：',JSON.stringify(error)));
+        axios.post(url, JSON.stringify(params)).then(response => {
+            ipcLog.info('ipc-visit-success：',JSON.stringify(response.data))
+        }).catch(error => {
+            ipcLog.info('ipc-visit-error：',error)
+        });
     });
     /* ********** 执行APP登陆时的记录请求 ********** */
     ipcMain.on("appLogin", (_event, data) => {
         ipcLog.info('ipc-appLogin：', JSON.stringify(data));
+        axios.defaults.headers.common['Content-Type'] = 'application/json';
+        axios.defaults.timeout = 30000;
         // const url = "http://linglong.dongpl.com:8687/visit/appLogin";
         const url = "http://120.26.202.221:8687/visit/appLogin";
-        const params = {  
-            llVersion: data.llVersion,  
-            appVersion: data.appVersion,  
-        };  
-        axios.post(url, JSON.stringify(params), {  
-            headers: { 'Content-Type': 'application/json' }  
-        }) 
-        .then(response => ipcLog.info('ipc-appLogin-success：',JSON.stringify(response)))  
-        .catch(error => ipcLog.info('ipc-appLogin-error：',JSON.stringify(error)));
+        // const params = {  
+            // llVersion: data.llVersion,  
+            // appVersion: data.appVersion,  
+        // };
+        const params = { ...data }  
+        axios.post(url, params).then(response => {
+            // console.log('response',response);
+            ipcLog.info('ipc-appLogin-success：',JSON.stringify(response.data));
+        }).catch(error => {
+            ipcLog.info('ipc-appLogin-error：',error);
+        });
     });
     /* ********** 执行渲染进程的操作日志记录请求 ********** */
     ipcMain.on('logger', (_event, level, arg) => {
