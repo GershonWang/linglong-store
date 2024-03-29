@@ -9,6 +9,12 @@
                         </el-icon>
                         <span>珑珑推荐</span>
                     </el-menu-item>
+                    <el-menu-item index="6" @click="toPage('/ranking_menu')">
+                        <el-icon color="#D3D3D3">
+                            <HomeFilled />
+                        </el-icon>
+                        <span>排行推荐</span>
+                    </el-menu-item>
                     <el-menu-item index="2" @click="toPage('/all_serv_menu')">
                         <el-icon color="#D3D3D3">
                             <HomeFilled />

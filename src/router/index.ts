@@ -60,6 +60,11 @@ const router = createRouter({
                     component: () => import("../pages/mainView/5_WelcomeMenu/index.vue")
                 },
                 {
+                    path: '/ranking_menu',
+                    name: 'RankingMenu',
+                    component: () => import("../pages/mainView/6_RankingMenu/index.vue")
+                },
+                {
                     path: '/config_menu',
                     name: 'ConfigMenu',
                     component: () => import("../pages/mainView/98_ConfigMenu/index.vue")
