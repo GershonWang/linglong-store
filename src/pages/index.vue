@@ -205,8 +205,13 @@ const networkResult = async (_event: any, res: any) => {
     ipcRenderer.send('logger', 'info', "加载完成...");
     downloadPercentMsg.value = "";
     ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
-    // 发送通知APP登陆了！
-    ipcRenderer.send('appLogin', { llVersion: systemConfigStore.llVersion, appVersion: pkg.version })
+
+    const mode = import.meta.env.MODE as string;
+    console.log('mode',mode);
+    if (mode != "development") {
+        // 非开发环境发送通知APP登陆！
+        ipcRenderer.send('appLogin', { llVersion: systemConfigStore.llVersion, appVersion: pkg.version })
+    }
     // 延时500毫秒进入
     await new Promise(resolve => setTimeout(resolve, 500));
     // 跳转到主界面
