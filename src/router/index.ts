@@ -62,7 +62,19 @@ const router = createRouter({
                 {
                     path: '/ranking_menu',
                     name: 'RankingMenu',
-                    component: () => import("../pages/mainView/6_RankingMenu/index.vue")
+                    component: () => import("../pages/mainView/6_RankingMenu/index.vue"),
+                    children: [
+                        {
+                            path: '/new_ranking',
+                            name: 'NewRanking',
+                            component: () => import("../pages/mainView/6_RankingMenu/6.1_NewRanking/index.vue"),
+                        },
+                        {
+                            path: '/down_ranking',
+                            name: 'DownRanking',
+                            component: () => import("../pages/mainView/6_RankingMenu/6.2_downRanking/index.vue")
+                        }
+                    ]
                 },
                 {
                     path: '/config_menu',

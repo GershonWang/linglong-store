@@ -1,57 +1,49 @@
 <template>
   <div class="container">
-    <div>
-      <div ref="canvasContainer" style="width: 100%; height: 100vh;"></div>
-    </div>
+    <el-tabs v-model="activeName" class="custom-tabs" @tab-click="handleClick">
+      <el-tab-pane label="最新排行" name="first"></el-tab-pane>
+      <el-tab-pane label="下载排行" name="second"></el-tab-pane>
+    </el-tabs>
+    <router-view></router-view>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import * as THREE from 'three';
+import { useRouter } from 'vue-router';
+import type { TabsPaneContext } from 'element-plus'
 
-const canvasContainer = ref();
-let renderer: { setSize: (arg0: number, arg1: number) => void; domElement: any; render: (arg0: any, arg1: any) => void; };
-let camera: { position: { z: number; }; };
-let scene: { add: (arg0: any) => void; };
-
+const activeName = ref('first')
+// 路由对象
+const router = useRouter();
+// tab切换点击事件
+const handleClick = (tab: TabsPaneContext, _event: Event) => {
+  router.push(tab.paneName == "first" ? "/new_ranking" : "/down_ranking");
+}
 onMounted(() => {
-  init();
-  animate();
-});
-
-function init() {
-  // 创建渲染器
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  canvasContainer.value.appendChild(renderer.domElement);
-  // 创建相机
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 5;
-  // 创建场景
-  scene = new THREE.Scene();
-  // 创建一个简单的立方体
-  const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  const cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
-  // 添加光源
-  const light = new THREE.PointLight(0xffffff, 1, 100);
-  light.position.set(0, 0, 10);
-  scene.add(light);
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
+  router.push("/new_ranking");
+})
 </script>
 <style scoped>
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   height: 100%;
   width: 100%;
-  background-color: cadetblue;
+}
+
+.custom-tabs {
+  /* height: 100%; */
+  width: 100%;
+}
+
+:deep(.el-tabs__item) {
+  color: #FFFFFF;
+}
+ 
+:deep(.el-tabs__item.is-active) {
+  color: #409EFF;
+  font-weight: bold;
 }
 </style>
