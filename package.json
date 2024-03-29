@@ -26,6 +26,7 @@
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
+    "three": "^0.162.0",
     "vue": "^3.2.47",
     "vue-lazyload": "^3.0.0",
     "vue-router": "^4.2.4"
