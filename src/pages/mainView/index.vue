@@ -11,7 +11,7 @@
                     </el-menu-item>
                     <el-menu-item index="6" @click="toPage('/ranking_menu')">
                         <el-icon color="#D3D3D3">
-                            <HomeFilled />
+                            <Histogram />
                         </el-icon>
                         <span>排行推荐</span>
                     </el-menu-item>

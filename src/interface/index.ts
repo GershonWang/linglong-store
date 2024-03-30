@@ -3,6 +3,27 @@
  */
 
 /**
+ * 卡片信息
+ */
+export interface CardFace {
+    id?: string,
+    appId: string,
+    name: string,
+    version: string,
+    description?: string,
+    arch: string,
+    icon?: string,
+    channel?: string,
+    module?: string,
+    command?:string,
+    isInstalled?: boolean,
+    loading?: boolean,
+    createTime?: string,
+    installCount?: number,
+    zhName?: string,
+}
+
+/**
  * 玲珑列表请求入参对象
  */
 export interface AppListParams {

@@ -2,8 +2,9 @@
     <div class="container">
         <div class="card_container" v-if="displayedItems && displayedItems.length > 0">
             <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
-                <allServCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" />
+                <rankingServCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch" :channel="`downRanking`"
+                    :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :installCount="item.installCount"
+                    :zhName = "item.zhName"/>
             </div>
         </div>
         <div class="noDataContainer" v-else>
@@ -15,16 +16,15 @@
     </div>
 </template>
 <script setup lang="ts">
-import { CardFace } from '@/interface/CardFace';
 import { onMounted, ref } from 'vue';
 import defaultImage from '@/assets/logo.svg';
-import { AppListParams, pageResult } from '@/interface';
+import { AppListParams, CardFace, pageResult } from '@/interface';
 import { getInstallAppList } from '@/api/server';
-import allServCard from '@/components/allServCard.vue';
+import rankingServCard from '@/components/rankingServCard.vue';
 
 let params = ref<AppListParams>({
     pageNo: 1,
-    pageSize: 10
+    pageSize: 20
 })
 
 let displayedItems = ref<CardFace[]>([]);
@@ -48,6 +48,7 @@ onMounted(async () => {
     grid-gap: 10px;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     width: 98%;
+    height: 100%;
 }
 
 .card_items {
