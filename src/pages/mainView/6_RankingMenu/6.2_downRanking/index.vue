@@ -21,10 +21,13 @@ import defaultImage from '@/assets/logo.svg';
 import { AppListParams, CardFace, pageResult } from '@/interface';
 import { getInstallAppList } from '@/api/server';
 import rankingServCard from '@/components/rankingServCard.vue';
+import { useInstalledItemsStore } from "@/store/installedItems";
+
+const installedItemsStore = useInstalledItemsStore();
 
 let params = ref<AppListParams>({
     pageNo: 1,
-    pageSize: 20
+    pageSize: 100
 })
 
 let displayedItems = ref<CardFace[]>([]);
@@ -33,6 +36,10 @@ onMounted(async () => {
     let res = await getInstallAppList(params.value);
     if (res.code == 200) {
         displayedItems.value = (res.data as unknown as pageResult).records;
+        displayedItems.value.forEach(item => {
+            item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
+            item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
+        })
     }
 })
 </script>
