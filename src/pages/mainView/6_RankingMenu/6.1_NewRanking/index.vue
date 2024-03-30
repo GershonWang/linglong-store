@@ -16,11 +16,25 @@
 </template>
 <script setup lang="ts">
 import { CardFace } from '@/interface/CardFace';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import defaultImage from '@/assets/logo.svg';
+import { getNewAppList } from '@/api/server';
+import { AppListParams, pageResult } from '@/interface';
+import allServCard from '@/components/allServCard.vue';
+
+let params = ref<AppListParams>({
+    pageNo: 1,
+    pageSize: 10
+})
 
 let displayedItems = ref<CardFace[]>([]);
 
+onMounted(async () => {
+    let res = await getNewAppList(params.value);
+    if (res.code == 200) {
+        displayedItems.value = (res.data as unknown as pageResult).records;
+    }
+})
 </script>
 <style scoped>
 .container {
@@ -32,8 +46,8 @@ let displayedItems = ref<CardFace[]>([]);
 .card_container {
     display: grid;
     grid-gap: 10px;
-    margin-right: 12px;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    width: 98%;
 }
 
 .card_items {

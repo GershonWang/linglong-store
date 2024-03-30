@@ -1,4 +1,5 @@
-import request from '@/util/request';
+import { Pagination } from '@/interface';
+import request from '@/util/webRequest';
 import { AxiosPromise } from 'axios';
 
 /**
@@ -12,19 +13,4 @@ export function getList(data: Pagination): AxiosPromise<any> {
     method: 'get',
     params: data,
   });
-}
-
-/**
- * 请求参数
- */
-export interface Pagination {
-  /**
-   * 页码
-   */
-  page?: number;
-  /**
-   * 每页条数
-   */
-  size?: number;
-
 }
