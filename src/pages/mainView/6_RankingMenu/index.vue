@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <el-tabs v-model="activeName" class="custom-tabs" @tab-click="handleClick">
-      <el-tab-pane label="最新(TOP100)排行" name="first"></el-tab-pane>
-      <el-tab-pane label="下载(TOP100)排行" name="second"></el-tab-pane>
+      <el-tab-pane label="最新上架(前100)" name="first"></el-tab-pane>
+      <el-tab-pane label="下载量(前100)" name="second"></el-tab-pane>
     </el-tabs>
     <router-view></router-view>
   </div>
@@ -34,15 +34,15 @@ onMounted(() => {
 }
 
 .custom-tabs {
-  /* height: 100%; */
+  display: flex;
+  justify-content: center;
   width: 100%;
-  padding-left: 10px;
   --el-tabs-header-height: 30px;
 }
 
 :deep(.el-tabs__item) {
   color: #FFFFFF;
-  padding: 0 5px;
+  padding: 10px;
 }
  
 :deep(.el-tabs__item.is-active) {

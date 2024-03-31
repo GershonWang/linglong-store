@@ -1,16 +1,17 @@
 <template>
     <el-card class="container">
-        <div class="imageDiv" :title="desc" @click="openDetails">
-            <img class="image" v-lazy="icon" alt="Image" />
+        <div class="image-div" :title="desc" @click="openDetails">
+            <img style="width: 100px;height: 100px;" v-lazy="icon" alt="Image" />
         </div>
-        <span :style="spanStyle" :title="name">{{ name }}</span>
-        <span class="version">{{ defaultName }}</span>
+        <span class="name" :title="name">{{ name }}</span>
+        <span class="zh-name">{{ defaultName }}</span>
+        <span class="version">{{ version }}</span>
         <div class="bottom" v-loading="loading" :element-loading-svg="svg"
             element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
             <div class="arch" v-if="channel == 'downRanking'">下载 {{ installCount }}次</div>
             <div class="arch" v-else>{{ time }}</div>
-            <el-button class="uninstallBtn" v-if="isInstalled" @click="openDetails">已安装</el-button>
-            <el-button class="installBtn" v-else @click="openDetails">安装</el-button>
+            <el-button class="install-btn" v-if="isInstalled" @click="openDetails">已安装</el-button>
+            <el-button class="install-btn" v-else @click="openDetails">安装</el-button>
         </div>
     </el-card>
 </template>
@@ -53,67 +54,34 @@ const svg = `<path class="path" d="M 30 15 L 28 17 M 25.61 25.61 A 15 15, 0, 0, 
 // 打开不同版本页面
 const openDetails = () => {
     let queryParams = {
-        menuName: '排行推荐',
+        menuName: '排行榜',
         appId: props.appId,
         name: props.name,
         version: props.version,
         description: props.description,
         arch: props.arch,
-        icon: props.icon
+        icon: props.icon,
+        zhName: props.zhName,
     }
     router.push({ path: '/details', query: queryParams });
 }
-// 计算文字的宽度
-const textWidth = computed(() => {
-    const span = document.createElement('span');
-    span.textContent = props.name;
-    span.style.visibility = 'hidden';
-    span.style.position = 'absolute';
-    span.style.whiteSpace = 'nowrap';
-    document.body.appendChild(span);
-    const width = span.offsetWidth;
-    document.body.removeChild(span);
-    return width;
-});
-// 根据文字宽度设置样式
-const spanStyle = computed(() => {
-    if (textWidth.value < 100) {
-        return {
-            display: 'flex',
-            textAlign: 'center',
-            justifyContent: 'center',
-            color: '#36D',
-            fontWeight: 'bold',
-            fontSize: '18px',
-            margin: '3px auto 3px',
-            maxWidth: '150px',
-        } as import('vue').StyleValue;
-    } else {
-        return {
-            display: 'flex',
-            textAlign: 'left',
-            color: '#36D',
-            fontWeight: 'bold',
-            fontSize: '18px',
-            margin: '3px auto 3px',
-            maxWidth: '150px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-        } as import('vue').StyleValue;
-    }
-});
 </script>
 
 <style scoped>
 .container {
-    height: 280px;
+    /* height: 280px; */
     width: 100%;
     position: relative;
-    background-color: #999999;
+    /* background-color: #999999; */
+    background: radial-gradient(circle at 50% 20%, #6E6E6E, transparent);
+    border: none;
 }
 
-.imageDiv {
+:deep(.el-card__body) {
+    padding-top: 0px;
+}
+
+.image-div {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -122,20 +90,39 @@ const spanStyle = computed(() => {
     height: 120px;
 }
 
-.image {
-    width: 100px;
-    height: 100px;
+.name {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    font-size: 14px;
+    margin: 3px auto 3px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #9f9f9f;
+}
+
+.zh-name {
+    background-color: #6d6d6d;
+    display: flex;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #E2E2E2;
+    padding: 3px;
 }
 
 .version {
-    background-color: #f5c7bf;
     display: flex;
     justify-content: center;
     border-radius: 5px;
+    font-size: 14px;
+    color: #9f9f9f;
 }
 
 .bottom {
-    margin-top: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -161,15 +148,26 @@ const spanStyle = computed(() => {
     color: white;
 }
 
-.installBtn {
-    background-color: blue;
-    color: white;
-    padding: 6px;
+.install-btn {
     height: 24px;
+    width: 58px;
+    background-color: #7b7b7b;
+    color: #c7bdbd;
+    border: none;
 }
 
-.uninstallBtn {
-    padding: 6px;
-    height: 24px;
+.install-btn:hover {
+    background-color: #c9c9ef;
+    color: #2D2F2F;
+}
+
+@media (prefers-color-scheme: light) {
+    .name {
+        color: #000;
+    }
+
+    .version {
+        color: #000;
+    }
 }
 </style>

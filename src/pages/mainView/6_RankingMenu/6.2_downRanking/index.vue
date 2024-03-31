@@ -1,14 +1,14 @@
 <template>
     <div class="container">
-        <div class="card_container" v-if="displayedItems && displayedItems.length > 0">
-            <div class="card_items" v-for="(item, index) in displayedItems" :key="index">
+        <div class="card-container" v-if="displayedItems && displayedItems.length > 0">
+            <div class="card-items" v-for="(item, index) in displayedItems" :key="index">
                 <rankingServCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch" :channel="`downRanking`"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :installCount="item.installCount"
                     :zhName = "item.zhName"/>
             </div>
         </div>
-        <div class="noDataContainer" v-else>
-            <div class="imageDiv">
+        <div class="no-data-container" v-else>
+            <div style="width: 180px;height: 300px;">
                 <img class="image" :src="defaultImage" alt="Image" />
             </div>
             <h1>查无数据</h1>
@@ -50,33 +50,36 @@ onMounted(async () => {
     overflow-y: auto;
 }
 
-.card_container {
+.card-container {
     display: grid;
     grid-gap: 10px;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     width: 98%;
     height: 100%;
 }
 
-.card_items {
+.card-items {
     padding: 10px;
     flex: 1;
     min-width: 180px;
-    border: 1px solid #ccc;
+    max-width: 210px;
+    /* border: 1px solid #ccc; */
     border-radius: 5px;
     box-sizing: border-box;
-    background-color: #999999;
+    /* background-color: #999999; */
+    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
 }
 
-.noDataContainer {
+.no-data-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
 
-.imageDiv {
-    width: 180px;
-    height: 300px
+@media (prefers-color-scheme: light) {
+    .card-items {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    }
 }
 </style>

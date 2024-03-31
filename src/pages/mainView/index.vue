@@ -13,7 +13,7 @@
                         <el-icon color="#D3D3D3">
                             <Histogram />
                         </el-icon>
-                        <span>排行推荐</span>
+                        <span>排行榜</span>
                     </el-menu-item>
                     <el-menu-item index="2" @click="toPage('/all_serv_menu')">
                         <el-icon color="#D3D3D3">

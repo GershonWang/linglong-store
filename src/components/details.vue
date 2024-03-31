@@ -3,23 +3,26 @@
         <el-breadcrumb-item class="firstMenu" @click="router.back">{{ query.menuName }}</el-breadcrumb-item>
         <el-breadcrumb-item class="secondMenu">{{ query.name }}</el-breadcrumb-item>
     </el-breadcrumb>
-    <div class="baseContainer">
+    <div class="base-container">
         <div class="title">参数信息</div>
-        <div class="baseMessage">
-            <div class="imageDiv">
+        <div class="base-message">
+            <div class="image-div">
                 <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px" />
             </div>
             <div style="width: 80%;color: #606274;">
                 <div class="soft">
-                    <div><span class="softTitle">应用程序名称：</span>{{ query.name }}</div>
-                    <div><span class="softTitle">AppID：</span>{{ query.appId }}</div>
-                    <div><span class="softTitle">应用架构：</span>{{ query.arch }}</div>
+                    <div><span class="soft-title">程序名称：</span>{{ query.name }}</div>
+                    <div v-if="query.zhName"><span class="soft-title">程序中文名称：</span>{{ query.zhName }}</div>
                 </div>
-                <div><span class="softTitle">应用简述：</span>{{ query.description }}</div>
+                <div class="soft">
+                    <div><span class="soft-title">AppID：</span>{{ query.appId }}</div>
+                    <div><span class="soft-title">架构：</span>{{ query.arch }}</div>
+                </div>
+                <div><span class="soft-title">简述：</span>{{ query.description }}</div>
             </div>
         </div>
     </div>
-    <div class="chooseVerson">
+    <div class="choose-version">
         <div class="title">版本选择</div>
         <el-table :data="difVersionItemsStore.difVersionItemList" style="width: 100%;border-radius: 5px;flex-grow: 1;">
             <el-table-column prop="version" label="版本号" width="120" />
@@ -29,15 +32,15 @@
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
-                    <el-button class="uninstallBtn" v-if="scope.row.isInstalled && !scope.row.loading"
+                    <el-button class="uninstall-btn" v-if="scope.row.isInstalled && !scope.row.loading"
                         @click="changeStatus(scope.row, 'uninstall')">卸载</el-button>
                     <el-button v-if="scope.row.isInstalled && scope.row.loading" loading>卸载中</el-button>
                     <!-- 运行按钮 -->
-                    <el-button class="runBtn"
+                    <el-button class="run-btn"
                         v-if="scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'"
                         @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
-                    <el-button class="installBtn"
+                    <el-button class="install-btn"
                         v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'"
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
@@ -199,33 +202,34 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     color: #999999;
 }
 
-.baseContainer {
+.base-container {
     display: flex;
     flex-direction: column;
     border-radius: 5px;
     margin-top: 10px;
     margin-bottom: 3px;
     height: 30%;
+    background-color: #6a6d7b;
+    padding: 10px;
 }
 
-.chooseVerson {
+.choose-version {
     display: flex;
     flex-direction: column;
     border-radius: 5px;
-    height: 67%;
+    height: 60%;
+    background-color: #6a6d7b;
+    padding: 10px;
 }
 
 .title {
-    background-color: cadetblue;
+    background-color: #6a6d7b;
     border-radius: 5px;
-    padding-left: 16px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    margin-bottom: 1px;
+    padding-bottom: 5px;
     font-weight: bold;
 }
 
-.baseMessage {
+.base-message {
     flex-grow: 1;
     padding: 12px;
     display: flex;
@@ -233,7 +237,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     border-radius: 5px
 }
 
-.imageDiv {
+.image-div {
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -248,27 +252,27 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     margin-bottom: 16px;
 }
 
-.softTitle {
+.soft-title {
     font-size: 18px;
     color: #0E0101;
     font-weight: bold;
 }
 
-.installBtn {
+.install-btn {
     background-color: blue;
     color: white;
     padding: 6px;
     height: 24px;
 }
 
-.uninstallBtn {
+.uninstall-btn {
     background-color: red;
     color: white;
     padding: 6px;
     height: 24px;
 }
 
-.runBtn {
+.run-btn {
     background-color: #5F9EA0;
     color: white;
     padding: 6px;
@@ -280,7 +284,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
         color: #000;
     }
 
-    .baseContainer {
+    .base-container {
         color: #DCDCDC;
         background-color: white;
     }
