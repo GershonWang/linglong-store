@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 自动检测更新
-const checkUpdate = import.meta.env.CONFIG_CHECKUPDATE as boolean;
+const checkUpdate = import.meta.env.VITE_CONFIG_CHECKUPDATE as boolean;
 
 export const useSystemConfigStore = defineStore('systemConfig', {
     state: () => ({

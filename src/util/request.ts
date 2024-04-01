@@ -1,9 +1,7 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ElMessage } from 'element-plus';
 
-const baseURL = import.meta.env.SERVER_URL;
-console.log(import.meta.env);
-console.log('baseURL :>>',baseURL);
+const baseURL = import.meta.env.VITE_SERVER_URL as string;
 
 // 创建 axios 实例
 const service = axios.create({
