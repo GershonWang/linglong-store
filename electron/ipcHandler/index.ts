@@ -3,6 +3,8 @@ import { exec } from "child_process";
 import axios from "axios";
 import { ipcLog, mainLog } from "../logger";
 
+let baseURL = import.meta.env.SERVER_URL as string;
+
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
     /* ********** 执行脚本命令 ********** */
@@ -70,8 +72,7 @@ const IPCHandler = (win: BrowserWindow) => {
         ipcLog.info('ipc-visit：', JSON.stringify(data));
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.timeout = 30000;
-        // const url = "http://linglong.dongpl.com:8687/visit/save";
-        const url = "http://120.26.202.221:8687/visit/save";
+        const url = baseURL + "/visit/save";
         const params = {  
             appId: data.appId,  
             name: data.name,  
@@ -89,8 +90,7 @@ const IPCHandler = (win: BrowserWindow) => {
         ipcLog.info('ipc-appLogin：', JSON.stringify(data));
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.timeout = 30000;
-        // const url = "http://linglong.dongpl.com:8687/visit/appLogin";
-        const url = "http://120.26.202.221:8687/visit/appLogin";
+        const url = baseURL + "/visit/appLogin";
         // const params = {  
             // llVersion: data.llVersion,  
             // appVersion: data.appVersion,  

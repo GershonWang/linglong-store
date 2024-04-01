@@ -1,9 +1,11 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ElMessage } from 'element-plus';
 
+let baseURL = import.meta.env.SERVER_URL as string;
+
 // 创建 axios 实例
 const service = axios.create({
-  baseURL: "http://120.26.202.221:8687",
+  baseURL: baseURL,
   // baseURL: "http://localhost:8687",
   timeout: 60000,
   headers: {
