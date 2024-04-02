@@ -3,7 +3,7 @@ import { exec } from "child_process";
 import axios from "axios";
 import { ipcLog, mainLog } from "../logger";
 
-let baseURL = import.meta.env.SERVER_URL as string;
+let baseURL = import.meta.env.VITE_SERVER_URL as string;
 
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
