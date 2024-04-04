@@ -38,6 +38,7 @@ const props = withDefaults(defineProps<CardFace>(), {
     installCount: 0,
     channel: "",
     zhName: "",
+    size: "",
 })
 // 计算属性
 const desc = computed(() => {
@@ -62,6 +63,7 @@ const openDetails = () => {
         arch: props.arch,
         icon: props.icon,
         zhName: props.zhName,
+        size: props.size,
     }
     router.push({ path: '/details', query: queryParams });
 }

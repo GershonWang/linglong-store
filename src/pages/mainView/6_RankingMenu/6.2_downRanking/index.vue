@@ -4,7 +4,7 @@
             <div class="card-items" v-for="(item, index) in displayedItems" :key="index">
                 <rankingServCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch" :channel="`downRanking`"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :installCount="item.installCount"
-                    :zhName = "item.zhName"/>
+                    :zhName = "item.zhName" :size="item.size"/>
             </div>
         </div>
         <div class="no-data-container" v-else>

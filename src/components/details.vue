@@ -57,6 +57,7 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import hasUpdateVersion from "@/util/checkVersion";
+import si from 'systeminformation';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
@@ -120,6 +121,18 @@ const changeStatus = async (item: any, flag: string) => {
         type: 'info',
         duration: 500,
     });
+    if (flag == 'install') {
+        // 获取网络接口信息
+        si.networkStats().then((data: { [x: string]: any }) => {
+            // 假设我们使用的是第一个网络接口
+            const iface = Object.keys(data)[0];
+            // 假设文件大小为 1MB
+            const fileSizeInBytes = query.size ? query.size as unknown as number : 0;
+            console.log('fileSize',fileSizeInBytes);
+            // 开始模拟下载
+            simulateDownload(fileSizeInBytes, iface);
+        });
+    }
 }
 // 运行按钮
 const toRun = (item: CardFace) => {
@@ -154,6 +167,34 @@ const commandResult = (_event: any, res: any) => {
             difVersionItemsStore.initDifVersionItems(res.result, query);
         }
     }
+}
+// 获取实时网速
+function calculateDownloadProgress(downloadedBytes: number, totalBytes: number): number {
+    const progress = (downloadedBytes / totalBytes) * 100;
+    return progress;
+}
+// 模拟下载函数，每隔一段时间计算并打印下载进度，直至下载完成
+function simulateDownload(fileSizeInBytes: number, iface: string) {
+    let downloadedBytes = 0;
+    const totalBytes = fileSizeInBytes;
+    const interval = 1000; // 1秒
+    let timerId = setInterval(() => {
+        si.networkStats().then((data: { [x: string]: any }) => {
+            const networkData = data[iface];
+            const outBytes = networkData.rx_bytes;
+            // 计算两次间隔的字节数差异
+            const outDiff = outBytes - downloadedBytes;
+            // 更新已下载的字节数
+            downloadedBytes = outBytes;
+            // 计算下载进度
+            const progress = calculateDownloadProgress(downloadedBytes, totalBytes);
+            console.log(`下载进度: ${progress.toFixed(2)}%`);
+            if (progress >= 100) {
+                console.log('下载完成');
+                clearInterval(timerId);
+            }
+        });
+    }, interval);
 }
 // 启动时加载
 onMounted(() => {

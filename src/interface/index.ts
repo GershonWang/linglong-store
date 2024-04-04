@@ -21,6 +21,7 @@ export interface CardFace {
     createTime?: string,
     installCount?: number,
     zhName?: string,
+    size?: string,
 }
 
 /**

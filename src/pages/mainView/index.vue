@@ -51,13 +51,6 @@
                         </el-icon>
                         <span>关于程序</span>
                     </el-menu-item>
-                    <hr style="display: none;">
-                    <el-menu-item index="998" @click="toPage('/card_comp')" style="display: none;">
-                        <el-icon>
-                            <GobletSquareFull />
-                        </el-icon>
-                        <span>卡片组件</span>
-                    </el-menu-item>
                     <el-menu-item index="999" @click="toPage('/')" style="display: none;">
                         <el-icon>
                             <Loading />
@@ -66,6 +59,11 @@
                     </el-menu-item>
                 </el-menu>
                 <!-- 更多菜单项 -->
+                <div class="network-info">
+                    <div class="network-info-title">当前实时网速</div>
+                    <el-icon><Top /></el-icon>上传速度: {{ uploadSpeed }}<br>
+                    <el-icon><Bottom /></el-icon>下载速度: {{ downloadSpeed }}
+                </div>
             </el-aside>
             <el-main class="views">
                 <!-- 这里将动态显示不同的功能页面 -->
@@ -78,6 +76,7 @@
 import { ipcRenderer } from 'electron';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import si from 'systeminformation';
 import { ElNotification } from 'element-plus'
 import { CardFace } from '@/interface/CardFace';
 import { InstalledEntity } from '@/interface/InstalledEntity';
@@ -98,6 +97,10 @@ const router = useRouter();
 const toPage = (url: string) => router.push(url);
 // 重试次数
 let retryNum = ref(0);
+// 实时上传速度
+const uploadSpeed = ref("0");
+// 实时下载速度
+const downloadSpeed = ref("0");
 // 命令执行响应函数
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
@@ -138,7 +141,7 @@ const commandResult = (_event: any, res: any) => {
             installedItemsStore.removeItem(installedEntity);
         }
         difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
-        welcomeItemsStore.updateItemLoadingStatus(installedEntity,false);
+        welcomeItemsStore.updateItemLoadingStatus(installedEntity, false);
         difVersionItemsStore.updateItemInstallStatus(installedEntity);
         welcomeItemsStore.updateItemInstallStatus(installedEntity);
         // 更新全部应用列表
@@ -162,8 +165,50 @@ const commandResult = (_event: any, res: any) => {
         });
     }
 }
+// 获取实时网速
+const getNetworkSpeed = () => {
+    // 获取网络接口信息
+    si.networkStats().then((data: { [x: string]: any; }) => {
+        // 假设我们使用的是第一个网络接口
+        const iface = Object.keys(data)[0];
+        const networkData = data[iface];
+        // 设置两个变量来跟踪之前的接收和发送的字节数
+        let prevInBytes = networkData.tx_bytes;
+        let prevOutBytes = networkData.rx_bytes;
+        // 每隔一定时间计算网速
+        setInterval(() => {
+            si.networkStats().then((data: { [x: string]: any; }) => {
+                const networkData = data[iface];
+                const inBytes = networkData.tx_bytes;
+                const outBytes = networkData.rx_bytes;
+                // 计算两次间隔的字节数差异
+                const inDiff = inBytes - prevInBytes;
+                const outDiff = outBytes - prevOutBytes;
+                // 更新之前的字节数
+                prevInBytes = inBytes;
+                prevOutBytes = outBytes;
+                // 转换为KB/s
+                const inSpeed = (inDiff / 1024);
+                const outSpeed = (outDiff / 1024);
+                //当速度超过1024时，则以MB/s为单位
+                if (inSpeed > 1024) {
+                    uploadSpeed.value = (inSpeed / 1024).toFixed(2) + ' MB/s';
+                } else {
+                    uploadSpeed.value = inSpeed.toFixed(2) + ' KB/s';
+                }
+                if (outSpeed > 1024) {
+                    downloadSpeed.value = (outSpeed / 1024).toFixed(2) + ' MB/s';
+                } else {
+                    downloadSpeed.value = outSpeed.toFixed(2) + ' KB/s';
+                }
+            });
+        }, 1000); // 每1000毫秒计算一次网速
+    });
+}
 // 页面初始化时执行
 onMounted(() => {
+    getNetworkSpeed();
+    // 监听命令执行结果
     ipcRenderer.on('command-result', commandResult);
 });
 // 页面销毁前执行
@@ -185,11 +230,11 @@ onBeforeUnmount(() => {
     width: 150px;
     margin: 12px 0 12px 12px;
     border-radius: 15px;
+    position: relative;
 }
 
 .el-menu {
     height: 100%;
-    background-color: #2D2F2F;
     border-right-style: none;
     overflow-y: hidden;
 }
@@ -203,6 +248,25 @@ onBeforeUnmount(() => {
     background-color: #6E6E6E;
     text-align: center;
     margin: 5px;
+}
+
+.network-info {
+    position: fixed;
+    bottom: 12px;
+    font-size: 12px;
+    background-color: #c1c1c1;
+    height: 75px;
+    width: 140px;
+    border-radius: 15px;
+    text-align: center;
+    margin: 5px;
+}
+
+.network-info-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #a12f2f;
+    margin: 3px;
 }
 
 a {
