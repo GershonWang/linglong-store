@@ -59,6 +59,9 @@
                     </el-menu-item>
                 </el-menu>
                 <!-- 更多菜单项 -->
+                <div class="download-queue" @click="show = !show">
+                    <div class="download-btn">下载队列</div>
+                </div>
                 <div class="network-info">
                     <div class="network-info-title">当前实时网速</div>
                     <el-icon><Top /></el-icon>上传速度: {{ uploadSpeed }}<br>
@@ -69,6 +72,20 @@
                 <!-- 这里将动态显示不同的功能页面 -->
                 <router-view></router-view>
             </el-main>
+            <transition name="el-zoom-in-left">
+                <div v-show="show" class="transition-box">
+                    <el-table :data="installingItemsStore.installingItemList" style="width: 100%;height: 100%;">
+                        <el-table-column prop="name" label="名称" header-align="center" align="center" width="180" />
+                        <el-table-column prop="version" label="版本" header-align="center" align="center" width="180" />
+                        <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
+                            <template #default="scope">
+                                <!-- 安装按钮 -->
+                                <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </transition>
         </el-container>
     </div>
 </template>
@@ -101,6 +118,8 @@ let retryNum = ref(0);
 const uploadSpeed = ref("0");
 // 实时下载速度
 const downloadSpeed = ref("0");
+// 显示下载队列框
+const show = ref(false);
 // 命令执行响应函数
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
@@ -250,6 +269,33 @@ onBeforeUnmount(() => {
     margin: 5px;
 }
 
+.download-queue {
+    position: fixed;
+    bottom: 99px;
+    margin: 5px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 140px;
+    height: 30px;
+    background-color: #a12f2f;
+}
+
+.download-btn {
+    color: yellowgreen;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.download-queue:hover {
+    background-color: #6418b9;
+    cursor: pointer;
+}
+
 .network-info {
     position: fixed;
     bottom: 12px;
@@ -269,16 +315,6 @@ onBeforeUnmount(() => {
     margin: 3px;
 }
 
-a {
-    font-weight: bold;
-    color: #D3D3D3;
-    text-decoration: inherit;
-}
-
-a:hover {
-    color: #2D2F2F;
-}
-
 .views {
     background-color: #2D2F2F;
     overflow: hidden;
@@ -286,6 +322,21 @@ a:hover {
     margin: 12px;
     padding: 12px;
     position: relative;
+}
+
+.transition-box {
+    border-radius: 10px;
+    background-color: #335061;
+    text-align: center;
+    color: #fff;
+    padding: 20px 15px;
+    box-sizing: border-box;
+    position: fixed;
+    bottom: 12px;
+    left: 175px;
+    height: 25%;
+    width: 30%;
+    z-index: 9;
 }
 
 @media (prefers-color-scheme: light) {

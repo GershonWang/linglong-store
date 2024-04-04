@@ -7,7 +7,9 @@ import { CardFace } from "@/interface/CardFace";
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
-
+/**
+ * 欢迎页面的数据
+ */
 export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
 
     let welcomeItemList = ref<InstalledEntity[]>([]);

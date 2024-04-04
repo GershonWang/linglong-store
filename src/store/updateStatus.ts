@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-
+/**
+ * 升级状态
+ */
 export const useUpdateStatusStore = defineStore('updateStatus', {
     state: () => ({
         // 检测更新是否可用按钮状态

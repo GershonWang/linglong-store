@@ -10,7 +10,9 @@ import { CardFace } from "@/interface/CardFace";
 
 const installedItemsStore = useInstalledItemsStore();
 const installingItemsStore = useInstallingItemsStore();
-
+/**
+ * 不同版本列表
+ */
 export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
 
     let difVersionItemList = ref<InstalledEntity[]>([]);

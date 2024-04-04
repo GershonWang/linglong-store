@@ -2,7 +2,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 自动检测更新
 const checkUpdate = import.meta.env.VITE_CONFIG_CHECKUPDATE as boolean;
-
+/**
+ * 系统基本参数配置
+ */
 export const useSystemConfigStore = defineStore('systemConfig', {
     state: () => ({
         // 系统架构
