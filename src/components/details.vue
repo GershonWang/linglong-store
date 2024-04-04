@@ -9,7 +9,7 @@
             <div class="image-div">
                 <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px" />
             </div>
-            <div style="width: 80%;color: #606274;">
+            <div style="width: 100%;height: 100%;color: #606274;">
                 <div class="soft">
                     <div><span class="soft-title">程序名称：</span>{{ query.name }}</div>
                     <div v-if="query.zhName"><span class="soft-title">程序中文名称：</span>{{ query.zhName }}</div>
@@ -18,7 +18,10 @@
                     <div><span class="soft-title">AppID：</span>{{ query.appId }}</div>
                     <div><span class="soft-title">架构：</span>{{ query.arch }}</div>
                 </div>
-                <div><span class="soft-title">简述：</span>{{ query.description }}</div>
+                <div class="soft-js">
+                    <div class="soft-title">简述：</div>
+                    <div class="soft-description">{{ query.description }}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -275,28 +278,41 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     padding: 12px;
     display: flex;
     background-color: white;
-    border-radius: 5px
+    border-radius: 5px;
+    height: 30%;
 }
 
 .image-div {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 15%;
+    width: 23%;
 }
 
 .soft {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-right: 12px;
     margin-bottom: 16px;
+}
+
+.soft-js {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 60%;
 }
 
 .soft-title {
     font-size: 18px;
     color: #0E0101;
     font-weight: bold;
+}
+
+.soft-description {
+    overflow: auto;
+    height: 100%;
+    width: 94%;
 }
 
 .install-btn {
@@ -327,7 +343,10 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 
     .base-container {
         color: #DCDCDC;
-        background-color: white;
+    }
+
+    .title {
+        color: #DCDCDC;
     }
 }
 </style>
