@@ -59,7 +59,7 @@
                     </el-menu-item>
                 </el-menu>
                 <!-- 更多菜单项 -->
-                <div class="download-queue" @click="show = !show">
+                <div class="download-queue" @click="showQueueBox = !showQueueBox">
                     <div class="download-btn">下载队列</div>
                 </div>
                 <div class="network-info">
@@ -73,7 +73,7 @@
                 <router-view></router-view>
             </el-main>
             <transition name="el-zoom-in-left">
-                <div v-show="show" class="transition-box">
+                <div v-show="showQueueBox" class="transition-queue-box">
                     <el-table :data="installingItemsStore.installingItemList" style="width: 100%;height: 100%;">
                         <el-table-column prop="name" label="名称" header-align="center" align="center" width="180" />
                         <el-table-column prop="version" label="版本" header-align="center" align="center" width="180" />
@@ -119,7 +119,7 @@ const uploadSpeed = ref("0");
 // 实时下载速度
 const downloadSpeed = ref("0");
 // 显示下载队列框
-const show = ref(false);
+const showQueueBox = ref(false);
 // 命令执行响应函数
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
@@ -273,17 +273,17 @@ onBeforeUnmount(() => {
     position: fixed;
     bottom: 99px;
     margin: 5px;
-    border-radius: 15px;
+    border-radius: 10px;
     display: flex;
     justify-content: center;
     text-align: center;
     width: 140px;
     height: 30px;
-    background-color: #a12f2f;
+    background-color: #D6AE75;
 }
 
 .download-btn {
-    color: yellowgreen;
+    color: #675e5b;
     font-size: 14px;
     font-weight: bold;
     display: flex;
@@ -292,6 +292,7 @@ onBeforeUnmount(() => {
 }
 
 .download-queue:hover {
+    color: #fff;
     background-color: #6418b9;
     cursor: pointer;
 }
@@ -324,7 +325,7 @@ onBeforeUnmount(() => {
     position: relative;
 }
 
-.transition-box {
+.transition-queue-box {
     border-radius: 10px;
     background-color: #335061;
     text-align: center;
