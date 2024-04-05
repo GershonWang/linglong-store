@@ -26,3 +26,16 @@ export const getInstallAppList = (data: AppListParams) => {
         data
     })
 }
+
+/**
+ * 获取最受欢迎的推荐应用列表
+ * @param data 入参条件(分页参数)
+ * @returns 
+ */
+export const getWelcomeAppList = (data: AppListParams) => {
+    return request<Result>({
+        method: 'POST',
+        url: '/visit/getWelcomeAppList',
+        data
+    })
+}
