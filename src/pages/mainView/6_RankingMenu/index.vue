@@ -17,10 +17,20 @@ const activeName = ref('first')
 const router = useRouter();
 // tab切换点击事件
 const handleClick = (tab: TabsPaneContext, _event: Event) => {
+  // 恢复保存的滚动位置
+  const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
+  container.scrollTop = 0;
   router.push(tab.paneName == "first" ? "/new_ranking" : "/down_ranking");
 }
 onMounted(() => {
-  router.push("/new_ranking");
+  const meta = router.currentRoute.value.meta;
+  if (meta.savedTabName == "downRanking") {
+    activeName.value = "second";
+    router.push("/down_ranking");
+  } else {
+    activeName.value = "first";
+    router.push("/new_ranking");
+  }
 })
 </script>
 <style scoped>
@@ -44,7 +54,7 @@ onMounted(() => {
   color: #FFFFFF;
   padding: 10px;
 }
- 
+
 :deep(.el-tabs__item.is-active) {
   color: #409EFF;
   font-weight: bold;

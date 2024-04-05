@@ -227,10 +227,11 @@ onBeforeUnmount(() => {
 })
 // 路由跳转离开前
 onBeforeRouteLeave((to: any, from: any, next: any) => {
-    to.meta.savedPosition = from.meta.savedPosition;
-    to.meta.savedPageNo = from.meta.savedPageNo;
-    to.meta.savedPageSize = from.meta.savedPageSize;
-    to.meta.savedSearchName = from.meta.savedSearchName;
+    const { meta: toMeta } = to;
+    const { meta: fromMeta } = from;
+    Object.keys(fromMeta).forEach((key) => {
+        toMeta[key] = fromMeta[key];
+    });
     next();
 })
 </script>
