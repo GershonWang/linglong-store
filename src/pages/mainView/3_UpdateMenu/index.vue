@@ -6,12 +6,17 @@
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" />
             </div>
         </div>
-        <div class="noDataContainer" v-else>
-            <div class="imageDiv">
+        <div class="no-data-container" v-else>
+            <div style="width: 180px;height: 300px">
                 <img class="image" :src="defaultImage" alt="Image" />
             </div>
             <h1>暂无数据</h1>
         </div>
+        <transition name="el-zoom-in-bottom">
+            <div v-show="updateItemsStore.updateItemList.length > 0 && !loading" class="transition-update-btn">
+                <el-button type="primary" @click="updateAll">一键更新</el-button>
+            </div>
+        </transition>
     </div>
 </template>
 <script setup lang="ts">
@@ -28,11 +33,13 @@ import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
+import { useInstallingItemsStore } from "@/store/installingItems";
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const updateItemsStore = useUpdateItemsStore();
 const systemConfig = useSystemConfigStore();
+const installingItemsStore = useInstallingItemsStore();
 // 页面加载状态
 const loading = ref(true);
 // 记录循环次数的标记值
@@ -105,6 +112,19 @@ const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
         loading.value = false;
     }
 }
+// 更新所有
+const updateAll = () => {
+    const updateItemList = updateItemsStore.updateItemList;
+    if (updateItemList && updateItemList.length > 0) {
+        updateItemList.forEach((item) => {
+            item.loading = false;
+            item.command = `ll-cli install ${item.appId}/${item.version}`;
+            ipcRenderer.send("command", { ...item });
+            // 新增到加载中列表
+            installingItemsStore.addItem(item as InstalledEntity);
+        })
+    }
+}
 // 页面打开时执行
 onMounted(() => {
     updateItemsStore.clearItems(); // 清空页面列表数据
@@ -163,15 +183,31 @@ onMounted(() => {
     background-color: #999999;
 }
 
-.noDataContainer {
+.no-data-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
 
-.imageDiv {
-    width: 180px;
-    height: 300px
+.transition-update-btn {
+    border-radius: 10px;
+    background: radial-gradient(circle at 50% 20%, #6E6E6E, transparent);
+    text-align: center;
+    color: #fff;
+    padding: 16px;
+    box-sizing: border-box;
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    height: 64px;
+    width: 120px;
+    z-index: 2;
+}
+
+@media (prefers-color-scheme: light) {
+    .transition-update-btn {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    }
 }
 </style>

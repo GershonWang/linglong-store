@@ -281,7 +281,7 @@ onBeforeUnmount(() => {
     text-align: center;
     width: 140px;
     height: 30px;
-    background-color: #D6AE75;
+    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
 }
 
 .download-btn {
@@ -294,9 +294,12 @@ onBeforeUnmount(() => {
 }
 
 .download-queue:hover {
-    color: #fff;
     background-color: #6418b9;
     cursor: pointer;
+}
+
+.download-btn:hover {
+    color: #fff;
 }
 
 .network-info {
@@ -354,6 +357,9 @@ onBeforeUnmount(() => {
 
     .views {
         background-color: #2d2f2f2b;
+    }
+    .transition-queue-box {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
     }
 }
 </style>
