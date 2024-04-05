@@ -14,7 +14,7 @@
         </div>
         <transition name="el-zoom-in-bottom">
             <div v-show="updateItemsStore.updateItemList.length > 0 && !loading" class="transition-update-btn">
-                <el-button type="primary" @click="updateAll">一键更新</el-button>
+                <el-button type="primary" @click="updateAll" :disabled="disableClick">一键更新</el-button>
             </div>
         </transition>
     </div>
@@ -44,6 +44,8 @@ const installingItemsStore = useInstallingItemsStore();
 const loading = ref(true);
 // 记录循环次数的标记值
 let currentIndex = 0;
+// 一键更新按钮是否可点击
+const disableClick = ref(false);
 // 嵌套循环获取所有已安装的玲珑程序是否有更新版本
 const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
     if (currentIndex < uniqueInstalledSet.length) {
@@ -114,6 +116,8 @@ const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
 }
 // 更新所有
 const updateAll = () => {
+    disableClick.value = true;
+    // 执行一键更新
     const updateItemList = updateItemsStore.updateItemList;
     if (updateItemList && updateItemList.length > 0) {
         updateItemList.forEach((item) => {
