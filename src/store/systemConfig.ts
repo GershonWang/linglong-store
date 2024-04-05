@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 自动检测更新
 const checkUpdate = import.meta.env.VITE_CONFIG_CHECKUPDATE as boolean;
+console.log('checkUpdate',checkUpdate);
 /**
  * 系统基本参数配置
  */

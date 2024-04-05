@@ -3,8 +3,6 @@ import { exec } from "child_process";
 import axios from "axios";
 import { ipcLog, mainLog } from "../logger";
 
-let baseURL = import.meta.env.VITE_SERVER_URL as string;
-
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
     /* ********** 执行脚本命令 ********** */
@@ -72,14 +70,7 @@ const IPCHandler = (win: BrowserWindow) => {
         ipcLog.info('ipc-visit：', JSON.stringify(data));
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.timeout = 30000;
-        const url = baseURL + "/visit/save";
-        const params = {  
-            appId: data.appId,  
-            name: data.name,  
-            version: data.version,  
-            command: data.command,  
-        };  
-        axios.post(url, JSON.stringify(params)).then(response => {
+        axios.post(data.url, JSON.stringify({ ...data })).then(response => {
             ipcLog.info('ipc-visit-success：',JSON.stringify(response.data))
         }).catch(error => {
             ipcLog.info('ipc-visit-error：',error)
@@ -90,14 +81,7 @@ const IPCHandler = (win: BrowserWindow) => {
         ipcLog.info('ipc-appLogin：', JSON.stringify(data));
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.timeout = 30000;
-        const url = baseURL + "/visit/appLogin";
-        // const params = {  
-            // llVersion: data.llVersion,  
-            // appVersion: data.appVersion,  
-        // };
-        const params = { ...data }  
-        axios.post(url, params).then(response => {
-            // console.log('response',response);
+        axios.post(data.url, { ...data }).then(response => {
             ipcLog.info('ipc-appLogin-success：',JSON.stringify(response.data));
         }).catch(error => {
             ipcLog.info('ipc-appLogin-error：',error);

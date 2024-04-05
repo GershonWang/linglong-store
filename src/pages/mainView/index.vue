@@ -173,6 +173,8 @@ const commandResult = (_event: any, res: any) => {
             allServItemsStore.updateItemInstallStatus(item);
         }
         // 发送操作命令
+        let baseURL = import.meta.env.VITE_SERVER_URL as string;
+        params.url = baseURL + "/visit/save";
         ipcRenderer.send('visit', params);
         // 安装成功后，弹出通知
         const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';

@@ -204,12 +204,14 @@ const networkResult = async (_event: any, res: any) => {
     ipcRenderer.send('logger', 'info', "加载完成...");
     downloadPercentMsg.value = "";
     ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
-
+    // 检测当前环境
     const mode = import.meta.env.MODE as string;
     console.log('mode',mode);
     if (mode != "development") {
         // 非开发环境发送通知APP登陆！
-        ipcRenderer.send('appLogin', { llVersion: systemConfigStore.llVersion, appVersion: pkg.version })
+        let baseURL = import.meta.env.VITE_SERVER_URL as string;
+        const url = baseURL + "/visit/appLogin";
+        ipcRenderer.send('appLogin', { url: url, llVersion: systemConfigStore.llVersion, appVersion: pkg.version })
     }
     // 延时500毫秒进入
     await new Promise(resolve => setTimeout(resolve, 500));
