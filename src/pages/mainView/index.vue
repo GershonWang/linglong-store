@@ -106,12 +106,14 @@ import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
+import { useUpdateItemsStore } from "@/store/updateItems";
 
 const installedItemsStore = useInstalledItemsStore();
 const allServItemsStore = useAllServItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
+const updateItemsStore = useUpdateItemsStore();
 // 默认菜单页签
 const defaultActive = ref('1');
 // 路由对象
@@ -178,6 +180,8 @@ const commandResult = (_event: any, res: any) => {
         if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
             allServItemsStore.updateItemInstallStatus(item);
         }
+        // 移除需要更新的应用
+        updateItemsStore.removeItem(item);
         // 发送操作命令
         let baseURL = import.meta.env.VITE_SERVER_URL as string;
         params.url = baseURL + "/visit/save";

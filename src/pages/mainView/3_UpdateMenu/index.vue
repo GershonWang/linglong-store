@@ -150,14 +150,17 @@ onMounted(() => {
         const { appId, version } = installedItem;
         if (appId != 'org.deepin.Runtime' && appId != 'org.deepin.basics' 
             && appId != 'org.deepin.Wine' && appId != 'org.deepin.base' && appId != 'org.deepin.Bootstrap') {
-            if (uniqueInstalledSet.some((item) => item.appId == appId)) {
-                const item = uniqueInstalledSet.find((item) => item.appId == appId);
-                if (item && hasUpdateVersion(item.version, version) == 1) {
+            const item = uniqueInstalledSet.find((item) => item.appId == appId);
+            if (item) {
+                // 当循环的版本号大于去重数组中的检测到的版本号时，剔除去重数组中的元素，并将当前循环的元素添加到去重数组中
+                if (hasUpdateVersion(item.version, version) == 1) {
                     const index = uniqueInstalledSet.findIndex((item) => item.appId == appId);
                     uniqueInstalledSet.splice(index, 1);
+                    uniqueInstalledSet.push(installedItem);
                 }
+            } else {
+                uniqueInstalledSet.push(installedItem);
             }
-            uniqueInstalledSet.push(installedItem);
         }
     })
     // 查找是否含有高级版本
