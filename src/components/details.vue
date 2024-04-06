@@ -313,7 +313,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 .soft-description {
     overflow: auto;
     height: 100%;
-    width: 94%;
+    width: 93%;
 }
 
 .install-btn {
