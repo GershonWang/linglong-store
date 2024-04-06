@@ -1,13 +1,13 @@
 <template>
     <div class="container">
-        <div class="card_container" v-if="installedStore.installedItemList && installedStore.installedItemList.length > 0">
-            <div class="card_items" v-for="(item, index) in installedStore.installedItemList" :key="index">
+        <div class="card-container" v-if="installedStore.installedItemList && installedStore.installedItemList.length > 0">
+            <div class="card-items" v-for="(item, index) in installedStore.installedItemList" :key="index">
                 <InstalledCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading"/>
             </div>
         </div>
-        <div class="noDataContainer" v-else>
-            <div class="imageDiv">
+        <div class="no-data-container" v-else>
+            <div style="width: 180px;height: 300px;">
                 <img class="image" :src="defaultImage" alt="Image" />
             </div>
             <h1>暂无数据</h1>
@@ -79,14 +79,13 @@ onBeforeRouteLeave((to, _from, next) => {
     overflow-y: auto;
 }
 
-.card_container {
+.card-container {
     display: grid;
     grid-gap: 10px;
-    margin-right: 12px;
     grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
 }
 
-.card_items {
+.card-items {
     padding: 10px;
     flex: 1;
     min-width: 180px;
@@ -96,15 +95,15 @@ onBeforeRouteLeave((to, _from, next) => {
     background-color: #999999;
 }
 
-.noDataContainer {
+.no-data-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
 
-.imageDiv {
-    width: 180px;
-    height: 300px
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
 }
 </style>
