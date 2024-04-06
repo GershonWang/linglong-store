@@ -74,7 +74,7 @@
             </el-aside>
             <el-main class="views">
                 <!-- 这里将动态显示不同的功能页面 -->
-                <router-view @childEvent="updateActive"></router-view>
+                <router-view></router-view>
             </el-main>
             <transition name="el-zoom-in-left">
                 <div v-show="showQueueBox" class="transition-queue-box">
@@ -231,9 +231,6 @@ const getNetworkSpeed = () => {
             });
         }, 1000); // 每1000毫秒计算一次网速
     });
-}
-const updateActive = () => {
-    defaultActive.value = '2';
 }
 // 页面初始化时执行
 onMounted(() => {

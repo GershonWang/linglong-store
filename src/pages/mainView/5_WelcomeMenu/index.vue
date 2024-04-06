@@ -29,7 +29,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { getCurrentInstance, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { getWelcomeAppList } from "@/api/server";
 import defaultImage from '@/assets/logo.svg';
 import WelcomeCard from "@/components/welcomeCard.vue";
@@ -38,7 +38,6 @@ import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import router from "@/router";
 
-const instance = getCurrentInstance();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
@@ -75,10 +74,6 @@ const getWelcomeApp = async (param: AppListParams) => {
 }
 const categoryClick = (appId: string) => {
     router.push({ path: '/all_serv_menu', query: { appId: appId } });
-    if (instance && instance.parent) {
-        console.log(instance.parent);
-        instance.parent.emit('updateActive');
-    }
 }
 // 页面加载时启动
 onMounted(async () => {
