@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <div style="margin: 20px;">
-            <el-carousel height="260px" type="card" :autoplay="false">
-                <el-carousel-item v-for="item in welcomeItemList" :key="item.appId">
+            <el-carousel height="260px" type="card" :autoplay="true">
+                <el-carousel-item v-for="item in welcomeItemList" :key="item.appId" @click="openDetail(item)">
                     <img :src="item.icon" style="width: 150px; height: 150px;margin: 20px auto 0 auto;">
                     <h1>{{ item.name }}</h1>
                 </el-carousel-item>
@@ -72,8 +72,24 @@ const getWelcomeApp = async (param: AppListParams) => {
         }
     }
 }
+// 分类选择点击事件
 const categoryClick = (appId: string) => {
     router.push({ path: '/all_serv_menu', query: { appId: appId } });
+}
+// 打开明细界面
+const openDetail = (item: CardFace) => {
+    router.push({ 
+        path: '/details', 
+        query: {
+            menuName: '珑珑推荐',
+            appId: item.appId,
+            name: item.name,
+            version: item.version,
+            description: item.description,
+            arch: item.arch,
+            icon: item.icon
+        } 
+    });
 }
 // 页面加载时启动
 onMounted(async () => {
