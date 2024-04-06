@@ -2,23 +2,22 @@
     <div class="container">
         <div style="margin: 20px;">
             <el-carousel height="260px" type="card" :autoplay="false">
-                <!-- direction="vertical" -->
                 <el-carousel-item v-for="item in welcomeItemList" :key="item.appId">
                     <img :src="item.icon" style="width: 150px; height: 150px;margin: 20px auto 0 auto;">
-                    <h1>{{ item.zhName }}</h1>
+                    <h1>{{ item.name }}</h1>
                 </el-carousel-item>
             </el-carousel>
         </div>
         <el-divider />
-        <h1 style="margin-left: 25px;">分类推荐</h1>
+        <h3 style="text-align: center;margin: 10px;">分类推荐</h3>
         <div class="category-items">
             <el-button v-for="(item, itemIndex) in categoryLIst" :key="itemIndex" class="category-item"
-                @click="$router.push({ path: '/apps', query: { appId: item.appId } })">
+                @click="categoryClick(item.appId)">
                 {{ item.name }}
             </el-button>
         </div>
         <el-divider />
-        <h1 style="margin-left: 25px;">珑珑推荐</h1>
+        <h3 style="text-align: center;margin: 10px;">珑珑推荐</h3>
         <div v-for="(group, groupIndex) in result" :key="groupIndex" class="row">
             <!-- 每五个一组的项目 -->
             <div v-for="(item, itemIndex) in group" :key="itemIndex" class="card-items">
@@ -30,14 +29,16 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { getCurrentInstance, onMounted, ref } from "vue";
 import { getWelcomeAppList } from "@/api/server";
 import defaultImage from '@/assets/logo.svg';
 import WelcomeCard from "@/components/welcomeCard.vue";
 import { AppListParams, CardFace, pageResult } from "@/interface";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
+import router from "@/router";
 
+const instance = getCurrentInstance();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
@@ -50,11 +51,11 @@ let params = ref<AppListParams>({ pageNo: 1, pageSize: 10 })
 const carouselChart = () => {
     welcomeItemList.value = welcomeItemsStore.welcomeItemList;
 }
-
+// 分类推荐程序
 const groupedItems = () => {
-    categoryLIst.value.push({ name: '系统', appId: 'system' } as CardFace);
-    categoryLIst.value.push({ name: '开发', appId: 'development' } as CardFace);
-    categoryLIst.value.push({ name: '游戏', appId: 'game' } as CardFace);
+    categoryLIst.value.push({ name: '深度制造', appId: 'system' } as CardFace);
+    categoryLIst.value.push({ name: '游戏竞技', appId: 'game' } as CardFace);
+    categoryLIst.value.push({ name: '开发系统', appId: 'development' } as CardFace);
 }
 // 获取最受欢迎的前十名程序
 const getWelcomeApp = async (param: AppListParams) => {
@@ -70,6 +71,13 @@ const getWelcomeApp = async (param: AppListParams) => {
             const items = records.slice(i, i + chunkSize);
             result.value.push(items);
         }
+    }
+}
+const categoryClick = (appId: string) => {
+    router.push({ path: '/all_serv_menu', query: { appId: appId } });
+    if (instance && instance.parent) {
+        console.log(instance.parent);
+        instance.parent.emit('updateActive');
     }
 }
 // 页面加载时启动
@@ -92,7 +100,7 @@ onMounted(async () => {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin: 20px;
+    margin: 10px 20px;
 }
 
 .category-item {
@@ -101,6 +109,15 @@ onMounted(async () => {
     min-width: 180px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    background-color: #6E6E6E;
+    color: #FFFFFF;
+    font-weight: bold;
+    height: 45px;
+}
+
+.category-item:hover {
+    background-color: #999999;
+    color: #FFFFFF;
 }
 
 .row {

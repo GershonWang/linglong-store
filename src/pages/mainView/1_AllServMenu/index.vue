@@ -177,7 +177,24 @@ onMounted(() => {
         searchName.value = savedSearchName;
         recover(savedSearchName, savedPageNo, savedPageSize);
     } else {
-        searchSoft();
+        // 路由对象
+        const router = useRouter();
+        // 路由传递的对象
+        const query = router.currentRoute.value.query;
+        if (query.appId) {
+            let msg = '';
+            if (query.appId == 'system') {
+                msg = 'deepin';
+            } else if (query.appId == 'game') {
+                msg = '游戏';
+            } else if (query.appId == 'development') {
+                msg = '开发';
+            }
+            searchName.value = msg;
+            recover(msg, 1, 50);
+        } else {
+            searchSoft();
+        }
     }
 });
 // 在router路由离开前执行

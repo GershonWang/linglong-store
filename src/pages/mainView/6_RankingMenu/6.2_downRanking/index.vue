@@ -27,13 +27,9 @@ import router from '@/router';
 
 const installedItemsStore = useInstalledItemsStore();
 
-let params = ref<AppListParams>({
-    pageNo: 1,
-    pageSize: 100
-})
-
+let params = ref<AppListParams>({ pageNo: 1, pageSize: 100 })
 let displayedItems = ref<CardFace[]>([]);
-
+// 页面启动时加载
 onMounted(async () => {
     let res = await getInstallAppList(params.value);
     if (res.code == 200) {
@@ -70,7 +66,7 @@ onBeforeRouteLeave((to, _from, next) => {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    width: 98%;
+    width: 100%;
     height: 100%;
 }
 
@@ -79,10 +75,8 @@ onBeforeRouteLeave((to, _from, next) => {
     flex: 1;
     min-width: 180px;
     max-width: 210px;
-    /* border: 1px solid #ccc; */
     border-radius: 5px;
     box-sizing: border-box;
-    /* background-color: #999999; */
     background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
 }
 

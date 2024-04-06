@@ -2,7 +2,7 @@
     <div class="common-layout">
         <el-container>
             <el-aside>
-                <el-menu default-active="1">
+                <el-menu :default-active="defaultActive">
                     <el-menu-item index="1" @click="toPage('/welcome_menu')">
                         <el-icon color="#D3D3D3">
                             <Star />
@@ -74,12 +74,12 @@
             </el-aside>
             <el-main class="views">
                 <!-- 这里将动态显示不同的功能页面 -->
-                <router-view></router-view>
+                <router-view @childEvent="updateActive"></router-view>
             </el-main>
             <transition name="el-zoom-in-left">
                 <div v-show="showQueueBox" class="transition-queue-box">
                     <el-table :data="installingItemsStore.installingItemList" style="width: 100%;height: 100%;">
-                        <el-table-column prop="name" label="名称" header-align="center" align="center" width="180" />
+                        <el-table-column prop="name" label="名称" header-align="center" align="center" />
                         <el-table-column prop="version" label="版本" header-align="center" align="center" width="180" />
                         <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                             <template #default="scope">
@@ -112,6 +112,8 @@ const allServItemsStore = useAllServItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
+// 默认菜单页签
+const defaultActive = ref('1');
 // 路由对象
 const router = useRouter();
 // 路由跳转
@@ -230,6 +232,9 @@ const getNetworkSpeed = () => {
         }, 1000); // 每1000毫秒计算一次网速
     });
 }
+const updateActive = () => {
+    defaultActive.value = '2';
+}
 // 页面初始化时执行
 onMounted(() => {
     getNetworkSpeed();
@@ -333,18 +338,22 @@ onBeforeUnmount(() => {
 }
 
 .transition-queue-box {
-    border-radius: 10px;
-    background-color: #335061;
-    text-align: center;
-    color: #fff;
-    padding: 20px 15px;
-    box-sizing: border-box;
+    z-index: 3;
     position: fixed;
     bottom: 12px;
     left: 175px;
-    height: 25%;
-    width: 30%;
-    z-index: 9;
+    padding: 6px;
+    box-sizing: border-box;
+    text-align: center;
+    height: 28%;
+    width: 38%;
+    border-radius: 12px;
+    background-color: #6E6E6E;
+    color: #fff;
+}
+
+.el-table {
+    border-radius: 12px;
 }
 
 @media (prefers-color-scheme: light) {

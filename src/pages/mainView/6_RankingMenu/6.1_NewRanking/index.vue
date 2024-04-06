@@ -67,7 +67,7 @@ onBeforeRouteLeave((to, _from, next) => {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    width: 98%;
+    width: 100%;
     height: 100%;
 }
 

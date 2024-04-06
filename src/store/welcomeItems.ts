@@ -2,11 +2,9 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { InstalledEntity } from "@/interface/InstalledEntity";
 import { useAllServItemsStore } from "@/store/allServItems";
-import { useInstalledItemsStore } from "@/store/installedItems";
 import { CardFace } from "@/interface";
 
 const allServItemsStore = useAllServItemsStore();
-const installedItemsStore = useInstalledItemsStore();
 /**
  * 欢迎页面的数据
  */
@@ -44,56 +42,47 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
                 loading: false
             }
             if (element.appId == 'com.jetbrains.intellij-idea-ultimate') {
-                installedEntity.name = 'IDEA开发工具';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                installedEntity.name = 'IDEA开发';
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'com.xunlei.download') {
                 installedEntity.name = 'Linux迅雷';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'com.qq.wemeet') {
                 installedEntity.name = '腾讯会议';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'cn.google.chrome') {
                 installedEntity.name = '谷歌浏览器';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'com.qq.music') {
                 installedEntity.name = 'QQ音乐';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'com.qianxin.browser-stable') {
                 installedEntity.name = '奇安信浏览器';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'net.supertuxkart') {
                 installedEntity.name = '超级赛车游戏';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'cc.modao.mockitt') {
-                installedEntity.name = '墨刀办公';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
+                installedEntity.name = '墨刀';
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
             if (element.appId == 'com.visualstudio.code') {
                 installedEntity.name = 'VS Code';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
                 welcomeItemList.value.push(installedEntity);
                 continue;
             }
@@ -130,5 +119,4 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
         updateItemInstallStatus,
         updateItemLoadingStatus,
     }
-
 }, { persist: true });

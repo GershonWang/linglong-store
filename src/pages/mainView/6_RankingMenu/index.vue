@@ -51,13 +51,14 @@ onMounted(() => {
 }
 
 :deep(.el-tabs__item) {
-  color: #0E0101;
+  color: #FFFFFF;
   padding: 10px;
 }
 
 :deep(.el-tabs__item.is-active) {
   color: #DAAD71;
   font-weight: bold;
+
 }
 
 /* 隐藏滚动条 */
