@@ -64,8 +64,12 @@
                 </div>
                 <div class="network-info">
                     <div class="network-info-title">当前实时网速</div>
-                    <el-icon><Top /></el-icon>上传速度: {{ uploadSpeed }}<br>
-                    <el-icon><Bottom /></el-icon>下载速度: {{ downloadSpeed }}
+                    <el-icon>
+                        <Top />
+                    </el-icon>上传速度: {{ uploadSpeed }}<br>
+                    <el-icon>
+                        <Bottom />
+                    </el-icon>下载速度: {{ downloadSpeed }}
                 </div>
             </el-aside>
             <el-main class="views">
@@ -258,6 +262,7 @@ onBeforeUnmount(() => {
     height: 100%;
     border-right-style: none;
     overflow-y: hidden;
+    background-color: #6e6e6e2e;
 }
 
 .el-menu-item {
@@ -285,7 +290,7 @@ onBeforeUnmount(() => {
 }
 
 .download-btn {
-    color: #675e5b;
+    color: #ffffff;
     font-size: 14px;
     font-weight: bold;
     display: flex;
@@ -298,20 +303,17 @@ onBeforeUnmount(() => {
     cursor: pointer;
 }
 
-.download-btn:hover {
-    color: #fff;
-}
-
 .network-info {
     position: fixed;
+    border-radius: 15px;
+    text-align: center;
+    margin: 5px;
     bottom: 12px;
     font-size: 12px;
     background-color: #c1c1c1;
     height: 75px;
     width: 140px;
-    border-radius: 15px;
-    text-align: center;
-    margin: 5px;
+    color: #000;
 }
 
 .network-info-title {
@@ -346,10 +348,6 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-color-scheme: light) {
-    .el-menu {
-        background-color: #6e6e6e2e;
-    }
-
     .el-menu-item {
         color: #0e0101;
         background-color: #6e6e6e2e;
@@ -358,6 +356,15 @@ onBeforeUnmount(() => {
     .views {
         background-color: #2d2f2f2b;
     }
+
+    .download-btn {
+        color: #675e5b;
+    }
+
+    .download-btn:hover {
+        color: #ffffff;
+    }
+
     .transition-queue-box {
         background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
     }

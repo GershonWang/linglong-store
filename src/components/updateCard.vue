@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 import { useRouter } from 'vue-router';
 
 const router = useRouter();

@@ -17,7 +17,7 @@
 import { computed } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification, ElMessageBox } from 'element-plus'
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 import { useRouter } from 'vue-router';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";

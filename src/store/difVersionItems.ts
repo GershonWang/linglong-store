@@ -6,7 +6,7 @@ import { LocationQuery } from "vue-router";
 import hasUpdateVersion from "@/util/checkVersion";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 
 const installedItemsStore = useInstalledItemsStore();
 const installingItemsStore = useInstallingItemsStore();

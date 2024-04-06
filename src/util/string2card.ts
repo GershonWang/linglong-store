@@ -1,4 +1,4 @@
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 
 const string2card = (str: string) => {
     const element: string = str.trim();

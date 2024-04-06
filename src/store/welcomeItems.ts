@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { InstalledEntity } from "@/interface/InstalledEntity";
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
@@ -42,12 +42,6 @@ export const useWelcomeItemsStore = defineStore("welcomeItems", () => {
                 version: element.version,
                 isInstalled: false,
                 loading: false
-            }
-            if (element.appId == 'cn.wps.wps-office') {
-                installedEntity.name = 'WPS办公';
-                installedEntity.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === element.appId && it.name === element.name);
-                welcomeItemList.value.push(installedEntity);
-                continue;
             }
             if (element.appId == 'com.jetbrains.intellij-idea-ultimate') {
                 installedEntity.name = 'IDEA开发工具';

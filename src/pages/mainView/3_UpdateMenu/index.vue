@@ -23,7 +23,7 @@
 import { onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus';
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 import { InstalledEntity } from "@/interface/InstalledEntity";
 import updateCard from "@/components/updateCard.vue";
 import string2card from "@/util/string2card";

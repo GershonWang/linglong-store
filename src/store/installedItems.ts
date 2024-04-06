@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import string2card from "@/util/string2card";
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 import { InstalledEntity } from "@/interface/InstalledEntity";
 import { useSystemConfigStore } from "@/store/systemConfig";
 

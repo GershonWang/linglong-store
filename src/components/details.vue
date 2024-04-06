@@ -337,6 +337,11 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     height: 24px;
 }
 
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
+}
+
 @media (prefers-color-scheme: light) {
     .firstMenu :deep(.el-breadcrumb__inner) {
         color: #000;

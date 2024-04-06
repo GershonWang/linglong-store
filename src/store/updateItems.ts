@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { CardFace } from "@/interface/CardFace";
+import { CardFace } from "@/interface";
 
 /**
  * 可更新的全部应用

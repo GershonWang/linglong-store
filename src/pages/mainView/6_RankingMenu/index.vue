@@ -51,12 +51,17 @@ onMounted(() => {
 }
 
 :deep(.el-tabs__item) {
-  color: #FFFFFF;
+  color: #0E0101;
   padding: 10px;
 }
 
 :deep(.el-tabs__item.is-active) {
-  color: #409EFF;
+  color: #DAAD71;
   font-weight: bold;
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
 }
 </style>
