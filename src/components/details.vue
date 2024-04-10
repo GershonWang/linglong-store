@@ -31,7 +31,7 @@
             <el-table-column prop="version" label="版本号" width="120" />
             <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240"
                 :formatter="formatRuntime" />
-            <el-table-column prop="description" label="描述"/>
+            <el-table-column prop="description" label="描述" />
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
@@ -125,16 +125,8 @@ const changeStatus = async (item: any, flag: string) => {
         duration: 500,
     });
     if (flag == 'install') {
-        // 获取网络接口信息
-        si.networkStats().then((data: { [x: string]: any }) => {
-            // 假设我们使用的是第一个网络接口
-            const iface = Object.keys(data)[0];
-            // 假设文件大小为 1MB
-            const fileSizeInBytes = query.size ? query.size as unknown as number : 0;
-            console.log('fileSize',fileSizeInBytes);
-            // 开始模拟下载
-            simulateDownload(fileSizeInBytes, iface);
-        });
+        // 获取下载进度
+        simulateDownload();
     }
 }
 // 运行按钮
@@ -172,32 +164,42 @@ const commandResult = (_event: any, res: any) => {
     }
 }
 // 获取实时网速
-function calculateDownloadProgress(downloadedBytes: number, totalBytes: number): number {
-    const progress = (downloadedBytes / totalBytes) * 100;
+function calculateDownloadProgress(downloadedBytes: number): number {
+    // 假设文件大小为 1MB
+    const fileSizeInBytes = query.size ? query.size as unknown as number : 0;
+    console.log('fileSize', fileSizeInBytes);
+    const progress = (downloadedBytes / fileSizeInBytes) * 100;
     return progress;
 }
 // 模拟下载函数，每隔一段时间计算并打印下载进度，直至下载完成
-function simulateDownload(fileSizeInBytes: number, iface: string) {
-    let downloadedBytes = 0;
-    const totalBytes = fileSizeInBytes;
-    const interval = 1000; // 1秒
-    let timerId = setInterval(() => {
-        si.networkStats().then((data: { [x: string]: any }) => {
-            const networkData = data[iface];
-            const outBytes = networkData.rx_bytes;
-            // 计算两次间隔的字节数差异
-            const outDiff = outBytes - downloadedBytes;
-            // 更新已下载的字节数
-            downloadedBytes = outBytes;
-            // 计算下载进度
-            const progress = calculateDownloadProgress(downloadedBytes, totalBytes);
-            console.log(`下载进度: ${progress.toFixed(2)}%`);
-            if (progress >= 100) {
-                console.log('下载完成');
-                clearInterval(timerId);
-            }
-        });
-    }, interval);
+function simulateDownload() {
+    // 假设我们使用的是第一个网络接口
+    si.networkStats().then((data: { [x: string]: any; }) => {
+        // 假设我们使用的是第一个网络接口
+        const iface = Object.keys(data)[0];
+        const networkData = data[iface];
+        let beforeOutBytes = networkData.rx_bytes;
+        let downloadedBytes = 0;
+        const interval = 1000; // 1秒
+        let timerId = setInterval(() => {
+            si.networkStats().then((data1: { [x: string]: any }) => {
+                const iface = Object.keys(data1)[0];
+                const networkData = data1[iface];
+                const outBytes = networkData.rx_bytes;
+                console.log('outBytes', outBytes);
+                // 计算两次间隔的字节数差异
+                downloadedBytes += outBytes - beforeOutBytes;
+                beforeOutBytes = outBytes; // 更新已下载的字节数
+                // 计算下载进度
+                const progress = calculateDownloadProgress(downloadedBytes);
+                console.log(`下载进度: ${progress.toFixed(2)}%`);
+                if (progress >= 100) {
+                    console.log('下载完成');
+                    clearInterval(timerId);
+                }
+            });
+        }, interval);
+    });
 }
 // 启动时加载
 onMounted(() => {

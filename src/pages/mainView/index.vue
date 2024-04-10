@@ -182,10 +182,14 @@ const commandResult = (_event: any, res: any) => {
         }
         // 移除需要更新的应用
         updateItemsStore.removeItem(item);
-        // 发送操作命令
-        let baseURL = import.meta.env.VITE_SERVER_URL as string;
-        params.url = baseURL + "/visit/save";
-        ipcRenderer.send('visit', params);
+        // 检测当前环境
+        const mode = import.meta.env.MODE as string;
+        if (mode != "development") {
+            // 非开发环境发送发送操作命令！
+            let baseURL = import.meta.env.VITE_SERVER_URL as string;
+            params.url = baseURL + "/visit/save";
+            ipcRenderer.send('visit', params);
+        }
         // 安装成功后，弹出通知
         const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
         ElNotification({
