@@ -53,10 +53,10 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
 import { CardFace } from '@/interface';
-import { onBeforeRouteLeave, useRouter } from 'vue-router';
+import { onBeforeRouteLeave } from 'vue-router';
 import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import hasUpdateVersion from "@/util/checkVersion";
@@ -69,6 +69,7 @@ import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import elertTip from "@/util/NetErrorTips";
 import si from 'systeminformation';
+import router from '@/router';
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
@@ -76,8 +77,6 @@ const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
 const systemConfigStore = useSystemConfigStore();
-// 路由对象
-const router = useRouter();
 // 路由传递的对象
 const query = router.currentRoute.value.query;
 // 格式化运行时字段
@@ -127,31 +126,6 @@ const changeStatus = async (item: any, flag: string) => {
         simulateDownload();
     }
 }
-// 运行按钮
-const toRun = (item: CardFace) => {
-    // 发送操作命令
-    let commandParams = {
-        ...item,
-        command: 'll-cli run ' + item.appId + '/' + item.version,
-        loading: false,
-    }
-    ipcRenderer.send('command', commandParams);
-    // 弹出运行提示框
-    ElNotification({
-        title: '提示',
-        message: item.name + '(' + item.version + ')即将被启动！',
-        type: 'info',
-        duration: 500,
-    });
-}
-// 获取实时网速
-function calculateDownloadProgress(downloadedBytes: number): number {
-    // 假设文件大小为 1MB
-    const fileSizeInBytes = query.size ? query.size as unknown as number : 0;
-    console.log('fileSize', fileSizeInBytes);
-    const progress = (downloadedBytes / fileSizeInBytes) * 100;
-    return progress;
-}
 // 模拟下载函数，每隔一段时间计算并打印下载进度，直至下载完成
 function simulateDownload() {
     // 假设我们使用的是第一个网络接口
@@ -172,7 +146,9 @@ function simulateDownload() {
                 downloadedBytes += outBytes - beforeOutBytes;
                 beforeOutBytes = outBytes; // 更新已下载的字节数
                 // 计算下载进度
-                const progress = calculateDownloadProgress(downloadedBytes);
+                const fileSizeInBytes = query.size ? query.size as unknown as number : 0;
+                console.log('fileSize', fileSizeInBytes);
+                const progress = (downloadedBytes / fileSizeInBytes) * 100;
                 console.log(`下载进度: ${progress.toFixed(2)}%`);
                 if (progress >= 100) {
                     console.log('下载完成');
@@ -180,6 +156,23 @@ function simulateDownload() {
                 }
             });
         }, interval);
+    });
+}
+// 运行按钮
+const toRun = (item: CardFace) => {
+    // 发送操作命令
+    let commandParams = {
+        ...item,
+        command: 'll-cli run ' + item.appId + '/' + item.version,
+        loading: false,
+    }
+    ipcRenderer.send('command', commandParams);
+    // 弹出运行提示框
+    ElNotification({
+        title: '提示',
+        message: item.name + '(' + item.version + ')即将被启动！',
+        type: 'info',
+        duration: 500,
     });
 }
 // 页面启动时加载

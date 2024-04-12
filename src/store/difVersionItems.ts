@@ -30,13 +30,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                 const card: CardFace | null = string2card(apps[index]);
                 if (card) {
                     const item: InstalledEntity = card as InstalledEntity;
-                    if (item.appId == query.appId && item.module != 'devel') {
-                        // 处理没有kind种类的问题
-                        item.kind = item.kind ? item.kind : 'app';
-                        if (item.appId == 'org.deepin.Runtime' || item.appId == 'org.deepin.base' || item.appId == 'org.deepin.basics' 
-                            || item.appId == 'org.deepin.Wine' || item.appId == 'org.deepin.Bootstrap') {
-                            item.kind = 'runtime'
-                        }
+                    if (item.appId == query.appId && item.module != 'devel' && item.channel == 'linglong') {
                         // 处理当前版本是否已安装状态
                         item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
                         // 处理当前版本是否加载中状态
@@ -60,11 +54,9 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
         let searchVersionItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
         if (searchVersionItemList.length > 0) {
             // 过滤不同appId和时devel的数据
-            searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == query.appId && item.module != 'devel');
+            searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == query.appId && item.module != 'devel' && item.channel == 'linglong');
             for (let index = 0; index < searchVersionItemList.length; index++) {
                 const item: InstalledEntity = searchVersionItemList[index];
-                // 处理wps没有kind种类的问题
-                item.kind = item.appId == 'cn.wps.wps-office' ? 'app' : item.kind;
                 // 处理当前版本是否已安装状态
                 item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
                 // 处理当前版本是否加载中状态
