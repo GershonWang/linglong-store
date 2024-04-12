@@ -34,19 +34,19 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
      * @param data 待处理的数据
      * @returns 将数据放入后的对象数组
      */
-    const initInstalledItems = (data: string) => {
+    const initInstalledItems = async (data: string) => {
         clearItems(); // 清空已安装列表
         installedItemList.value = data.trim() ? JSON.parse(data.trim()) : [];
         if (installedItemList.value.length > 0 && !systemConfigStore.isShowBaseService) {
             installedItemList.value = installedItemList.value.filter((item: InstalledEntity) => item.kind == "app")
         }
-        getAppDetails(installedItemList.value).then((res) => {
+        await getAppDetails(installedItemList.value).then((res) => {
             if(res.code == 200) {
-                let response = res.data;
-                installedItemList.value = response as unknown as InstalledEntity[];
+                installedItemList.value = res.data as unknown as InstalledEntity[];
+            } else {
+                console.log(res.msg);
             }
         })
-        console.log('installedItemList.value',installedItemList.value);
         return installedItemList;
     }
     /**
