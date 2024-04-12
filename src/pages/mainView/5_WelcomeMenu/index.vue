@@ -12,7 +12,7 @@
         <h3 style="text-align: center;margin: 10px;">分类推荐</h3>
         <div class="category-items">
             <el-button v-for="(item, itemIndex) in categoryLIst" :key="itemIndex" class="category-item"
-                @click="categoryClick(item.appId)">
+                @click="categoryClick(item.name)">
                 {{ item.name }}
             </el-button>
         </div>
@@ -73,8 +73,14 @@ const getWelcomeApp = async (param: AppListParams) => {
     }
 }
 // 分类选择点击事件
-const categoryClick = (appId: string) => {
-    router.push({ path: '/all_serv_menu', query: { appId: appId } });
+const categoryClick = (name: string) => {
+    router.push({ 
+        path: '/search', 
+        query: { 
+            menuName: '分类推荐',
+            name: name,
+        } 
+    });
 }
 // 打开明细界面
 const openDetail = (item: CardFace) => {

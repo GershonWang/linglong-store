@@ -91,6 +91,11 @@ const router = createRouter({
                     name: 'Detail',
                     component: () => import("../components/details.vue")
                 },
+                {
+                    path: '/search',
+                    name: 'Search',
+                    component: () => import("../pages/mainView/7_SearchMenu/index.vue")
+                }
             ],
         },
     ], // `routes: routes` 的缩写

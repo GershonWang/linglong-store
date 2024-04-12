@@ -210,6 +210,10 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 })
 </script>
 <style scoped>
+.el-breadcrumb {
+    height: 25px;
+}
+
 .firstMenu :deep(.el-breadcrumb__inner) {
     color: white;
     cursor: pointer;

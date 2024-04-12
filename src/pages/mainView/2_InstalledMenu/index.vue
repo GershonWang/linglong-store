@@ -77,7 +77,6 @@ onBeforeRouteLeave((to, _from, next) => {
     grid-gap: 10px;
     grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
     width: 100%;
-    height: 100%;
 }
 
 .card-items {
