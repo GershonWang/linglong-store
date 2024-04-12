@@ -57,6 +57,21 @@ export interface InstalledEntity {
 }
 
 /**
+ * 卡片信息传递到明细页面的路由传递的字段
+ */
+export interface OpenDetailParams {
+    menuName: string,
+    appId: string,
+    name: string,
+    version: string,
+    description: string,
+    arch: string,
+    icon?: string,
+    zhName?: string,
+    size?: string,
+}
+
+/**
  * 玲珑列表请求入参对象
  */
 export interface AppListParams {

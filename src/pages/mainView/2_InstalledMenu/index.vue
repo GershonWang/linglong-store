@@ -76,23 +76,26 @@ onBeforeRouteLeave((to, _from, next) => {
 <style scoped>
 .container {
     height: 100%;
+    width: 100%;
     overflow-y: auto;
 }
 
 .card-container {
     display: grid;
     grid-gap: 10px;
-    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+    grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
+    width: 100%;
+    height: 100%;
 }
 
 .card-items {
     padding: 10px;
     flex: 1;
     min-width: 180px;
-    border: 1px solid #ccc;
+    max-width: 210px;
     border-radius: 5px;
     box-sizing: border-box;
-    background-color: #999999;
+    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
 }
 
 .no-data-container {
@@ -105,5 +108,11 @@ onBeforeRouteLeave((to, _from, next) => {
 /* 隐藏滚动条 */
 ::-webkit-scrollbar {
     display: none;
+}
+
+@media (prefers-color-scheme: light) {
+    .card-items {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    }
 }
 </style>
