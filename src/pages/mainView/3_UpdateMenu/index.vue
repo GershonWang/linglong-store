@@ -22,7 +22,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
-import { ElNotification } from 'element-plus';
 import { CardFace,InstalledEntity } from "@/interface";
 import updateCard from "@/components/updateCard.vue";
 import string2card from "@/util/string2card";
@@ -33,6 +32,7 @@ import { useInstalledItemsStore } from "@/store/installedItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useInstallingItemsStore } from "@/store/installingItems";
+import elertTip from "@/util/NetErrorTips";
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
@@ -130,18 +130,10 @@ const updateAll = () => {
 }
 // 页面打开时执行
 onMounted(() => {
-    updateItemsStore.clearItems(); // 清空页面列表数据
-    // 检查网络状态
-    if (!systemConfig.networkRunStatus) {
-        loading.value = false;
-        ElNotification({
-            title: '提示',
-            message: "网络状态不可用！请检查网络后,再重启商店使用...",
-            type: 'error',
-            duration: 5000,
-        });
-        return;
-    }
+    // 清空页面列表数据
+    updateItemsStore.clearItems();
+    // 检测网络
+    elertTip();
     const installedItemList: InstalledEntity[] = installedItemsStore.installedItemList;
     // 初始化一个数组用于存储去重后当前已安装程序列表
     const uniqueInstalledSet: InstalledEntity[] = [];

@@ -42,10 +42,8 @@ import elertTip from "@/util/NetErrorTips";
 // 引入 lodash 中的 debounce 函数(延时请求，防抖动)
 import debounce from 'lodash/debounce';
 import { useAllServItemsStore } from "@/store/allServItems";
-import { useSystemConfigStore } from "@/store/systemConfig";
 
 const allServItemsStore = useAllServItemsStore();
-const systemConfigStore = useSystemConfigStore();
 // 获取全部程序列表
 const allItems = allServItemsStore.allServItemList;
 // 获取显示的程序列表

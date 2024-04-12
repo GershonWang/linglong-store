@@ -25,6 +25,7 @@ import { useInstalledItemsStore } from "@/store/installedItems";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { onMounted } from "vue";
 import hasUpdateVersion from "@/util/checkVersion";
+import elertTip from "@/util/NetErrorTips";
 
 const installedStore = useInstalledItemsStore();
 const systemConfigStore = useSystemConfigStore();
@@ -34,6 +35,8 @@ const router = useRouter();
 onMounted(() => {
     // 清除页面原始数据
     installedStore.clearItems();
+    // 检测网络
+    elertTip();
     // 发送命令
     const commandParam = { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" };
     // 判断当版本高于1.3.99时，执行json
