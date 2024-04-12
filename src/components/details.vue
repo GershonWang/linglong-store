@@ -229,7 +229,6 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     display: flex;
     flex-direction: column;
     border-radius: 5px;
-    margin-top: 10px;
     margin-bottom: 3px;
     height: 30%;
     background-color: #6a6d7b;

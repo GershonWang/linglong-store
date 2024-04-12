@@ -149,7 +149,7 @@ onBeforeRouteLeave((to, _from, next) => {
 
 .container {
     width: 100%;
-    height: 100%;
+    height: 97%;
     overflow-y: auto;
 }
 
@@ -175,6 +175,11 @@ onBeforeRouteLeave((to, _from, next) => {
     align-items: center;
     justify-content: center;
     height: 100%;
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
 }
 
 @media (prefers-color-scheme: light) {
