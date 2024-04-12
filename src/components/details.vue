@@ -55,18 +55,20 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
-import { CardFace, CommandData } from '@/interface/CardFace';
+import { CardFace } from '@/interface';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import hasUpdateVersion from "@/util/checkVersion";
-import si from 'systeminformation';
+
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
+import elertTip from "@/util/NetErrorTips";
+import si from 'systeminformation';
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
@@ -106,17 +108,13 @@ const changeStatus = async (item: any, flag: string) => {
     const allItems = allServItemsStore.allServItemList;
     const findItem = allItems.find(it => it.appId == item.appId && it.name == item.name);
     // 发送操作命令
-    ipcRenderer.send('command', {
-        appId: item.appId,
-        name: item.name,
-        version: item.version,
-        arch: item.arch,
-        description: item.description,
-        isInstalled: item.isInstalled,
+    const commandParams = {
+        ...item,
         icon: findItem ? findItem.icon : '',
         command: command,
         loading: false,
-    });
+    }
+    ipcRenderer.send('command', commandParams);
     // 弹出提示框
     ElNotification({
         title: '提示',
@@ -132,17 +130,12 @@ const changeStatus = async (item: any, flag: string) => {
 // 运行按钮
 const toRun = (item: CardFace) => {
     // 发送操作命令
-    ipcRenderer.send('command', {
-        appId: item.appId,
-        name: item.name,
-        version: item.version,
-        arch: item.arch,
-        description: item.description,
-        isInstalled: item.isInstalled,
-        icon: item.icon,
+    let commandParams = {
+        ...item,
         command: 'll-cli run ' + item.appId + '/' + item.version,
         loading: false,
-    });
+    }
+    ipcRenderer.send('command', commandParams);
     // 弹出运行提示框
     ElNotification({
         title: '提示',
@@ -150,18 +143,6 @@ const toRun = (item: CardFace) => {
         type: 'info',
         duration: 500,
     });
-}
-// 查询同应用不同版本的列表
-const commandResult = (_event: any, res: any) => {
-    const command: string = res.param.command;
-    if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
-        if (command.startsWith("ll-cli query") && 'stdout' == res.code) {
-            difVersionItemsStore.initDifVersionItemsOld(res.result, query);
-        }
-        if (command.startsWith("ll-cli search") && 'stdout' == res.code) {
-            difVersionItemsStore.initDifVersionItems(res.result, query);
-        }
-    }
 }
 // 获取实时网速
 function calculateDownloadProgress(downloadedBytes: number): number {
@@ -201,31 +182,29 @@ function simulateDownload() {
         }, interval);
     });
 }
-// 启动时加载
+// 页面启动时加载
 onMounted(() => {
-    if (!systemConfigStore.networkRunStatus) {
-        ElNotification({
-            title: '提示',
-            message: "网络状态不可用！请检查网络后,再重启商店使用...",
-            type: 'error',
-            duration: 5000,
-        });
-        return;
-    }
-    let ipcData: CommandData = {
-        command: ''
-    };
+    // 清除表单数据
+    difVersionItemsStore.clearItems();
+    // 检测网络
+    elertTip();
+    // 初始化数据：发送命令到主线程获取版本列表结果
+    let command = "ll-cli query " + query.appId;
     if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
-        ipcData.command = "ll-cli search " + query.appId + " --json";
-    } else {
-        ipcData.command = "ll-cli query " + query.appId;
+        command = "ll-cli search " + query.appId + " --json";
     }
-    ipcRenderer.send("command", ipcData);
-    ipcRenderer.on('command-result', commandResult);
-})
-// 关闭前销毁
-onBeforeUnmount(() => {
-    ipcRenderer.removeListener('command-result', commandResult);
+    ipcRenderer.send("command", { 'command': command });
+    ipcRenderer.once('command-result', (_event: any, res: any) => {
+        const command: string = res.param.command;
+        if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
+            if (command.startsWith("ll-cli query") && 'stdout' == res.code) {
+                difVersionItemsStore.initDifVersionItemsOld(res.result, query);
+            }
+            if (command.startsWith("ll-cli search") && 'stdout' == res.code) {
+                difVersionItemsStore.initDifVersionItems(res.result, query);
+            }
+        }
+    });
 })
 // 路由跳转离开前
 onBeforeRouteLeave((to: any, from: any, next: any) => {

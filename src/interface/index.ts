@@ -25,6 +25,38 @@ export interface CardFace {
 }
 
 /**
+ * 运行中对象
+ */
+export interface RunTime {
+    App: string,
+    ContainerID: string,
+    Pid: string,
+    Path: string
+}
+
+/**
+ * 安装对象
+ */
+export interface InstalledEntity {
+    appId: string,
+    arch: string,
+    channel: string,
+    description: string,
+    icon: string,
+    kind: string,
+    module: string,
+    name: string,
+    repoName: string,
+    runtime: string,
+    size: string,
+    uabUrl: string,
+    user: string,
+    version: string,
+    isInstalled: boolean,
+    loading: boolean,
+}
+
+/**
  * 玲珑列表请求入参对象
  */
 export interface AppListParams {

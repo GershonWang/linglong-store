@@ -1,12 +1,11 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { InstalledEntity } from "@/interface/InstalledEntity";
 import string2card from "@/util/string2card";
 import { LocationQuery } from "vue-router";
 import hasUpdateVersion from "@/util/checkVersion";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
-import { CardFace } from "@/interface";
+import { CardFace,InstalledEntity } from "@/interface";
 
 const installedItemsStore = useInstalledItemsStore();
 const installingItemsStore = useInstallingItemsStore();
@@ -38,7 +37,6 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                             || item.appId == 'org.deepin.Wine' || item.appId == 'org.deepin.Bootstrap') {
                             item.kind = 'runtime'
                         }
-                        console.log('item',item);
                         // 处理当前版本是否已安装状态
                         item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
                         // 处理当前版本是否加载中状态

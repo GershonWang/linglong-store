@@ -20,7 +20,7 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
-import { RunTime } from "@/interface/CardFace";
+import { RunTime } from "@/interface";
 
 const loading = ref(true);
 let runtimeList = ref([] as RunTime[]);

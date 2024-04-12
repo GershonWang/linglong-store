@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { InstalledEntity } from "@/interface/InstalledEntity";
+import { InstalledEntity } from "@/interface";
 
 /**
  * 已安装的全部应用

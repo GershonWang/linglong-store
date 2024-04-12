@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { InstalledEntity } from "@/interface/InstalledEntity";
 import { useAllServItemsStore } from "@/store/allServItems";
-import { CardFace } from "@/interface";
+import { CardFace,InstalledEntity } from "@/interface";
 
 const allServItemsStore = useAllServItemsStore();
 /**

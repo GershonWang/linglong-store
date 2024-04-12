@@ -37,7 +37,7 @@ import { nextTick, onMounted, reactive, ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus';
 import allServCard from "@/components/allServCard.vue";
-import { CardFace } from '@/interface/CardFace';
+import { CardFace } from '@/interface';
 import defaultImage from '@/assets/logo.svg';
 // 引入 lodash 中的 debounce 函数
 import debounce from 'lodash/debounce';

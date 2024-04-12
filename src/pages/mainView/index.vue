@@ -99,8 +99,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import si from 'systeminformation';
 import { ElNotification } from 'element-plus'
-import { CardFace } from '@/interface/CardFace';
-import { InstalledEntity } from '@/interface/InstalledEntity';
+import { CardFace,InstalledEntity } from '@/interface';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
