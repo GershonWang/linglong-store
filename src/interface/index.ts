@@ -46,6 +46,7 @@ export interface InstalledEntity {
     kind: string,
     module: string,
     name: string,
+    zhName?: string,
     repoName: string,
     runtime: string,
     size: string,

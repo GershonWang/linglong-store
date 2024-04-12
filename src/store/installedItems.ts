@@ -3,6 +3,7 @@ import { ref } from "vue";
 import string2card from "@/util/string2card";
 import { CardFace,InstalledEntity } from "@/interface";
 import { useSystemConfigStore } from "@/store/systemConfig";
+import { getAppDetails } from "@/api/server";
 
 const systemConfigStore = useSystemConfigStore();
 /**
@@ -39,6 +40,13 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         if (installedItemList.value.length > 0 && !systemConfigStore.isShowBaseService) {
             installedItemList.value = installedItemList.value.filter((item: InstalledEntity) => item.kind == "app")
         }
+        getAppDetails(installedItemList.value).then((res) => {
+            if(res.code == 200) {
+                let response = res.data;
+                installedItemList.value = response as unknown as InstalledEntity[];
+            }
+        })
+        console.log('installedItemList.value',installedItemList.value);
         return installedItemList;
     }
     /**

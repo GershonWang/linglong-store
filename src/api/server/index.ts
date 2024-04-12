@@ -1,4 +1,4 @@
-import { AppListParams, Result } from '@/interface';
+import { AppListParams, CardFace, Result } from '@/interface';
 import request from '@/util/request';
 
 /**
@@ -36,6 +36,17 @@ export const getWelcomeAppList = (data: AppListParams) => {
     return request<Result>({
         method: 'POST',
         url: '/visit/getWelcomeAppList',
+        data
+    })
+}
+
+/**
+ * 获取程序的详细信息
+ */
+export const getAppDetails = (data: CardFace[]) => {
+    return request<Result> ({
+        method: 'POST',
+        url: '/visit/getAppDetails',
         data
     })
 }
