@@ -45,10 +45,9 @@ onMounted(() => {
     }
     ipcRenderer.send('command', commandParam);
     ipcRenderer.once('command-result', (_event: any, res: any) => {
-        const code: string = res.code;
         const result: string = res.result;
         const command: string = res.param.command;
-        if ((command =='ll-cli list --json' || command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') && code == 'stdout') {
+        if ((command =='ll-cli list --json' || command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') && res.code == 'stdout') {
             if (command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
                 installedStore.initInstalledItemsOld(result);
                 return;
