@@ -21,6 +21,12 @@
                         </el-icon>
                         <span>全部程序</span>
                     </el-menu-item>
+                    <el-menu-item index="22" @click="toPage('/all_app_menu')">
+                        <el-icon color="#D3D3D3">
+                            <HomeFilled />
+                        </el-icon>
+                        <span>全部程序(新)</span>
+                    </el-menu-item>
                     <el-menu-item index="3" @click="toPage('/installed_menu')">
                         <el-icon>
                             <GobletSquareFull />

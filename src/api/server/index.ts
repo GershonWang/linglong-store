@@ -50,3 +50,15 @@ export const getAppDetails = (data: CardFace[]) => {
         data
     })
 }
+/**
+ * 根据查询条件名称或者分类获取玲珑列表(分页)
+ * @param data 查询条件
+ * @returns 
+ */
+export const getSearchAppList = (data: AppListParams) => {
+    return request<Result>({
+        method: 'POST',
+        url: '/visit/getSearchAppList',
+        data
+    })
+}

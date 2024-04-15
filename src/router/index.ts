@@ -95,6 +95,11 @@ const router = createRouter({
                     path: '/search',
                     name: 'Search',
                     component: () => import("../pages/mainView/7_SearchMenu/index.vue")
+                },
+                {
+                    path: '/all_app_menu',
+                    name: 'AllAppMenu',
+                    component: () => import("../pages/mainView/8_AllAppMenu/index.vue")
                 }
             ],
         },
