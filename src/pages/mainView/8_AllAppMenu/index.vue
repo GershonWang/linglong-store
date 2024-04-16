@@ -1,7 +1,7 @@
 <template>
     <div class="container" @scroll="handleScroll">
-        <div class="new-container" v-if="displayedItems.length > 0">
-            <div class="card-items" v-for="(item, index) in displayedItems" :key="index">
+        <div class="new-container" v-if="allAppItemsStore.allAppItemList && allAppItemsStore.allAppItemList.length > 0">
+            <div class="card-items" v-for="(item, index) in allAppItemsStore.allAppItemList" :key="index">
                 <AllAppCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" :zhName="item.zhName"
                     :size="item.size"/>
@@ -17,23 +17,21 @@
 </template>
 <script setup lang="ts">
 import defaultImage from '@/assets/logo.svg';
-import { CardFace, pageResult } from '@/interface';
+import { pageResult } from '@/interface';
 import { nextTick, onMounted, ref } from 'vue';
 import AllAppCard from "@/components/allAppCard.vue";
 import { getSearchAppList } from '@/api/server';
-import { useInstalledItemsStore } from "@/store/installedItems";
 import router from '@/router';
 import { onBeforeRouteLeave } from 'vue-router';
 import elertTip from '@/util/NetErrorTips';
-const installedItemsStore = useInstalledItemsStore();
-// 获取显示的程序列表
-const displayedItems = ref<CardFace[]>([]);
 
-const params = ref({
-    pageNo: 1,
-    pageSize: 50,
-    name: '',
-})
+import { useInstalledItemsStore } from "@/store/installedItems";
+import { useAllAppItemsStore } from "@/store/allAppItems";
+
+const installedItemsStore = useInstalledItemsStore();
+const allAppItemsStore = useAllAppItemsStore();
+
+const params = ref({ pageNo: 1, pageSize: 50, name: '' })
 
 // 滚动条监听事件
 const handleScroll = async () => {
@@ -47,7 +45,7 @@ const handleScroll = async () => {
             (res.data as unknown as pageResult).records.forEach(item => {
                 item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
                 item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
-                displayedItems.value.push(item);
+                allAppItemsStore.addItem(item);
             })
         }
     }
@@ -65,26 +63,33 @@ onMounted(async () => {
         params.value.pageNo = savedPageNo;
         params.value.pageSize = savedPageSize;
         params.value.name = savedSearchName;
-    }
-    // 获取显示的程序列表
-    let res = await getSearchAppList(params.value);
-    if (res.code == 200) {
-        displayedItems.value = (res.data as unknown as pageResult).records;
-        displayedItems.value.forEach(item => {
-            item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
-            item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
-        })
+    } else {
+        allAppItemsStore.clearItems();
+        // 获取显示的程序列表
+        let res = await getSearchAppList(params.value);
+        if (res.code == 200) {
+            const record = (res.data as unknown as pageResult).records;
+            record.forEach(item => {
+                item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
+                item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
+                allAppItemsStore.addItem(item);
+            })
+        }
     }
     // 等待下一次 DOM 更新
     await nextTick();
     // 恢复保存的滚动位置
     const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
-    container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
+    if (container) {
+        container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
+    }
 })
 // 在router路由离开前执行
 onBeforeRouteLeave((to, _from, next) => {
     const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
-    to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
+    if (container) {
+        to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
+    }
     to.meta.savedPageNo = params.value.pageNo; // 将页码保存到路由元数据中
     to.meta.savedPageSize = params.value.pageSize; // 将每页条数保存到路由元数据中
     to.meta.savedTabName = `newRanking`; // 将搜索内容保存到路由元数据中
