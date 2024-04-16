@@ -24,7 +24,6 @@ import { getSearchAppList } from '@/api/server';
 import router from '@/router';
 import { onBeforeRouteLeave } from 'vue-router';
 import elertTip from '@/util/NetErrorTips';
-
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useAllAppItemsStore } from "@/store/allAppItems";
 
@@ -66,10 +65,12 @@ onMounted(async () => {
     } else {
         allAppItemsStore.clearItems();
         // 获取显示的程序列表
+        params.value.pageNo = 1;
+        params.value.pageSize = 50;
+        params.value.name = '';
         let res = await getSearchAppList(params.value);
         if (res.code == 200) {
-            const record = (res.data as unknown as pageResult).records;
-            record.forEach(item => {
+            (res.data as unknown as pageResult).records.forEach(item => {
                 item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
                 item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
                 allAppItemsStore.addItem(item);
@@ -79,20 +80,19 @@ onMounted(async () => {
     // 等待下一次 DOM 更新
     await nextTick();
     // 恢复保存的滚动位置
-    const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
+    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
     if (container) {
-        container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
+        container.scrollTop = Number(meta.savedPosition) || 0;
     }
 })
 // 在router路由离开前执行
 onBeforeRouteLeave((to, _from, next) => {
-    const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
+    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
     if (container) {
         to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
     }
     to.meta.savedPageNo = params.value.pageNo; // 将页码保存到路由元数据中
     to.meta.savedPageSize = params.value.pageSize; // 将每页条数保存到路由元数据中
-    to.meta.savedTabName = `newRanking`; // 将搜索内容保存到路由元数据中
     next();
 })
 </script>

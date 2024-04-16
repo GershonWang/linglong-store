@@ -9,25 +9,18 @@
         <div class="bottom" v-loading="loading" element-loading-svg-view-box="-10, -10, 50, 50"
             element-loading-background="rgba(122, 122, 122, 0.8)" :element-loading-svg="svg">
             <div class="arch">{{ arch }}</div>
-            <el-button class="uninstall-btn" @click="changeStatus(props)">卸载</el-button>
+            <el-button class="uninstall-btn" v-if="isInstalled" @click="openDetails">已安装</el-button>
+            <el-button class="install-btn" v-else @click="openDetails">安装</el-button>
         </div>
     </el-card>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { ipcRenderer } from "electron";
-import { ElNotification, ElMessageBox } from 'element-plus'
-import { CardFace,InstalledEntity, OpenDetailParams } from "@/interface";
+import { CardFace, OpenDetailParams } from "@/interface";
 import { LocationQueryRaw, useRouter } from 'vue-router';
-import { useAllServItemsStore } from "@/store/allServItems";
-import { useInstalledItemsStore } from "@/store/installedItems";
-import { useDifVersionItemsStore } from "@/store/difVersionItems";
 
 const router = useRouter();
-const allServItemsStore = useAllServItemsStore();
-const installedItemsStore = useInstalledItemsStore();
-const difVersionItemsStore = useDifVersionItemsStore();
 
 // 接受父组件传递的参数，并设置默认值
 // icon: "https://linglong.dev/asset/logo.svg",
@@ -53,62 +46,11 @@ const svg = `<path class="path" d="M 30 15 L 28 17 M 25.61 25.61 A 15 15, 0, 0, 
 // 打开玲珑明细页面
 const openDetails = () => {
     let queryParams: LocationQueryRaw = {
-        menuName: '卸载程序',
+        menuName: '全部程序',
         ...props,
     } as OpenDetailParams as unknown as LocationQueryRaw;
     router.push({ path: '/details', query: queryParams });
 }
-// 按钮点击操作事件
-const changeStatus = (item: CardFace) => {
-    ElMessageBox.confirm('确定要卸载当前程序吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        center: true,
-    }).then(() => {
-        // 启用加载框
-        allServItemsStore.updateItemLoadingStatus(item, true);
-        const installedItem: InstalledEntity = {
-            appId: item.appId,
-            arch: item.arch,
-            channel: item.channel ? item.channel : '',
-            description: item.description ? item.description : '',
-            icon: item.icon ? item.icon : '',
-            kind: "",
-            module: "",
-            name: item.name,
-            repoName: "",
-            runtime: "",
-            size: "",
-            uabUrl: "",
-            user: "",
-            version: item.version,
-            isInstalled: false,
-            loading: false
-        }
-        installedItemsStore.updateItemLoadingStatus(installedItem, true);
-        difVersionItemsStore.updateItemLoadingStatus(installedItem, true);
-        // 弹出提示框
-        ElNotification({
-            title: '提示',
-            message: '正在卸载' + item.name + '(' + item.version + ')',
-            type: 'info',
-            duration: 500,
-        });
-        // 发送操作命令
-        ipcRenderer.send('command', {
-            appId: item.appId,
-            name: item.name,
-            arch: item.arch,
-            version: item.version,
-            description: item.description,
-            isInstalled: item.isInstalled,
-            command: 'll-cli uninstall ' + item.appId + '/' + item.version,
-            icon: item.icon,
-            loading: false
-        });
-    })
-};
 </script>
 
 <style scoped>
@@ -186,6 +128,13 @@ const changeStatus = (item: CardFace) => {
 .uninstall-btn:hover {
     background-color: #c9c9ef;
     color: #2D2F2F;
+}
+
+.install-btn {
+    background-color: blue;
+    color: white;
+    padding: 6px;
+    height: 24px;
 }
 
 @media (prefers-color-scheme: light) {
