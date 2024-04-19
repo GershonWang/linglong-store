@@ -62,3 +62,13 @@ export const getSearchAppList = (data: AppListParams) => {
         data
     })
 }
+
+/**
+ * 获取应用分类
+ */
+export const getDisCategoryList = () => {
+    return request<Result>({
+        method: 'GET',
+        url: '/visit/getDisCategoryList'
+    })
+}
