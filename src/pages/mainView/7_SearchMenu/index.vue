@@ -28,7 +28,9 @@ import { CardFace } from '@/interface';
 import defaultImage from '@/assets/logo.svg';
 import elertTip from "@/util/NetErrorTips";
 import { useAllServItemsStore } from "@/store/allServItems";
-import router from '@/router';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const allServItemsStore = useAllServItemsStore();
 // 获取全部程序列表
