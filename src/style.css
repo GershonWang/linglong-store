@@ -12,6 +12,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  --el-card-border-color: #ccc;
 }
 
 html,body {
@@ -31,17 +32,166 @@ html,body {
   --el-table-bg-color: #999999;
 } */
 
+/* .el-table th, .el-table tr {
+  background-color: #999999;
+}  */
+.apps-container {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.card-items-container {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
+  margin-right: 12px;
+}
+
+.card-items {
+  padding: 10px;
+  flex: 1;
+  min-width: 180px;
+  max-width: 210px;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.card-container {
+  width: 100%;
+  position: relative;
+  background: radial-gradient(circle at 50% 20%, #6E6E6E, transparent);
+}
+
+.card-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 120px;
+  height: 120px;
+}
+
+.card-name {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  font-size: 14px;
+  margin: 3px auto 3px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-zh-name {
+  background-color: #6d6d6d;
+  display: flex;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 5px;
+  font-size: 16px;
+  color: #E2E2E2;
+  padding: 3px;
+}
+
+.card-version {
+  display: flex;
+  justify-content: center;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-arch {
+  font-size: 14px;
+  color: white;
+}
+
+.no-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.install-btn {
+  height: 24px;
+  width: 58px;
+  background-color: #7b7b7b;
+  color: #c7bdbd;
+  border: none;
+}
+
+.install-btn:hover {
+  background-color: #c9c9ef;
+  color: #2D2F2F;
+}
+
+.uninstall-btn {
+  height: 24px;
+  width: 58px;
+  background-color: #E33C2F;
+  color: white;
+  border: none;
+}
+
+.uninstall-btn:hover {
+  background-color: #c9c9ef;
+  color: #2D2F2F;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #F4F4F4;
   }
 
-  a:hover {
-    color: #747bff;
+  .card-items {
+    border: 1px solid #ccc;
+    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
   }
 
-  button {
-    background-color: #f9f9f9;
+  .card-container {
+    border: 1px solid var(--el-card-border-color);
   }
+
+  .card-name {
+    color: #000;
+  }
+
+  .card-version {
+    color: #000;
+}
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f9f9f9;
+    background-color: #242424;
+  }
+
+  .card-items {
+    border: none;
+    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
+  }
+
+  .card-container {
+    border: none;
+  }
+
+  .card-name {
+    color: #9f9f9f;
+  }
+
+  .card-version {
+    color: #9f9f9f;
+  }
+
 }

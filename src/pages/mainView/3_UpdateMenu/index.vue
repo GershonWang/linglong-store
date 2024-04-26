@@ -1,7 +1,7 @@
 <template>
-    <div class="container" v-loading="loading" element-loading-text="加载中...">
-        <div class="card_container" v-if="updateItemsStore.updateItemList && updateItemsStore.updateItemList.length > 0">
-            <div class="card_items" v-for="(item, index) in updateItemsStore.updateItemList" :key="index">
+    <div class="apps-container" v-loading="loading" element-loading-text="加载中...">
+        <div class="card-items-container" v-if="updateItemsStore.updateItemList && updateItemsStore.updateItemList.length > 0">
+            <div class="card-items" v-for="(item, index) in updateItemsStore.updateItemList" :key="index">
                 <updateCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" />
             </div>
@@ -159,35 +159,6 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-.container {
-    height: 100%;
-    overflow-y: auto;
-}
-
-.card_container {
-    display: grid;
-    grid-gap: 10px;
-    margin-right: 12px;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
-
-.card_items {
-    padding: 10px;
-    flex: 1;
-    min-width: 180px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    background-color: #999999;
-}
-
-.no-data-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
 .transition-update-btn {
     border-radius: 10px;
     background: radial-gradient(circle at 50% 20%, #6E6E6E, transparent);

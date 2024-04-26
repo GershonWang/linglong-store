@@ -1,5 +1,5 @@
 <template>
-    <div class="container" v-loading="loading" element-loading-text="加载中...">
+    <div class="apps-container" v-loading="loading" element-loading-text="加载中...">
         <el-table :data="runtimeList" height="100%" style="width: 100%;border-radius: 5px;">
             <el-table-column prop="App" label="appId" width="180" />
             <el-table-column prop="ContainerID" label="容器ID" width="180" />
@@ -79,11 +79,6 @@ onBeforeUnmount(() => {
 })
 </script>
 <style scoped>
-.container {
-    height: 100%;
-    overflow-y: auto;
-}
-
 .uninstall-btn {
     background-color: red;
     color: white;

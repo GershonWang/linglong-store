@@ -3,7 +3,6 @@
         <div class="header-left">
             <div class="header-left-title">
                 <!-- 使用下拉框的形式展示分类列表，包含全部程序以及来自接口请求的列表 -->
-                <span>选择分类:</span>
                 <el-select v-model="params.categoryId" placeholder="请选择" @change="handleSearch">
                     <el-option label="全部程序" value=""></el-option>
                     <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName"
@@ -20,7 +19,7 @@
         </div>
     </div>
     <div class="apps-container" @scroll="handleScroll">
-        <div class="new-container" v-if="allAppItemsStore.allAppItemList && allAppItemsStore.allAppItemList.length > 0">
+        <div class="card-items-container" v-if="allAppItemsStore.allAppItemList && allAppItemsStore.allAppItemList.length > 0">
             <div class="card-items" v-for="(item, index) in allAppItemsStore.allAppItemList" :key="index">
                 <AllAppCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :zhName="item.zhName"
@@ -151,9 +150,11 @@ onBeforeRouteLeave((to, _from, next) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    background: #fff;
+    padding-top: 10px;
+    padding-bottom: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 5px;
+    border-radius: 5px;
 }
 .header-left {
     display: flex;
@@ -174,42 +175,17 @@ onBeforeRouteLeave((to, _from, next) => {
 
 .apps-container {
     height: 92%;
-    width: 100%;
-    overflow-y: auto;
 }
-
-.new-container {
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
-    width: 100%;
-}
-
-.card-items {
-    padding: 10px;
-    flex: 1;
-    min-width: 180px;
-    max-width: 210px;
-    border-radius: 5px;
-    box-sizing: border-box;
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
-}
-
-.no-data-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-/* 隐藏滚动条 */
-/* ::-webkit-scrollbar {
-    display: none;
-} */
 
 @media (prefers-color-scheme: light) {
-    .card-items {
+    .header {
         background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .header {
+        background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
     }
 }
 </style>

@@ -3,8 +3,8 @@
         <el-breadcrumb-item class="first-menu" @click="router.back">{{ query.menuName }}</el-breadcrumb-item>
         <el-breadcrumb-item class="second-menu">{{ query.name }}</el-breadcrumb-item>
     </el-breadcrumb>
-    <div class="container" @scroll="handleScroll">
-        <div class="card-container" v-if="displayedItems && displayedItems.length > 0">
+    <div class="apps-container" @scroll="handleScroll">
+        <div class="card-items-container" v-if="displayedItems && displayedItems.length > 0">
             <div class="card-items" v-for="(item, index) in displayedItems" :key="index">
                 <SearchCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :zhName="item.zhName"
@@ -75,14 +75,14 @@ const recover = async (msg: string, savedPageNo: number, savedPageSize: number) 
         // 等待下一次 DOM 更新
         await nextTick();
         // 恢复保存的滚动位置
-        const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+        const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
         container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
     }
 }
 // 滚动条监听事件
 const handleScroll = () => {
     if (isScrollQuery.value) {
-        const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+        const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
         // 判断滚动条位置是否接近底部，如果接近则加载更多数据(滚动位置 + 窗口高度 >= 内容高度)
         if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
             let startNum = pageNo.value * pageSize.value; // 当前起始索引
@@ -123,7 +123,7 @@ onMounted(() => {
 })
 // 在router路由离开前执行
 onBeforeRouteLeave((to, _from, next) => {
-    const container = document.getElementsByClassName('container')[0] as HTMLDivElement;
+    const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
     to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
     to.meta.savedPageNo = pageNo.value; // 将页码保存到路由元数据中
     to.meta.savedPageSize = pageSize.value; // 将每页条数保存到路由元数据中
@@ -147,47 +147,13 @@ onBeforeRouteLeave((to, _from, next) => {
     color: #999999;
 }
 
-.container {
-    width: 100%;
+.apps-container {
     height: 97%;
-    overflow-y: auto;
-}
-
-.card-container {
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    width: 100%;
-}
-
-.card-items {
-    padding: 10px;
-    flex: 1;
-    min-width: 180px;
-    max-width: 210px;
-    border-radius: 5px;
-    box-sizing: border-box;
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
-}
-
-.no-data-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-
-/* 隐藏滚动条 */
-::-webkit-scrollbar {
-    display: none;
 }
 
 @media (prefers-color-scheme: light) {
     .first-menu :deep(.el-breadcrumb__inner) {
         color: #000;
-    }
-    .card-items {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
     }
 }
 </style>

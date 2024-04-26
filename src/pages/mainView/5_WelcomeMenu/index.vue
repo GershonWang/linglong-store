@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="apps-container">
         <div style="margin: 20px;">
             <el-carousel height="260px" type="card" :autoplay="true">
                 <el-carousel-item v-for="item in welcomeItemList" :key="item.appId" @click="openDetail(item)">
@@ -108,11 +108,6 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
-.container {
-    height: 100%;
-    overflow-y: scroll;
-}
-
 .category-items {
     display: flex;
     flex-wrap: wrap;

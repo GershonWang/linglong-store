@@ -1,6 +1,6 @@
 <template>
-    <div class="new-container">
-        <div class="card-container" v-if="displayedItems && displayedItems.length > 0">
+    <div class="apps-container">
+        <div class="card-items-container" v-if="displayedItems && displayedItems.length > 0">
             <div class="card-items" v-for="(item, index) in displayedItems" :key="index">
                 <rankingServCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch" :channel="`newRanking`"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :createTime="item.createTime"
@@ -43,12 +43,12 @@ onMounted(async () => {
     // 等待下一次 DOM 更新
     await nextTick();
     // 恢复保存的滚动位置
-    const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
+    const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
     container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
 })
 // 在router路由离开前执行
 onBeforeRouteLeave((to, _from, next) => {
-    const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
+    const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
     to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
     to.meta.savedPageNo = params.value.pageNo; // 将页码保存到路由元数据中
     to.meta.savedPageSize = params.value.pageSize; // 将每页条数保存到路由元数据中
@@ -56,41 +56,3 @@ onBeforeRouteLeave((to, _from, next) => {
     next();
 })
 </script>
-<style scoped>
-.new-container {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
-}
-
-.card-container {
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    width: 100%;
-    height: 100%;
-}
-
-.card-items {
-    padding: 10px;
-    flex: 1;
-    min-width: 180px;
-    max-width: 210px;
-    border-radius: 5px;
-    box-sizing: border-box;
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
-}
-
-.no-data-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-@media (prefers-color-scheme: light) {
-    .card-items {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    }
-}
-</style>

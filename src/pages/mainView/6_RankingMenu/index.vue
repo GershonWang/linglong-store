@@ -18,7 +18,7 @@ const router = useRouter();
 // tab切换点击事件
 const handleClick = (tab: TabsPaneContext, _event: Event) => {
   // 恢复保存的滚动位置
-  const container = document.getElementsByClassName('new-container')[0] as HTMLDivElement;
+  const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
   container.scrollTop = 0;
   router.push(tab.paneName == "first" ? "/new_ranking" : "/down_ranking");
 }
@@ -62,7 +62,7 @@ onMounted(() => {
 }
 
 /* 隐藏滚动条 */
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
     display: none;
-}
+} */
 </style>

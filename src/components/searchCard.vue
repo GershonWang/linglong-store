@@ -1,14 +1,14 @@
 <template>
-    <el-card class="search-container">
-        <div class="image-div" :title="desc" @click="openDetails">
+    <el-card class="card-container">
+        <div class="card-icon" :title="desc" @click="openDetails">
             <img style="width: 100px;height: 100px;" v-lazy="icon" alt="Image" />
         </div>
-        <span class="name" :title="name">{{ name }}</span>
-        <span class="zh-name">{{ defaultName }}</span>
-        <span class="version">{{ version }}</span>
-        <div class="bottom" v-loading="loading" :element-loading-svg="svg" element-loading-svg-view-box="-10, -10, 50, 50"
+        <span class="card-name" :title="name">{{ name }}</span>
+        <span class="card-zh-name">{{ defaultName }}</span>
+        <span class="card-version">{{ version }}</span>
+        <div class="card-bottom" v-loading="loading" :element-loading-svg="svg" element-loading-svg-view-box="-10, -10, 50, 50"
             element-loading-background="rgba(122, 122, 122, 0.8)">
-            <div class="arch">{{ arch }}</div>
+            <div class="card-arch">{{ arch }}</div>
             <el-button class="uninstall-btn" v-if="isInstalled" @click="openDetails">已安装</el-button>
             <el-button class="install-btn" v-else @click="openDetails">安装</el-button>
         </div>
@@ -54,102 +54,7 @@ const openDetails = () => {
 </script>
 
 <style scoped>
-.search-container {
-    width: 100%;
-    position: relative;
-    background: radial-gradient(circle at 50% 20%, #6E6E6E, transparent);
-    border: none;
-}
-
 :deep(.el-card__body) {
     padding-top: 0px;
-}
-
-.image-div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 auto;
-    width: 120px;
-    height: 120px;
-}
-
-.name {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    font-size: 14px;
-    margin: 3px auto 3px;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #9f9f9f;
-}
-
-.zh-name {
-    background-color: #6d6d6d;
-    display: flex;
-    justify-content: center;
-    white-space: nowrap;
-    border-radius: 5px;
-    font-size: 16px;
-    color: #E2E2E2;
-    padding: 3px;
-}
-
-.version {
-    display: flex;
-    justify-content: center;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #9f9f9f;
-}
-
-.bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.arch {
-    font-size: 14px;
-    color: white;
-}
-
-.install-btn {
-    height: 24px;
-    width: 58px;
-    background-color: blue;
-    color: white;
-    border: none;
-}
-
-.install-btn:hover {
-    background-color: #c9c9ef;
-    color: #2D2F2F;
-}
-
-.uninstall-btn {
-    height: 24px;
-    width: 58px;
-    background-color: red;
-    color: white;
-    border: none;
-}
-
-.uninstall-btn:hover {
-    background-color: #c9c9ef;
-    color: #2D2F2F;
-}
-
-@media (prefers-color-scheme: light) {
-    .name {
-        color: #000;
-    }
-
-    .version {
-        color: #000;
-    }
 }
 </style>

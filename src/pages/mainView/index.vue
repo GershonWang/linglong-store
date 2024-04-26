@@ -15,17 +15,17 @@
                         </el-icon>
                         <span>排行榜</span>
                     </el-menu-item>
-                    <el-menu-item index="2" @click="toPage('/all_serv_menu')">
+                    <!-- <el-menu-item index="2" @click="toPage('/all_serv_menu')">
                         <el-icon color="#D3D3D3">
                             <HomeFilled />
                         </el-icon>
                         <span>全部程序</span>
-                    </el-menu-item>
+                    </el-menu-item> -->
                     <el-menu-item index="22" @click="toPage('/all_app_menu')">
                         <el-icon color="#D3D3D3">
                             <HomeFilled />
                         </el-icon>
-                        <span>全部程序(新)</span>
+                        <span>全部程序</span>
                     </el-menu-item>
                     <el-menu-item index="3" @click="toPage('/installed_menu')">
                         <el-icon>
@@ -301,7 +301,7 @@ onBeforeUnmount(() => {
     text-align: center;
     width: 140px;
     height: 30px;
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
 }
 
 .download-btn {
@@ -374,6 +374,10 @@ onBeforeUnmount(() => {
 
     .views {
         background-color: #2d2f2f2b;
+    }
+
+    .download-queue {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
     }
 
     .download-btn {
