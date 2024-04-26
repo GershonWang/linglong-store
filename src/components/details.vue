@@ -32,7 +32,7 @@
             <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240"
                 :formatter="formatRuntime" />
             <el-table-column prop="description" label="描述" />
-            <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
+            <el-table-column fixed="right" label="操作" header-align="center" align="center" width="160">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
                     <el-button class="uninstall-btn" v-if="scope.row.isInstalled && !scope.row.loading"
@@ -69,7 +69,9 @@ import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import elertTip from "@/util/NetErrorTips";
 import si from 'systeminformation';
-import router from '@/router';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
