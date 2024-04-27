@@ -12,7 +12,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  --el-card-border-color: #ccc;
 }
 
 html,body {
@@ -28,13 +27,15 @@ html,body {
   position: relative;
 }
 
-/* .el-table {
-  --el-table-bg-color: #999999;
-} */
+.el-table {
+  --el-table-header-bg-color: #E2AB5F;
+  border-radius: 12px;
+}
 
-/* .el-table th, .el-table tr {
-  background-color: #999999;
-}  */
+.el-table th {
+  color: #000;
+}
+
 .apps-container {
   height: 100%;
   width: 100%;
@@ -55,6 +56,7 @@ html,body {
   max-width: 210px;
   border-radius: 5px;
   box-sizing: border-box;
+  background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
 }
 
 .card-container {
@@ -82,6 +84,7 @@ html,body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--menu-base-font-color);
 }
 
 .card-zh-name {
@@ -100,6 +103,7 @@ html,body {
   justify-content: center;
   border-radius: 5px;
   font-size: 14px;
+  color: var(--menu-base-font-color);
 }
 
 .card-bottom {
@@ -150,24 +154,19 @@ html,body {
   :root {
     color: #213547;
     background-color: #F4F4F4;
+    --base-color: #E2AB5F;
+    --menu-base-color: #C1C1C1;
+    --menu-base-font-color: #000;
+    --base-background-color: #DCDCDC;
   }
 
   .card-items {
     border: 1px solid #ccc;
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
   }
 
   .card-container {
-    border: 1px solid var(--el-card-border-color);
+    border: 1px solid #ccc;
   }
-
-  .card-name {
-    color: #000;
-  }
-
-  .card-version {
-    color: #000;
-}
 
 }
 
@@ -175,23 +174,18 @@ html,body {
   :root {
     color: #f9f9f9;
     background-color: #242424;
+    --base-color: #6E6E6E;
+    --menu-base-color: #6E6E6E;
+    --menu-base-font-color: #ffffff;
+    --base-background-color: #2D2F2F;
   }
 
   .card-items {
     border: none;
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
   }
 
   .card-container {
     border: none;
-  }
-
-  .card-name {
-    color: #9f9f9f;
-  }
-
-  .card-version {
-    color: #9f9f9f;
   }
 
 }

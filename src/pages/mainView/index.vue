@@ -277,18 +277,18 @@ onBeforeUnmount(() => {
     height: 100%;
     border-right-style: none;
     overflow-y: hidden;
-    background-color: #6e6e6e2e;
+    background-color: var(--base-background-color);
 }
 
 .el-menu-item {
     height: 45px;
-    color: white;
     font-size: 12px;
     font-weight: bold;
     border-radius: 10px;
-    background-color: #6E6E6E;
     text-align: center;
     margin: 5px;
+    color: var(--menu-base-font-color);
+    background-color: var(--menu-base-color);
 }
 
 .download-queue {
@@ -301,21 +301,21 @@ onBeforeUnmount(() => {
     text-align: center;
     width: 140px;
     height: 30px;
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
-}
-
-.download-btn {
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
+    background-color: var(--menu-base-color);
 }
 
 .download-queue:hover {
     background-color: #6418b9;
     cursor: pointer;
+}
+
+.download-btn {
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    color: var(--menu-base-font-color);
 }
 
 .network-info {
@@ -325,26 +325,26 @@ onBeforeUnmount(() => {
     margin: 5px;
     bottom: 12px;
     font-size: 12px;
-    background-color: #c1c1c1;
     height: 75px;
     width: 140px;
-    color: #000;
+    color: var(--menu-base-font-color);
+    background-color: var(--menu-base-color);
 }
 
 .network-info-title {
     font-size: 14px;
     font-weight: bold;
-    color: #a12f2f;
     margin: 3px;
+    color: var(--menu-base-font-color);
 }
 
 .views {
-    background-color: #2D2F2F;
     overflow: hidden;
     border-radius: 15px;
     margin: 12px;
     padding: 12px;
     position: relative;
+    background-color: var(--base-background-color);
 }
 
 .transition-queue-box {
@@ -358,38 +358,6 @@ onBeforeUnmount(() => {
     height: 28%;
     width: 38%;
     border-radius: 12px;
-    background-color: #6E6E6E;
-    color: #fff;
-}
-
-.el-table {
-    border-radius: 12px;
-}
-
-@media (prefers-color-scheme: light) {
-    .el-menu-item {
-        color: #0e0101;
-        background-color: #6e6e6e2e;
-    }
-
-    .views {
-        background-color: #2d2f2f2b;
-    }
-
-    .download-queue {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    }
-
-    .download-btn {
-        color: #675e5b;
-    }
-
-    .download-btn:hover {
-        color: #ffffff;
-    }
-
-    .transition-queue-box {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    }
+    background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
 }
 </style>

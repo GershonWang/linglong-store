@@ -30,7 +30,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                 const card: CardFace | null = string2card(apps[index]);
                 if (card) {
                     const item: InstalledEntity = card as InstalledEntity;
-                    if (item.appId == query.appId && item.module != 'devel' && item.channel == 'linglong' && item.kind == "app") {
+                    if (item.appId == query.appId && item.module != 'devel') {
                         // 处理当前版本是否已安装状态
                         item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
                         // 处理当前版本是否加载中状态
@@ -54,11 +54,12 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
         let searchVersionItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
         if (searchVersionItemList.length > 0) {
             // 过滤不同appId和时devel的数据
-            searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == query.appId && item.module != 'devel' && item.channel == 'linglong' && item.kind == "app");
+            searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == query.appId && item.module != 'devel');
             for (let index = 0; index < searchVersionItemList.length; index++) {
                 const item: InstalledEntity = searchVersionItemList[index];
                 // 处理当前版本是否已安装状态
-                item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+                item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version 
+                    && it.module === item.module && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
                 // 处理当前版本是否加载中状态
                 item.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
             }

@@ -1,5 +1,5 @@
 <template>
-    <div class="apps-container">
+    <div class="apps-container" v-loading="loading" element-loading-text="加载中...">
         <div class="card-items-container" v-if="displayedItems.length > 0">
             <div class="card-items" v-for="(item, index) in displayedItems" :key="index">
                 <InstalledCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
@@ -34,6 +34,8 @@ const systemConfigStore = useSystemConfigStore();
 const displayedItems = ref<CardFace[]>([]);
 // 路由对象
 const router = useRouter();
+// 加载动画
+const loading = ref(true);
 // 组件初始化时加载
 onMounted(() => {
     // 检测网络
@@ -56,11 +58,13 @@ onMounted(() => {
             }
             await installedStore.initInstalledItems(result);
             displayedItems.value = installedStore.installedItemList;
+            // 恢复保存的滚动位置
+            const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
+            container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
+            // 启动动画
+            loading.value = false;
         }
     });
-    // 恢复保存的滚动位置
-    const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
-    container.scrollTop = Number(router.currentRoute.value.meta.savedPosition) || 0;
 });
 // 在router路由离开前执行
 onBeforeRouteLeave((to, _from, next) => {

@@ -11,14 +11,14 @@
         <el-divider />
         <h3 style="text-align: center;margin: 10px;">分类推荐</h3>
         <div class="category-items">
-            <el-button v-for="(item, itemIndex) in categoryLIst" :key="itemIndex" class="category-item"
+            <el-button v-for="(item, itemIndex) in categoryList" :key="itemIndex" class="category-item"
                 @click="categoryClick(item.name)">
                 {{ item.name }}
             </el-button>
         </div>
         <el-divider />
         <h3 style="text-align: center;margin: 10px;">珑珑推荐</h3>
-        <div v-for="(group, groupIndex) in result" :key="groupIndex" class="row">
+        <div v-for="(group, groupIndex) in result" :key="groupIndex" class="items-container">
             <!-- 每五个一组的项目 -->
             <div v-for="(item, itemIndex) in group" :key="itemIndex" class="card-items">
                 <WelcomeCard :name="item.name" :zhName="item.zhName" :version="item.version"
@@ -42,7 +42,7 @@ const welcomeItemsStore = useWelcomeItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
 const welcomeItemList = ref<CardFace[]>([]);
-const categoryLIst = ref<CardFace[]>([]);
+const categoryList = ref<CardFace[]>([]);
 const result = ref<CardFace[][]>([]);
 
 let params = ref<AppListParams>({ pageNo: 1, pageSize: 10 })
@@ -52,9 +52,9 @@ const carouselChart = () => {
 }
 // 分类推荐程序
 const groupedItems = () => {
-    categoryLIst.value.push({ name: '深度制造', appId: 'system' } as CardFace);
-    categoryLIst.value.push({ name: '游戏竞技', appId: 'game' } as CardFace);
-    categoryLIst.value.push({ name: '开发系统', appId: 'development' } as CardFace);
+    categoryList.value.push({ name: '深度制造', appId: 'system' } as CardFace);
+    categoryList.value.push({ name: '游戏竞技', appId: 'game' } as CardFace);
+    categoryList.value.push({ name: '开发系统', appId: 'development' } as CardFace);
 }
 // 获取最受欢迎的前十名程序
 const getWelcomeApp = async (param: AppListParams) => {
@@ -108,6 +108,22 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
+.el-carousel__item:nth-child(2n) {
+    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background-clip: padding-box;
+}
+
+.el-carousel__item:nth-child(2n + 1) {
+    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background-clip: padding-box;
+}
+
 .category-items {
     display: flex;
     flex-wrap: wrap;
@@ -132,47 +148,15 @@ onMounted(async () => {
     color: #FFFFFF;
 }
 
-.row {
-    display: flex;
-    flex-wrap: nowrap;
-    margin: 20px;
-}
-
-.card-items {
-    padding: 10px;
-    margin: 10px;
-    flex: 1;
-    min-width: 180px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    background-color: #999999;
-}
-
-.el-carousel__item:nth-child(2n) {
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    background-clip: padding-box;
-}
-
-.el-carousel__item:nth-child(2n + 1) {
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    background-clip: padding-box;
+.items-container {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
+  margin-bottom: 10px;
 }
 
 /* 隐藏滚动条 */
 ::-webkit-scrollbar {
     display: none;
-}
-
-@media (prefers-color-scheme: light) {
-    .card-items {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    }
 }
 </style>

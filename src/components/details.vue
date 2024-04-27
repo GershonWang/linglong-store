@@ -1,37 +1,46 @@
 <template>
     <el-breadcrumb :separator-icon="ArrowRight">
         <el-breadcrumb-item class="firstMenu" @click="router.back">{{ query.menuName }}</el-breadcrumb-item>
-        <el-breadcrumb-item class="secondMenu">{{ query.name }}</el-breadcrumb-item>
+        <el-breadcrumb-item class="secondMenu">{{ defaultName }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="base-container">
         <div class="title">参数信息</div>
         <div class="base-message">
-            <div class="image-div">
-                <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px" />
-            </div>
-            <div style="width: 100%;height: 100%;color: #606274;">
-                <div class="soft">
-                    <div><span class="soft-title">程序名称：</span>{{ query.name }}</div>
-                    <div v-if="query.zhName"><span class="soft-title">程序中文名称：</span>{{ query.zhName }}</div>
-                </div>
-                <div class="soft">
-                    <div><span class="soft-title">AppID：</span>{{ query.appId }}</div>
-                    <div><span class="soft-title">架构：</span>{{ query.arch }}</div>
-                </div>
-                <div class="soft-js">
-                    <div class="soft-title">简述：</div>
-                    <div class="soft-description">{{ query.description }}</div>
-                </div>
-            </div>
+            <el-row style="height: 100%;">
+                <el-col :span="4" class="image-icon">
+                    <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px" />
+                </el-col>
+                <el-col :span="20" style="padding: 10px;">
+                    <el-row style="margin-bottom: 10px;">
+                        <el-col :span="3" style="text-align: right;font-weight: bold;">应用名称：</el-col>
+                        <el-col :span="5">{{ query.name }}</el-col>
+                        <el-col :span="3" style="text-align: right;font-weight: bold;">中文名称：</el-col>
+                        <el-col :span="5">{{ query.zhName }}</el-col>
+                    </el-row>
+                    <el-row style="margin-bottom: 10px;">
+                        <el-col :span="3" style="text-align: right;font-weight: bold;">AppID：</el-col>
+                        <el-col :span="5">{{ query.appId }}</el-col>
+                        <el-col :span="3" style="text-align: right;font-weight: bold;">应用架构：</el-col>
+                        <el-col :span="5">{{ query.arch }}</el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="3" style="text-align: right;font-weight: bold;">应用简述：</el-col>
+                        <el-col :span="21" style="height: 55px;overflow: scroll;">{{ query.description }}</el-col>
+                    </el-row>
+                </el-col>
+            </el-row>
         </div>
     </div>
     <div class="choose-version">
         <div class="title">版本选择</div>
         <el-table :data="difVersionItemsStore.difVersionItemList" style="width: 100%;border-radius: 5px;flex-grow: 1;">
             <el-table-column prop="version" label="版本号" width="120" />
+            <el-table-column prop="kind" label="应用类型" header-align="center" align="center" width="100" />
             <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240"
                 :formatter="formatRuntime" />
-            <el-table-column prop="description" label="描述" />
+            <el-table-column prop="channel" label="通道" header-align="center" align="center" width="100"/>
+            <el-table-column prop="repoName" label="仓库来源" header-align="center" align="center" width="100"/>
+            <el-table-column prop="description" label="描述" min-width="800"/>
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="160">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
@@ -44,7 +53,7 @@
                         @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
                     <el-button class="install-btn"
-                        v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'"
+                        v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app' && scope.row.channel == 'linglong'"
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                 </template>
@@ -53,7 +62,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { ipcRenderer } from 'electron';
 import { CardFace } from '@/interface';
 import { onBeforeRouteLeave } from 'vue-router';
@@ -81,6 +90,10 @@ const installingItemsStore = useInstallingItemsStore();
 const systemConfigStore = useSystemConfigStore();
 // 路由传递的对象
 const query = router.currentRoute.value.query;
+// 格式化程序名称
+const defaultName = computed(() => {
+    return query.zhName ? query.zhName : query.name;
+})
 // 格式化运行时字段
 function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
     const runtime = row.runtime;
@@ -198,6 +211,7 @@ onMounted(() => {
             if (command.startsWith("ll-cli search") && 'stdout' == res.code) {
                 difVersionItemsStore.initDifVersionItems(res.result, query);
             }
+            console.log('difVersionItemsStore',difVersionItemsStore.difVersionItemList);
         }
     });
 })
@@ -214,17 +228,18 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 <style scoped>
 .el-breadcrumb {
     height: 25px;
+    --el-text-color-placeholder: var(--menu-base-font-color);
 }
 
 .firstMenu :deep(.el-breadcrumb__inner) {
-    color: white;
     cursor: pointer;
     font-weight: bold;
     font-size: 16px;
+    color: var(--menu-base-font-color);
 }
 
-.secondMenu :deep(.el-breadcrumb__inner) {
-    color: #999999;
+.second-menu :deep(.el-breadcrumb__inner) {
+    color: var(--menu-base-font-color);
 }
 
 .base-container {
@@ -237,6 +252,28 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     padding: 10px;
 }
 
+.title {
+    color: #DCDCDC;
+    border-radius: 5px;
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+.base-message {
+    padding: 12px;
+    background-color: white;
+    border-radius: 5px;
+    height: 75%;
+}
+
+.image-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background-color: bisque;
+}
+
 .choose-version {
     display: flex;
     flex-direction: column;
@@ -244,55 +281,6 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     height: 60%;
     background-color: #6a6d7b;
     padding: 10px;
-}
-
-.title {
-    background-color: #6a6d7b;
-    border-radius: 5px;
-    padding-bottom: 5px;
-    font-weight: bold;
-}
-
-.base-message {
-    flex-grow: 1;
-    padding: 12px;
-    display: flex;
-    background-color: white;
-    border-radius: 5px;
-    height: 30%;
-}
-
-.image-div {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 23%;
-}
-
-.soft {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.soft-js {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    height: 60%;
-}
-
-.soft-title {
-    font-size: 18px;
-    color: #0E0101;
-    font-weight: bold;
-}
-
-.soft-description {
-    overflow: auto;
-    height: 100%;
-    width: 93%;
 }
 
 .install-btn {
@@ -321,17 +309,4 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     display: none;
 }
 
-@media (prefers-color-scheme: light) {
-    .firstMenu :deep(.el-breadcrumb__inner) {
-        color: #000;
-    }
-
-    .base-container {
-        color: #DCDCDC;
-    }
-
-    .title {
-        color: #DCDCDC;
-    }
-}
 </style>
