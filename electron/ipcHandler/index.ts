@@ -87,6 +87,17 @@ const IPCHandler = (win: BrowserWindow) => {
             ipcLog.info('ipc-appLogin-error：',error);
         });
     });
+    /* ********** 发送意见反馈记录请求 ********** */
+    ipcMain.on("suggest", (_event, data) => {
+        ipcLog.info('ipc-suggest：', JSON.stringify(data));
+        axios.defaults.headers.common['Content-Type'] = 'application/json';
+        axios.defaults.timeout = 30000;
+        axios.post(data.url, { ...data }).then(response => {
+            ipcLog.info('ipc-suggest-success：',JSON.stringify(response.data));
+        }).catch(error => {
+            ipcLog.info('ipc-suggest-error：',error);
+        });
+    });
     /* ********** 执行渲染进程的操作日志记录请求 ********** */
     ipcMain.on('logger', (_event, level, arg) => {
         if (level === "info") {

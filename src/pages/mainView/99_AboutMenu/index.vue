@@ -9,7 +9,7 @@
     <div class="item">Chrome版本：{{ versions.chrome }}</div>
     <br> -->
     <li>
-      <a class="title">玲珑信息</a>
+      <a class="title" :title="`Node版本：${versions.node} Electron版本：${versions.electron} Chrome版本：${versions.chrome}`">玲珑信息</a>
     </li>
     <div class="item">玲珑官网：<a class="link" href="https://linglong.dev/" target="_blank">https://linglong.dev/</a></div>
     <div class="item">玲珑网页版商店：<a class="link" href="https://store.linglong.dev/"
@@ -57,7 +57,7 @@
 import { ipcRenderer } from 'electron';
 import pkg from '../../../../package.json';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { ElNotification, ElMessageBox } from 'element-plus'
+import { ElNotification, ElMessageBox, ElMessage } from 'element-plus'
 import { useUpdateStatusStore } from "@/store/updateStatus";
 import { useSystemConfigStore } from "@/store/systemConfig";
 
@@ -82,16 +82,18 @@ const suggest = () => {
     confirmButtonText: '提交',
     cancelButtonText: '取消',
     inputType: 'textarea', // 设置input的类型为textarea
+    customClass: 'custom-message-box', // 自定义类名
   }).then(({ value }) => {
-    ElMessage({
-      type: 'success',
-      message: `Your email is:${value}`,
-    })
-  }).catch(() => {
-    ElMessage({
-      type: 'info',
-      message: 'Input canceled',
-    })
+    if (value) {
+      // 发送建议到主进程
+      let baseURL = import.meta.env.VITE_SERVER_URL as string;
+      const url = baseURL + "/visit/suggest";
+      ipcRenderer.send('suggest', { url: url, llVersion: systemConfigStore.llVersion, appVersion: pkg.version, message: value })
+      ElMessage({
+        type: 'success',
+        message: `反馈内容已发送`,
+      })
+    }
   })
 }
 // 检查更新
