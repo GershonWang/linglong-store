@@ -211,7 +211,6 @@ onMounted(() => {
             if (command.startsWith("ll-cli search") && 'stdout' == res.code) {
                 difVersionItemsStore.initDifVersionItems(res.result, query);
             }
-            console.log('difVersionItemsStore',difVersionItemsStore.difVersionItemList);
         }
     });
 })

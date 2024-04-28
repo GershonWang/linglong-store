@@ -149,10 +149,14 @@ onMounted(async () => {
 }
 
 .items-container {
-  display: grid;
+  display: flex;
   grid-gap: 10px;
-  grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
+  justify-content: space-around;
   margin-bottom: 10px;
+}
+
+.card-items {
+    max-width: none;
 }
 
 /* 隐藏滚动条 */
