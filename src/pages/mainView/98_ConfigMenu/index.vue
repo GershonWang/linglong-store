@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1>基础设置</h1>
-    <el-divider />
     玲珑源：
     <el-select style="width: 300px;" v-model="defaultSource" @change="changeEvent">
       <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com"

@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1>关于程序</h1>
-    <el-divider />
     <!-- <li>
       <a class="title">项目环境</a>
     </li>
@@ -19,10 +18,13 @@
     <br>
     <li>
       <a class="title">版本信息</a>
+      <el-button class="updateBtn" type="success" round :size="'small'" @click="suggest()">
+        意见反馈
+      </el-button>
     </li>
     <div class="item">
       当前版本: {{ pkg.version }}
-      <el-button class="updateBtn" type="info" plain :size="'small'" @click="checkVersion()" :disabled="updateBtnStatus">
+      <el-button class="updateBtn" type="warning" :size="'small'" @click="checkVersion()" :disabled="updateBtnStatus">
         检查版本<el-icon class="el-icon--right">
           <Upload />
         </el-icon>
@@ -61,7 +63,7 @@ import { useSystemConfigStore } from "@/store/systemConfig";
 
 const updateStatusStore = useUpdateStatusStore();
 const systemConfigStore = useSystemConfigStore();
-// const versions = process.versions;
+const versions = process.versions;
 const updateBtnStatus = ref(false);
 const downloadModule = ref(false);
 const downloadPercent = ref(0);
@@ -74,6 +76,24 @@ const colors = [
   { color: '#1989fa', percentage: 80 },
   { color: '#6f7ad3', percentage: 100 },
 ]
+// 意见反馈
+const suggest = () => {
+  ElMessageBox.prompt('您的建议是我改进的动力！', '意见反馈', {
+    confirmButtonText: '提交',
+    cancelButtonText: '取消',
+    inputType: 'textarea', // 设置input的类型为textarea
+  }).then(({ value }) => {
+    ElMessage({
+      type: 'success',
+      message: `Your email is:${value}`,
+    })
+  }).catch(() => {
+    ElMessage({
+      type: 'info',
+      message: 'Input canceled',
+    })
+  })
+}
 // 检查更新
 const checkVersion = () => {
   updateBtnStatus.value = true;
