@@ -308,4 +308,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     display: none;
 }
 
+.el-col {
+    color: #213547;
+}
 </style>
