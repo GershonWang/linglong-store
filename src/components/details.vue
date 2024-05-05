@@ -12,20 +12,20 @@
                 </el-col>
                 <el-col :span="20" style="padding: 10px;">
                     <el-row style="margin-bottom: 10px;">
-                        <el-col :span="3" style="text-align: right;font-weight: bold;">应用名称：</el-col>
-                        <el-col :span="5">{{ query.name }}</el-col>
-                        <el-col :span="3" style="text-align: right;font-weight: bold;">中文名称：</el-col>
-                        <el-col :span="5">{{ query.zhName }}</el-col>
+                        <el-col :span="3" class="base-message-key">应用名称：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.name">{{ query.name }}</el-col>
+                        <el-col :span="3" class="base-message-key">中文名称：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.zhName">{{ query.zhName }}</el-col>
                     </el-row>
                     <el-row style="margin-bottom: 10px;">
-                        <el-col :span="3" style="text-align: right;font-weight: bold;">AppID：</el-col>
-                        <el-col :span="5">{{ query.appId }}</el-col>
-                        <el-col :span="3" style="text-align: right;font-weight: bold;">应用架构：</el-col>
-                        <el-col :span="5">{{ query.arch }}</el-col>
+                        <el-col :span="3" class="base-message-key">AppID：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.appId">{{ query.appId }}</el-col>
+                        <el-col :span="3" class="base-message-key">应用架构：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.arch">{{ query.arch }}</el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="3" style="text-align: right;font-weight: bold;">应用简述：</el-col>
-                        <el-col :span="21" style="height: 55px;overflow: scroll;">{{ query.description }}</el-col>
+                        <el-col :span="3" class="base-message-key">应用简述：</el-col>
+                        <el-col :span="21" style="height: 55px;overflow: scroll;color: #213547;">{{ query.description }}</el-col>
                     </el-row>
                 </el-col>
             </el-row>
@@ -308,7 +308,16 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     display: none;
 }
 
-.el-col {
+.base-message-key {
+    color: black;
+    text-align: right;
+    font-weight: bold;
+}
+
+.base-message-value {
     color: #213547;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 </style>
