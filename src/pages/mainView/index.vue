@@ -247,6 +247,8 @@ const getNetworkSpeed = () => {
 }
 // 页面初始化时执行
 onMounted(() => {
+    // ipcRenderer.send("linglong",{ command: 'll-cli install com.xunlei.download' })
+    // ipcRenderer.on('linglong-result', (_event: any, res: any)=> { console.log('apt',res); })
     getNetworkSpeed();
     // 监听命令执行结果
     ipcRenderer.on('command-result', commandResult);

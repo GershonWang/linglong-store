@@ -10,34 +10,40 @@ const IPCHandler = (win: BrowserWindow) => {
         ipcLog.info('ipc-command：', JSON.stringify(data));
         // 在主进程中执行命令，并将结果返回到渲染进程
         exec(data.command, (error, stdout, stderr) => {
-            // ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
-            if (error) {
-                win.webContents.send("command-result", { code: 'error', param: data, result: error.message });
+            ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
+            if (stdout) {
+                win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
                 return;
             }
             if (stderr) {
                 win.webContents.send("command-result", { code: 'stderr', param: data, result: stderr });
                 return;
             }
-            win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
+            if (error) {
+                win.webContents.send("command-result", { code: 'error', param: data, result: error.message });
+                return;
+            }
         });
-        // const installProcess = exec(data.command);
-        // installProcess.stdout.on('data', (data1) => {
-        //     console.log(`stdout: ${data1}`);
-        //     // ipcLog.info('data:',data);
-        //     win.webContents.send("command-result", { code: 'stdout', param: data, result: data1 });
-        // })
-        // installProcess.stderr.on('data', (data1) => {
-        //     console.log(`stderr: ${data1}`);
-        //     // ipcLog.info('data:',data);
-        //     // win.webContents.send("command-result", { code: 'stderr', param: data, result: data });
-        // })
-        // installProcess.on('close', (code) => {
-        //     console.log(`child process exited with code ${code}`);
-        //     // ipcLog.info('code:',code);
-        //     // win.webContents.send("command-result", { code: 'stdout', param: data, result: code });
-        // })
     });
+    /* ****************** 监听命令动态返回结果 ******************* */
+    ipcMain.on('linglong',(_event, params) => {
+        const installProcess = exec(params.command);
+        installProcess.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+            ipcLog.info('data:',data);
+            win.webContents.send("linglong-result", { code: 'stdout', param: params, result: data });
+        })
+        installProcess.stderr.on('data', (data) => {
+            console.log(`stderr: ${data}`);
+            ipcLog.info('data:',data);
+            // win.webContents.send("command-result", { code: 'stderr', param: data, result: data });
+        })
+        installProcess.on('close', (code) => {
+            console.log(`child process exited with code ${code}`);
+            ipcLog.info('code:',code);
+            // win.webContents.send("command-result", { code: 'stdout', param: data, result: code });
+        })
+    })
     /* ********** 执行网络请求 ********** */
     ipcMain.on("network", (_event, data) => {
         ipcLog.info('ipc-network：', JSON.stringify(data));

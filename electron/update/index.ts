@@ -47,6 +47,8 @@ export function updateHandle(mainWindow: BrowserWindow) {
   autoUpdater.on('update-downloaded', function (_event: any) {
     sendUpdateMessage(message.chooseUpdate,mainWindow);
   })
+
+  /********************************* IPC监听来自渲染线程的事件 **************************************/ 
   // 监听更新事件
   ipcMain.on('checkForUpdate', () => {
     // 执行自动更新检查
@@ -71,8 +73,11 @@ export function updateHandle(mainWindow: BrowserWindow) {
     updateLog.warn('移除下载完成后的监听事件');
     autoUpdater.removeAllListeners('update-downloaded');
   })
+
+  /************************************* 发送消息给渲染线程 **************************************/
   // 通过main进程发送事件给renderer进程，提示更新信息
   function sendUpdateMessage(text, mainWindow: BrowserWindow) {
     mainWindow.webContents.send('update-message', text)
   }
+  
 }

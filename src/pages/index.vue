@@ -12,7 +12,7 @@
             <p>2.点击安装时，受网速和程序大小的影响，程序安装比较缓慢甚至可能会没反应，此时无需操作耐心等待程序安装成功提示即可。</p>
         </div>
     </div>
-    <div class="footer">
+    <div class="footer" v-if="downloadPercent > 0">
         <el-progress :percentage="downloadPercent" :stroke-width="10" status="success" striped striped-flow :duration="10" :show-text="false" />
     </div>
 </template>
@@ -126,6 +126,18 @@ const commandResult = (_event: any, res: any) => {
         const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
         ipcRenderer.send('network', { url: requestUrl });
     }
+
+    if(command == 'apt policy linglong-bin') {
+        const lines = result.split('\n');
+        let installedVersion = '';
+        lines.forEach((line: string) => {
+            if (line.includes('已安装：')) {
+            installedVersion = line.split('已安装：')[1].trim();
+            }
+        });
+        console.log('已安装版本：', installedVersion);
+    }
+
 }
 // 监听主进程发送的更新消息
 const updateMessage = (_event: any, text: string) => {
@@ -206,7 +218,6 @@ const networkResult = async (_event: any, res: any) => {
     ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
     // 检测当前环境
     const mode = import.meta.env.MODE as string;
-    console.log('mode',mode);
     if (mode != "development") {
         // 非开发环境发送通知APP登陆！
         let baseURL = import.meta.env.VITE_SERVER_URL as string;
@@ -227,6 +238,8 @@ onMounted(async () => {
         message.value = "正在检测商店版本号...";
         ipcRenderer.send('logger', 'info', "正在检测商店版本号...");
         ipcRenderer.send('checkForUpdate');
+        // 监听更新事件
+        ipcRenderer.once('update-message', updateMessage);
     } else {
         message.value = "跳过商店版本号检测...";
         ipcRenderer.send('logger', 'warn', "跳过商店版本号检测...");
@@ -235,9 +248,9 @@ onMounted(async () => {
         message.value = "检测当前系统架构...";
         ipcRenderer.send('logger', 'info', "检测当前系统架构...");
         ipcRenderer.send('command', { command: 'uname -m' });
+        // 获取玲珑包程序(linglong-bin)的版本号
+        ipcRenderer.send("command",{ command: 'apt policy linglong-bin' })
     }
-    // 监听自动更新事件
-    ipcRenderer.on('update-message', updateMessage);
     // 监听命令行执行结果
     ipcRenderer.on('command-result', commandResult);
     // 监听网络请求执行结果
@@ -247,7 +260,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
     ipcRenderer.removeListener('network-result', networkResult);
-    ipcRenderer.removeListener('update-message', updateMessage);
     ipcRenderer.removeAllListeners('downloadProgress');
 });
 </script>
