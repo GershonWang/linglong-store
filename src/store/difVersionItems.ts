@@ -105,8 +105,6 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                 difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
             }
         }
-            
-        
         return difVersionItemList;
     }
 
