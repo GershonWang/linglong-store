@@ -20,8 +20,6 @@ export const useAllServItemsStore = defineStore("allServItems", () => {
         clearItems(); // 清空原始对象
         // 组装数据进入对象数组
         let list:CardFace[] = array;
-        // 将请求的数据条数记录到系统参数store中
-        systemConfigStore.changeLinglongCount(list.length);
         // 过滤无图标程序
         if (!systemConfigStore.isShowNoIcon) {
             list = list.filter((i) => "https://mirror-repo-linglong.deepin.com/icon/application-x-executable.svg" != i.icon);

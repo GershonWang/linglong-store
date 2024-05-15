@@ -6,11 +6,20 @@ import { ipcLog, mainLog } from "../logger";
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
     /* ********** 执行脚本命令 ********** */
+    ipcMain.on("command_only_stdout", (_event, code: string) => {
+        ipcLog.info('command_only_stdout：', code);
+        // 在主进程中执行命令，并将结果返回到渲染进程
+        exec(code, (error, stdout, stderr) => {
+            ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
+            win.webContents.send("command_only_stdout_result", stdout);
+        })
+    })
+    /* ********** 执行脚本命令 ********** */
     ipcMain.on("command", (_event, data) => {
         ipcLog.info('ipc-command：', JSON.stringify(data));
         // 在主进程中执行命令，并将结果返回到渲染进程
         exec(data.command, (error, stdout, stderr) => {
-            ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
+            // ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
             if (stdout) {
                 win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
                 return;

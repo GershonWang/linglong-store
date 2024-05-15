@@ -18,4 +18,44 @@ const hasUpdateVersion = (thisVersion: string, checkVersion: string) => {
     return 0; //两个版本相等时返回0
 }
 
+// version1(1.0.1-beta)和version2(1.0.1)比较版本大小
+export const compareVersions = (version1: string, version2: string) => {
+    const mainAndSuffix1 = version1.split('-');
+    const mainAndSuffix2 = version2.split('-');
+    // 先比较中横线前半部分版本号大小
+    const levels1 = mainAndSuffix1[0].split('.');
+    const levels2 = mainAndSuffix2[0].split('.');
+
+    for (let i = 0; i < Math.max(levels1.length, levels2.length); i++) {
+        const num1: number = parseInt(levels1[i] || '0', 10);
+        const num2: number = parseInt(levels2[i] || '0', 10);
+        if (num1 > num2) {
+            return 1;
+        } else if (num1 < num2) {
+            return -1;
+        }
+    }
+    // 如果前半部分版本号相等，则比较中横线后的版本号
+    if (!mainAndSuffix1[1] && !mainAndSuffix2[1]) {
+        return 0;
+    } else if (!mainAndSuffix1[1] && mainAndSuffix2[1]) {
+        return 1;
+    } else if (mainAndSuffix1[1] && !mainAndSuffix2[1]) {
+        return -1;
+    } else {
+        const suffix1 = mainAndSuffix1[1].split('.');
+        const suffix2 = mainAndSuffix2[1].split('.');
+        for (let i = 0; i < Math.max(suffix1.length, suffix2.length); i++) {
+            const num1: number = parseInt(suffix1[i] || '0', 10);
+            const num2: number = parseInt(suffix2[i] || '0', 10);
+            if (num1 > num2) {
+                return 1;
+            } else if (num1 < num2) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+}
+
 export default hasUpdateVersion;

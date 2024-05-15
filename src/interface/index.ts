@@ -57,6 +57,21 @@ export interface InstalledEntity {
     loading: boolean,
 }
 
+export interface InstalledSoftware {
+    appid: string,
+    name: string,
+    version: string,
+    arch: string[],
+    base: string,
+    channel: string,
+    command: string[],
+    description: string,
+    kind: string,
+    module: string,
+    runtime: string,
+    size: number,
+}
+
 /**
  * 卡片信息传递到明细页面的路由传递的字段
  */

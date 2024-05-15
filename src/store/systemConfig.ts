@@ -26,6 +26,10 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         networkRunStatus: ref(true),
         // 当前收录玲珑程序数量
         linglongCount: ref(0),
+        // linglong-bin的包版本号
+        linglongBinVersion: ref(''),
+        // 默认仓库名称
+        defaultRepoName: ref(''),
     }),
     getters: {
         getSystemConfigInfo: (state) => {
@@ -38,6 +42,8 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             + ',autoCheckUpdate:' + state.autoCheckUpdate
             + ',networkRunStatus:' + state.networkRunStatus
             + ',linglongCount:' + state.linglongCount
+            + ',linglongBinVersion:' + state.linglongBinVersion
+            + ',defaultRepoName:' + state.defaultRepoName
         },
         getIsShowDisArch: (state) => state.isShowDisArch,
     },
@@ -87,6 +93,16 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             const that = this;
             that.linglongCount = linglongCount;
         },
+        // 修改linglong-bin的包版本号
+        changeLinglongBinVersion(linglongBinVersion: string){
+            const that = this;
+            that.linglongBinVersion = linglongBinVersion;
+        },
+        // 修改默认仓库名称
+        changeDefaultRepoName(defaultRepoName: string){
+            const that = this;
+            that.defaultRepoName = defaultRepoName;
+        }
     },
     persist: true
 })

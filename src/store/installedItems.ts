@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import string2card from "@/util/string2card";
-import { CardFace,InstalledEntity } from "@/interface";
+import { CardFace,InstalledEntity, InstalledSoftware } from "@/interface";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { getAppDetails } from "@/api/server";
+import { compareVersions } from "@/util/checkVersion";
 
 const systemConfigStore = useSystemConfigStore();
 /**
@@ -36,13 +37,73 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
      */
     const initInstalledItems = async (data: string) => {
         clearItems(); // 清空已安装列表
-        installedItemList.value = data.trim() ? JSON.parse(data.trim()) : [];
-        if (installedItemList.value.length > 0 && !systemConfigStore.isShowBaseService) {
-            installedItemList.value = installedItemList.value.filter((item: InstalledEntity) => item.kind == "app")
+        if (systemConfigStore.linglongBinVersion && compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") < 0) {
+            const datas: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
+            if (datas.length > 0 && !systemConfigStore.isShowBaseService) {
+                installedItemList.value = datas.filter((item: InstalledEntity) => item.kind == "app")
+            }
+        } else {
+            const datas: InstalledSoftware[] = data.trim() ? JSON.parse(data.trim()) : [];
+            console.log('datas',datas);
+            if (datas.length > 0 && !systemConfigStore.isShowBaseService) {
+                datas.forEach((item: InstalledSoftware) => {
+                    if (item.kind == "app") {
+                        const card: InstalledEntity = {
+                            appId: item.appid,
+                            arch: item.arch[0],
+                            channel: item.channel,
+                            description: item.description,
+                            icon: "",
+                            kind: item.kind,
+                            module: item.module,
+                            name: item.name,
+                            repoName: "",
+                            runtime: item.runtime,
+                            size: String(item.size),
+                            uabUrl: "",
+                            user: "",
+                            version: item.version,
+                            isInstalled: false,
+                            loading: false
+                        }
+                        installedItemList.value.push(card);
+                    }
+                })
+            } else {
+                datas.forEach((item: InstalledSoftware) => {
+                    const card: InstalledEntity = {
+                        appId: item.appid,
+                        arch: item.arch[0],
+                        channel: item.channel,
+                        description: item.description,
+                        icon: "",
+                        kind: item.kind,
+                        module: item.module,
+                        name: item.name,
+                        repoName: "",
+                        runtime: item.runtime,
+                        size: String(item.size),
+                        uabUrl: "",
+                        user: "",
+                        version: item.version,
+                        isInstalled: false,
+                        loading: false
+                    }
+                    installedItemList.value.push(card);
+                })
+            }
         }
         await getAppDetails(installedItemList.value).then((res) => {
             if(res.code == 200) {
-                installedItemList.value = res.data as unknown as InstalledEntity[];
+                const datas: InstalledEntity[] = res.data as unknown as InstalledEntity[];
+                if(datas.length > 0) {
+                    clearItems();
+                    datas.forEach((item: InstalledEntity) => {
+                        if (item) {
+                            installedItemList.value.push(item);
+                        }
+                    })
+                }
             } else {
                 console.log(res.msg);
             }

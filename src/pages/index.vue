@@ -22,7 +22,7 @@ import { ElMessageBox } from 'element-plus';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
 import pkg from '../../package.json';
-import hasUpdateVersion from '@/util/checkVersion';
+import hasUpdateVersion, { compareVersions } from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -40,6 +40,7 @@ const message = ref('');
 // 进度条状态
 const downloadPercent = ref(0);
 const downloadPercentMsg = ref('');
+
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
     const code: string = res.code;
@@ -65,6 +66,10 @@ const commandResult = (_event: any, res: any) => {
             message.value = "检测玲珑环境版本...";
             ipcRenderer.send('logger', 'info', "检测玲珑环境版本...");
             ipcRenderer.send('command', { command: 'll-cli --version' });
+            // 获取玲珑包程序(linglong-bin)的版本号
+            ipcRenderer.send("command",{ command: 'apt policy linglong-bin' })
+            // 获取玲珑包当前使用的仓库名
+            ipcRenderer.send("command",{ command: 'll-cli repo show' })
         } else {
             message.value = "检测玲珑环境不存在...";
             ipcRenderer.send('logger', 'error', "检测玲珑环境不存在...");
@@ -98,10 +103,10 @@ const commandResult = (_event: any, res: any) => {
         ipcRenderer.send('logger', 'info', "玲珑环境版本检测完毕...");
         message.value = "正在检测系统已安装的玲珑程序...";
         ipcRenderer.send('logger', 'info', "正在检测系统已安装的玲珑程序...");
-        if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
-            ipcRenderer.send("command", { command: "ll-cli list --json" });
-        } else {
+        if (compareVersions(systemConfigStore.llVersion, '1.4.0') < 0) {
             ipcRenderer.send("command", { command: "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'" });
+        } else {
+            ipcRenderer.send("command", { command: "ll-cli list --json" });
         }
     }
     if (command =='ll-cli list --json' || command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
@@ -126,18 +131,28 @@ const commandResult = (_event: any, res: any) => {
         const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
         ipcRenderer.send('network', { url: requestUrl });
     }
-
     if(command == 'apt policy linglong-bin') {
         const lines = result.split('\n');
         let installedVersion = '';
         lines.forEach((line: string) => {
             if (line.includes('已安装：')) {
-            installedVersion = line.split('已安装：')[1].trim();
+                installedVersion = line.split('已安装：')[1].trim();
             }
         });
         console.log('已安装版本：', installedVersion);
+        systemConfigStore.changeLinglongBinVersion(installedVersion);
     }
-
+    if(command == 'll-cli repo show') {
+        const lines = result.split('\n');
+        let defaultRepoName = '';
+        lines.forEach((line: string) => {
+            if (line.includes('Default:')) {
+                defaultRepoName = line.split('Default:')[1].trim();
+            }
+        });
+        console.log('默认仓库名：', defaultRepoName);
+        systemConfigStore.changeDefaultRepoName(defaultRepoName);
+    }
 }
 // 监听主进程发送的更新消息
 const updateMessage = (_event: any, text: string) => {
@@ -198,8 +213,11 @@ const networkResult = async (_event: any, res: any) => {
         ipcRenderer.send('logger', 'info', "网络源玲珑程序列表获取完成...");
         // 设定当前网络状态为可用状态
         systemConfigStore.changeNetworkRunStatus(true);
+        // 将请求的数据条数记录到系统参数store中
+        systemConfigStore.changeLinglongCount(data.length);
         // 初始化所有应用程序列表
-        // const installedItemList = installedItemsStore.installedItemList;
+        const installedItemList = installedItemsStore.installedItemList;
+        console.log('installedItemList',installedItemList);
         // allServItemsStore.initAllItems(data, installedItemList);
         // 更新已安装程序图标
         // const allItems = allServItemsStore.allServItemList;
@@ -248,8 +266,6 @@ onMounted(async () => {
         message.value = "检测当前系统架构...";
         ipcRenderer.send('logger', 'info', "检测当前系统架构...");
         ipcRenderer.send('command', { command: 'uname -m' });
-        // 获取玲珑包程序(linglong-bin)的版本号
-        ipcRenderer.send("command",{ command: 'apt policy linglong-bin' })
     }
     // 监听命令行执行结果
     ipcRenderer.on('command-result', commandResult);
