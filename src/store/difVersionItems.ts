@@ -2,13 +2,15 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import string2card from "@/util/string2card";
 import { LocationQuery } from "vue-router";
-import hasUpdateVersion from "@/util/checkVersion";
+import hasUpdateVersion, { compareVersions } from "@/util/checkVersion";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
-import { CardFace,InstalledEntity } from "@/interface";
+import { useSystemConfigStore } from "@/store/systemConfig";
+import { CardFace,InstalledEntity, InstalledSoftware } from "@/interface";
 
 const installedItemsStore = useInstalledItemsStore();
 const installingItemsStore = useInstallingItemsStore();
+const systemConfigStore = useSystemConfigStore();
 /**
  * 不同版本列表
  */
@@ -51,20 +53,60 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
      */
     const initDifVersionItems = (data: string, query: LocationQuery) => {
         clearItems(); // 清空原始对象
-        let searchVersionItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
-        if (searchVersionItemList.length > 0) {
-            // 过滤不同appId和时devel的数据
-            searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == query.appId && item.module != 'devel');
-            for (let index = 0; index < searchVersionItemList.length; index++) {
-                const item: InstalledEntity = searchVersionItemList[index];
-                // 处理当前版本是否已安装状态
-                item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version 
-                    && it.module === item.module && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
-                // 处理当前版本是否加载中状态
-                item.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+        if (systemConfigStore.linglongBinVersion && compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") < 0) {
+            let searchVersionItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
+            if (searchVersionItemList.length > 0) {
+                // 过滤不同appId和时devel的数据
+                searchVersionItemList = searchVersionItemList.filter(item => item && item.appId == query.appId && item.module != 'devel');
+                for (let index = 0; index < searchVersionItemList.length; index++) {
+                    const item: InstalledEntity = searchVersionItemList[index];
+                    // 处理当前版本是否已安装状态
+                    item.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version 
+                        && it.module === item.module && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
+                    // 处理当前版本是否加载中状态
+                    item.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appId && it.name === item.name && it.version === item.version);
+                }
+                difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
             }
-            difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
+        } else {
+            const datas: InstalledSoftware[] = data.trim() ? JSON.parse(data.trim()) : [];
+            if (datas.length > 0) {
+                clearItems();
+                let searchVersionItemList: InstalledEntity[] = [];
+                datas.forEach((item) => {
+                    if (item.appid == query.appId && item.module != 'develop') {
+                        const installedItem: InstalledEntity = {
+                            appId: item.appid,
+                            name: item.name,
+                            version: item.version,
+                            module: item.module,
+                            channel: item.channel,
+                            kind: item.kind,
+                            repoName: "",
+                            arch: item.arch[0],
+                            description: item.description,
+                            icon: "",
+                            runtime: item.runtime,
+                            size: String(item.size),
+                            uabUrl: "",
+                            user: "",
+                            isInstalled: false,
+                            loading: false
+                        }
+                        // 处理当前版本是否已安装状态
+                        installedItem.isInstalled = installedItemsStore.installedItemList.some((it) => it.appId === item.appid && it.name === item.name && it.version === item.version
+                            && it.module === item.module && it.channel === item.channel && it.kind === item.kind
+                        )
+                        // 处理当前版本是否加载中状态
+                        installedItem.loading = installingItemsStore.installingItemList.some((it) => it.appId === item.appid && it.name === item.name && it.version === item.version);
+                        searchVersionItemList.push(installedItem);
+                    }
+                })
+                difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
+            }
         }
+            
+        
         return difVersionItemList;
     }
 
