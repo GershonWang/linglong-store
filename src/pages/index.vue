@@ -199,11 +199,11 @@ const networkResult = async (_event: any, res: any) => {
         // 设定当前网络状态为可用状态
         systemConfigStore.changeNetworkRunStatus(true);
         // 初始化所有应用程序列表
-        const installedItemList = installedItemsStore.installedItemList;
-        allServItemsStore.initAllItems(data, installedItemList);
+        // const installedItemList = installedItemsStore.installedItemList;
+        // allServItemsStore.initAllItems(data, installedItemList);
         // 更新已安装程序图标
-        const allItems = allServItemsStore.allServItemList;
-        installedItemsStore.updateInstalledItemsIcons(allItems);
+        // const allItems = allServItemsStore.allServItemList;
+        // installedItemsStore.updateInstalledItemsIcons(allItems);
         // 初始化推荐程序列表
         welcomeItemsStore.initWelcomeItems();
     } else {
