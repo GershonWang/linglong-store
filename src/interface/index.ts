@@ -130,6 +130,13 @@ export interface AppMain {
 }
 
 /**
+ * 根据appid获取程序列表-入参对象
+ */
+export interface GetAppListByAppIdParam {
+    appId: string
+}
+
+/**
  * 响应体对象
  * @param code 状态码
  * @param message 提示信息

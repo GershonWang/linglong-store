@@ -1,4 +1,4 @@
-import { AppListParams, CardFace, Result } from '@/interface';
+import { AppListParams, CardFace, GetAppListByAppIdParam, Result } from '@/interface';
 import request from '@/util/request';
 
 /**
@@ -70,5 +70,16 @@ export const getDisCategoryList = () => {
     return request<Result>({
         method: 'GET',
         url: '/visit/getDisCategoryList'
+    })
+}
+
+/**
+ * 根据appid获取程序列表
+ */
+export const getAppListByAppId = (data: GetAppListByAppIdParam) => {
+    return request<Result>({
+        method: 'POST',
+        url: '/visit/getAppListByAppId',
+        data
     })
 }

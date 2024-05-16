@@ -53,7 +53,7 @@
                         @click="toRun(scope.row)">运行</el-button>
                     <!-- 安装按钮 -->
                     <el-button class="install-btn"
-                        v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app' && scope.row.channel == 'linglong'"
+                        v-if="!scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'"
                         @click="changeStatus(scope.row, 'install')">安装</el-button>
                     <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                 </template>
@@ -192,11 +192,12 @@ const toRun = (item: CardFace) => {
 }
 // 页面启动时加载
 onMounted(() => {
-    // 清除表单数据
-    difVersionItemsStore.clearItems();
-    // 检测网络
-    elertTip();
-    // 初始化数据：发送命令到主线程获取版本列表结果
+    difVersionItemsStore.clearItems(); // 清除表单数据
+    elertTip(); // 检测网络
+    // 初始化数据：
+    // 1.获取服务器端数据
+    // await getAppListByAppId()
+    // 2.发送命令到主线程获取版本列表结果
     let command = "ll-cli query " + query.appId;
     if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
         command = "ll-cli search " + query.appId + " --json";
