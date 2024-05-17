@@ -1,0 +1,12 @@
+{
+    "src": "out/Spliter-linux-loongarch64/",
+    "dest": "out/deb/",
+    "arch": "loongarch64",
+    "icon": "icons/256x256.svg",
+    "categories": [
+      "Utility"
+    ],
+    "lintianOverrides": [
+      "changelog-file-missing-in-native-package"
+    ]
+}
