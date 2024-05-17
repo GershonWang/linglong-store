@@ -31,7 +31,10 @@ export interface RunTime {
     App: string,
     ContainerID: string,
     Pid: string,
-    Path: string
+    Path: string,
+    version: string,
+    arch: string,
+    repo: string,
 }
 
 /**

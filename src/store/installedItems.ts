@@ -44,7 +44,6 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
             }
         } else {
             const datas: InstalledSoftware[] = data.trim() ? JSON.parse(data.trim()) : [];
-            console.log('datas',datas);
             if (datas.length > 0 && !systemConfigStore.isShowBaseService) {
                 datas.forEach((item: InstalledSoftware) => {
                     if (item.kind == "app") {

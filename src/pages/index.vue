@@ -22,7 +22,7 @@ import { ElMessageBox } from 'element-plus';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
 import pkg from '../../package.json';
-import hasUpdateVersion, { compareVersions } from '@/util/checkVersion';
+import { compareVersions } from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -217,7 +217,6 @@ const networkResult = async (_event: any, res: any) => {
         systemConfigStore.changeLinglongCount(data.length);
         // 初始化所有应用程序列表
         const installedItemList = installedItemsStore.installedItemList;
-        console.log('installedItemList',installedItemList);
         allServItemsStore.initAllItems(data, installedItemList);
         // 更新已安装程序图标
         const allItems = allServItemsStore.allServItemList;
