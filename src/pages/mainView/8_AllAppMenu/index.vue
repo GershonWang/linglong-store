@@ -18,7 +18,7 @@
             </div>
         </div>
     </div>
-    <div class="apps-container" @scroll="handleScroll">
+    <div ref="appsContainer" class="apps-container" @scroll="handleScroll">
         <div class="card-items-container" v-if="allAppItemsStore.allAppItemList && allAppItemsStore.allAppItemList.length > 0">
             <div class="card-items" v-for="(item, index) in allAppItemsStore.allAppItemList" :key="index">
                 <AllAppCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
@@ -49,6 +49,7 @@ import { useAllAppItemsStore } from "@/store/allAppItems";
 const installedItemsStore = useInstalledItemsStore();
 const allAppItemsStore = useAllAppItemsStore();
 
+const appsContainer = ref<HTMLDivElement>()
 const params = ref({ pageNo: 1, pageSize: 50, name: '', categoryId: ''})
 
 let categoryList = ref<any[]>([]);
@@ -87,8 +88,7 @@ const handleSearch = async () => {
 }
 // 页面初始化时加载
 onMounted(async () => {
-    // 检测网络
-    elertTip();
+    elertTip(); // 检测网络
     // 获取分类列表
     let res = await getDisCategoryList();
     if (res.code == 200) {
@@ -134,10 +134,7 @@ onMounted(async () => {
 })
 // 在router路由离开前执行
 onBeforeRouteLeave((to, _from, next) => {
-    const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
-    if (container) {
-        to.meta.savedPosition = container.scrollTop; // 将滚动位置保存到路由元数据中
-    }
+    to.meta.savedPosition = appsContainer.value?.scrollTop; // 将滚动位置保存到路由元数据中
     to.meta.savedSearchName = params.value.name; // 将搜索名称保存到路由元数据中
     to.meta.savedCategoryId = params.value.categoryId; // 将分类ID保存到路由元数据中
     to.meta.savedPageNo = params.value.pageNo; // 将页码保存到路由元数据中
