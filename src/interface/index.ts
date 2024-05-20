@@ -99,6 +99,7 @@ export interface AppListParams {
     categoryId?: string,
     kind?: string,
     module?: string,
+    repoName: string,
     pageNo: number,
     pageSize: number,
 }

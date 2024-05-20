@@ -14,12 +14,7 @@
     "dev": "vite --mode development",
     "pro": "vite --mode production",
     "build": "vue-tsc --noEmit && vite build && electron-builder",
-    "preview": "vite preview",
-    "package": "electron-packager . Spliter --platform=win32 --arch=ia32 --overwrite --icon=icon.ico --out=./out --asar --app-version=0.0.1",
-    "packager": "electron-packager . Spliter --platform=linux --arch=loongarch64 --overwrite --icon=512x512.png --out=./out --asar --app-version=0.0.1 --electron-zip-dir=/home/Jokul/Documents/",
-    "packager1": "electron-packager . Spliter --platform=linux --arch=mips64el --overwrite --icon=512x512.png --out=./out --asar --app-version=0.0.1 --electron-zip-dir=/home/Jokul/Documents/",
-    "deb1": "electron-installer-debian --src out/Spliter-linux-loongarch64 --dest out/deb/ --arch loongarch64",
-    "deb": "electron-installer-debian --config config.json"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",

@@ -239,7 +239,13 @@ const networkResult = async (_event: any, res: any) => {
         // 非开发环境发送通知APP登陆！
         let baseURL = import.meta.env.VITE_SERVER_URL as string;
         const url = baseURL + "/visit/appLogin";
-        ipcRenderer.send('appLogin', { url: url, llVersion: systemConfigStore.llVersion, appVersion: pkg.version })
+        ipcRenderer.send('appLogin', { 
+            url: url, 
+            llVersion: systemConfigStore.llVersion,
+            linglongBinVersion: systemConfigStore.linglongBinVersion,
+            defaultRepoName: systemConfigStore.defaultRepoName,
+            appVersion: pkg.version 
+        })
     }
     // 延时500毫秒进入
     await new Promise(resolve => setTimeout(resolve, 500));

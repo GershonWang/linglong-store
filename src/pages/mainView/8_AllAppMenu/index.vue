@@ -45,12 +45,21 @@ import { onBeforeRouteLeave } from 'vue-router';
 import elertTip from '@/util/NetErrorTips';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useAllAppItemsStore } from "@/store/allAppItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
 
 const installedItemsStore = useInstalledItemsStore();
 const allAppItemsStore = useAllAppItemsStore();
+const systemConfigStore = useSystemConfigStore();
 
 const appsContainer = ref<HTMLDivElement>()
-const params = ref({ pageNo: 1, pageSize: 50, name: '', categoryId: ''})
+
+const params = ref({ 
+    pageNo: 1, 
+    pageSize: 50, 
+    name: '', 
+    categoryId: '',
+    repoName: systemConfigStore.defaultRepoName
+})
 
 let categoryList = ref<any[]>([]);
 
