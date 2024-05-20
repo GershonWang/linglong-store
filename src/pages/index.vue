@@ -254,9 +254,7 @@ onMounted(async () => {
     if (systemConfigStore.autoCheckUpdate) {
         message.value = "正在检测商店版本号...";
         ipcRenderer.send('logger', 'info', "正在检测商店版本号...");
-        ipcRenderer.send('checkForUpdate');
-        // 监听更新事件
-        ipcRenderer.once('update-message', updateMessage);
+        ipcRenderer.send('checkForUpdate');    
     } else {
         message.value = "跳过商店版本号检测...";
         ipcRenderer.send('logger', 'warn', "跳过商店版本号检测...");
@@ -270,11 +268,14 @@ onMounted(async () => {
     ipcRenderer.on('command-result', commandResult);
     // 监听网络请求执行结果
     ipcRenderer.on('network-result', networkResult);
+    // 监听更新事件
+    ipcRenderer.on('update-message', updateMessage);
 });
 // 销毁前执行
 onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
     ipcRenderer.removeListener('network-result', networkResult);
+    ipcRenderer.removeListener('update-message', updateMessage);
     ipcRenderer.removeAllListeners('downloadProgress');
 });
 </script>
