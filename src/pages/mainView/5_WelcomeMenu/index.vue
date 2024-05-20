@@ -45,7 +45,10 @@ const welcomeItemList = ref<CardFace[]>([]);
 const categoryList = ref<CardFace[]>([]);
 const result = ref<CardFace[][]>([]);
 
-let params = ref<AppListParams>({ pageNo: 1, pageSize: 10 })
+let params = ref<AppListParams>({
+    pageNo: 1, 
+    pageSize: 10 
+})
 // 轮播图推荐程序
 const carouselChart = () => {
     welcomeItemList.value = welcomeItemsStore.welcomeItemList;
@@ -110,6 +113,7 @@ onMounted(async () => {
 <style scoped>
 .el-carousel__item:nth-child(2n) {
     background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    backdrop-filter:blur(10px);
     text-align: center;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
@@ -118,6 +122,7 @@ onMounted(async () => {
 
 .el-carousel__item:nth-child(2n + 1) {
     background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    backdrop-filter:blur(10px);
     text-align: center;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
