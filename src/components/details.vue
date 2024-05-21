@@ -68,8 +68,7 @@ import { CardFace } from '@/interface';
 import { onBeforeRouteLeave } from 'vue-router';
 import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
-import hasUpdateVersion from "@/util/checkVersion";
-
+import { compareVersions } from "@/util/checkVersion";
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
@@ -176,12 +175,11 @@ function simulateDownload() {
 // 运行按钮
 const toRun = (item: CardFace) => {
     // 发送操作命令
-    let commandParams = {
+    ipcRenderer.send('command', {
         ...item,
         command: 'll-cli run ' + item.appId + '/' + item.version,
         loading: false,
-    }
-    ipcRenderer.send('command', commandParams);
+    });
     // 弹出运行提示框
     ElNotification({
         title: '提示',
@@ -198,11 +196,21 @@ onMounted(() => {
     // 1.获取服务器端数据
     // await getAppListByAppId()
     // 2.发送命令到主线程获取版本列表结果
-    let command = "ll-cli query " + query.appId;
-    if (hasUpdateVersion('1.3.99', systemConfigStore.llVersion) == 1) {
-        command = "ll-cli search " + query.appId + " --json";
+    let itemsCommand = '';
+    if (compareVersions(systemConfigStore.llVersion, '1.3.99') < 0) {
+        itemsCommand = "ll-cli query " + query.appId;
+    } else if (compareVersions(systemConfigStore.llVersion, '1.3.99') > 0 
+        && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
+        itemsCommand = "ll-cli search " + query.appId + " --json";
+    } else {
+        if (systemConfigStore.isShowBaseService) {
+            itemsCommand = "ll-cli search " + query.appId + " --json --type=all";
+        } else {
+            itemsCommand = "ll-cli search " + query.appId + " --json";
+        }
     }
-    ipcRenderer.send("command", { 'command': command });
+
+    ipcRenderer.send("command", { 'command': itemsCommand });
     ipcRenderer.once('command-result', (_event: any, res: any) => {
         const command: string = res.param.command;
         if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {

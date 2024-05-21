@@ -162,6 +162,7 @@ const commandResult = (_event: any, res: any) => {
     // 返回结果 - 当前执行安装的应用信息
     const command: string = params.command;
     if (command.startsWith('ll-cli install') || command.startsWith('ll-cli uninstall')) {
+        console.log('command1111',command);
         const installedEntity: InstalledEntity = params;
         installedEntity.isInstalled = false;
         // 移除加载中列表
@@ -205,9 +206,11 @@ const commandResult = (_event: any, res: any) => {
         });
     }
 }
-// 获取实时网速
-const getNetworkSpeed = () => {
-    // 获取网络接口信息
+// 页面初始化时执行
+onMounted(() => {
+    // 监听命令执行结果
+    ipcRenderer.on('command-result', commandResult);
+    // 获取网络接口信息 获取实时网速
     si.networkStats().then((data: { [x: string]: any; }) => {
         // 假设我们使用的是第一个网络接口
         const iface = Object.keys(data)[0];
@@ -244,14 +247,6 @@ const getNetworkSpeed = () => {
             });
         }, 1000); // 每1000毫秒计算一次网速
     });
-}
-// 页面初始化时执行
-onMounted(() => {
-    // ipcRenderer.send("linglong",{ command: 'll-cli install com.xunlei.download' })
-    // ipcRenderer.on('linglong-result', (_event: any, res: any)=> { console.log('apt',res); })
-    getNetworkSpeed();
-    // 监听命令执行结果
-    ipcRenderer.on('command-result', commandResult);
 });
 // 页面销毁前执行
 onBeforeUnmount(() => {

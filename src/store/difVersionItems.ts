@@ -82,7 +82,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                             module: item.module,
                             channel: item.channel,
                             kind: item.kind,
-                            repoName: "",
+                            repoName: systemConfigStore.defaultRepoName,
                             arch: item.arch[0],
                             description: item.description,
                             icon: "",
