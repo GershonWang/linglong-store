@@ -162,7 +162,6 @@ const commandResult = (_event: any, res: any) => {
     // 返回结果 - 当前执行安装的应用信息
     const command: string = params.command;
     if (command.startsWith('ll-cli install') || command.startsWith('ll-cli uninstall')) {
-        console.log('command1111',command);
         const installedEntity: InstalledEntity = params;
         installedEntity.isInstalled = false;
         // 移除加载中列表
@@ -206,10 +205,31 @@ const commandResult = (_event: any, res: any) => {
         });
     }
 }
+const linglongResult = (_event: any, res: any) => {
+    const params = res.param;
+    const code: string = res.code;
+    console.log('linglongResult',res);
+    if ('close' == code) {
+        // 执行异常时，停止相关的加载状态
+        installingItemsStore.removeItem(params as InstalledEntity);
+        allServItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+        installedItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+        difVersionItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+        welcomeItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+        // 弹框提示
+        ElNotification({
+            title: '提示',
+            message: '命令执行结束！',
+            type: 'info',
+            duration: 500,
+        });
+    }
+}
 // 页面初始化时执行
 onMounted(() => {
     // 监听命令执行结果
     ipcRenderer.on('command-result', commandResult);
+    ipcRenderer.on('linglong-result', linglongResult);
     // 获取网络接口信息 获取实时网速
     si.networkStats().then((data: { [x: string]: any; }) => {
         // 假设我们使用的是第一个网络接口
@@ -250,7 +270,8 @@ onMounted(() => {
 });
 // 页面销毁前执行
 onBeforeUnmount(() => {
-    ipcRenderer.removeListener('command-result', commandResult)
+    ipcRenderer.removeListener('command-result', commandResult);
+    ipcRenderer.removeListener('linglong-result', linglongResult);
 });
 </script>
 <style>

@@ -127,49 +127,18 @@ const changeStatus = async (item: any, flag: string) => {
         command: command,
         loading: false,
     }
-    ipcRenderer.send('command', commandParams);
+    if(compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 
+        && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
+        ipcRenderer.send('command', commandParams);
+    } else {
+        ipcRenderer.send('linglong', commandParams);
+    }
     // 弹出提示框
     ElNotification({
         title: '提示',
         message: message,
         type: 'info',
         duration: 500,
-    });
-    if (flag == 'install') {
-        // 获取下载进度
-        simulateDownload();
-    }
-}
-// 模拟下载函数，每隔一段时间计算并打印下载进度，直至下载完成
-function simulateDownload() {
-    // 假设我们使用的是第一个网络接口
-    si.networkStats().then((data: { [x: string]: any; }) => {
-        // 假设我们使用的是第一个网络接口
-        const iface = Object.keys(data)[0];
-        const networkData = data[iface];
-        let beforeOutBytes = networkData.rx_bytes;
-        let downloadedBytes = 0;
-        const interval = 1000; // 1秒
-        let timerId = setInterval(() => {
-            si.networkStats().then((data1: { [x: string]: any }) => {
-                const iface = Object.keys(data1)[0];
-                const networkData = data1[iface];
-                const outBytes = networkData.rx_bytes;
-                console.log('outBytes', outBytes);
-                // 计算两次间隔的字节数差异
-                downloadedBytes += outBytes - beforeOutBytes;
-                beforeOutBytes = outBytes; // 更新已下载的字节数
-                // 计算下载进度
-                const fileSizeInBytes = query.size ? query.size as unknown as number : 0;
-                console.log('fileSize', fileSizeInBytes);
-                const progress = (downloadedBytes / fileSizeInBytes) * 100;
-                console.log(`下载进度: ${progress.toFixed(2)}%`);
-                if (progress >= 100) {
-                    console.log('下载完成');
-                    clearInterval(timerId);
-                }
-            });
-        }, interval);
     });
 }
 // 运行按钮
