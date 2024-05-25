@@ -112,6 +112,7 @@ import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
 
 const installedItemsStore = useInstalledItemsStore();
 const allServItemsStore = useAllServItemsStore();
@@ -119,6 +120,8 @@ const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
 const updateItemsStore = useUpdateItemsStore();
+const systemConfigStore = useSystemConfigStore();
+
 // 默认菜单页签
 const defaultActive = ref('1');
 // 路由对象
@@ -208,7 +211,7 @@ const commandResult = (_event: any, res: any) => {
 const linglongResult = (_event: any, res: any) => {
     const params = res.param;
     const code: string = res.code;
-    console.log('linglongResult',res);
+    const command: string = params.command;
     if ('close' == code) {
         // 执行异常时，停止相关的加载状态
         installingItemsStore.removeItem(params as InstalledEntity);
@@ -216,13 +219,53 @@ const linglongResult = (_event: any, res: any) => {
         installedItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
         difVersionItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
         welcomeItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
+        console.log('仓库地址：', systemConfigStore.defaultRepoName);
+        const installedEntity: InstalledEntity = params;
+        installedEntity.isInstalled = false;
+        // 移除加载中列表
+        installingItemsStore.removeItem(installedEntity);
+        if (command.startsWith('ll-cli install')) {
+            installedEntity.isInstalled = true;
+            installedItemsStore.addItem(installedEntity);
+        } else {
+            installedItemsStore.removeItem(installedEntity);
+        }
+        difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
+        welcomeItemsStore.updateItemLoadingStatus(installedEntity, false);
+        difVersionItemsStore.updateItemInstallStatus(installedEntity);
+        welcomeItemsStore.updateItemInstallStatus(installedEntity);
+        // 更新全部应用列表
+        const item: CardFace = params;
+        item.isInstalled = command.startsWith('ll-cli install');
+        allServItemsStore.updateItemLoadingStatus(item, false);
+        // 判断当前应用安装版本个数小于两个，才进行状态更新
+        const app = installedItemsStore.installedItemList.findIndex(item => item.appId === params.appId);
+        if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
+            allServItemsStore.updateItemInstallStatus(item);
+        }
+        // 移除需要更新的应用
+        updateItemsStore.removeItem(item);
+        // 检测当前环境
+        const mode = import.meta.env.MODE as string;
+        if (mode != "development") {
+            // 非开发环境发送发送操作命令！
+            let baseURL = import.meta.env.VITE_SERVER_URL as string;
+            params.url = baseURL + "/visit/save";
+            ipcRenderer.send('visit', params);
+        }
         // 弹框提示
+        // 安装成功后，弹出通知
+        const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
         ElNotification({
-            title: '提示',
-            message: '命令执行结束！',
-            type: 'info',
+            title: msg + '成功!',
+            message: params.name + '(' + params.version + ')被成功' + msg + '!',
+            type: 'success',
             duration: 500,
         });
+        return;
+    }
+    if ('stdout' == code) {
+        console.log('linglongResult',res);
     }
 }
 // 页面初始化时执行

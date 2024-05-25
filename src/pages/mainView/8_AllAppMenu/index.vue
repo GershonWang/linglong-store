@@ -54,11 +54,11 @@ const systemConfigStore = useSystemConfigStore();
 const appsContainer = ref<HTMLDivElement>()
 
 const params = ref({ 
-    pageNo: 1, 
-    pageSize: 50, 
     name: '', 
     categoryId: '',
-    repoName: systemConfigStore.defaultRepoName
+    repoName: systemConfigStore.defaultRepoName,
+    pageNo: 1, 
+    pageSize: 50
 })
 
 let categoryList = ref<any[]>([]);

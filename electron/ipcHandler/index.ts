@@ -37,7 +37,7 @@ const IPCHandler = (win: BrowserWindow) => {
     /* ****************** 监听命令动态返回结果 ******************* */
     ipcMain.on('linglong',(_event, params) => {
         ipcLog.info('linglong：', JSON.stringify(params));
-        const installProcess = exec(params.command);
+        const installProcess = exec(params.command, { encoding: 'utf8' });
         installProcess.stdout.on('data', (data) => {
             ipcLog.info(`stdout: ${data}`);
             win.webContents.send("linglong-result", { code: 'stdout', param: params, result: data });

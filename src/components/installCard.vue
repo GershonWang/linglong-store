@@ -23,11 +23,15 @@ import { LocationQueryRaw, useRouter } from 'vue-router';
 import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
+import { compareVersions } from "@/util/checkVersion";
 
-const router = useRouter();
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
+const systemConfigStore = useSystemConfigStore();
+
+const router = useRouter();
 
 // 接受父组件传递的参数，并设置默认值
 // icon: "https://linglong.dev/asset/logo.svg",
@@ -96,7 +100,8 @@ const changeStatus = (item: CardFace) => {
             duration: 500,
         });
         // 发送操作命令
-        ipcRenderer.send('command', {
+        let commandType = compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") < 0 ? 'command' : 'linglong';
+        ipcRenderer.send(commandType, {
             appId: item.appId,
             name: item.name,
             arch: item.arch,

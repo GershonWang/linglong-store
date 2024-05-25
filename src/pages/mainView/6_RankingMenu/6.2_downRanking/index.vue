@@ -18,16 +18,23 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue';
 import defaultImage from '@/assets/logo.svg';
+import rankingServCard from '@/components/rankingServCard.vue';
 import { AppListParams, CardFace, pageResult } from '@/interface';
 import { getInstallAppList } from '@/api/server';
-import rankingServCard from '@/components/rankingServCard.vue';
 import { useInstalledItemsStore } from "@/store/installedItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
 import { onBeforeRouteLeave } from 'vue-router';
 import router from '@/router';
 
 const installedItemsStore = useInstalledItemsStore();
+const systemConfigStore = useSystemConfigStore();
 
-let params = ref<AppListParams>({ pageNo: 1, pageSize: 100 })
+let params = ref<AppListParams>({ 
+    repoName: systemConfigStore.defaultRepoName,
+    pageNo: 1, 
+    pageSize: 100 
+})
+
 let displayedItems = ref<CardFace[]>([]);
 // 页面启动时加载
 onMounted(async () => {

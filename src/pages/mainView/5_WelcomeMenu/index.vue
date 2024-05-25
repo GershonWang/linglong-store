@@ -36,16 +36,19 @@ import WelcomeCard from "@/components/welcomeCard.vue";
 import { AppListParams, CardFace, pageResult } from "@/interface";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
 import router from "@/router";
 
 const welcomeItemsStore = useWelcomeItemsStore();
 const installedItemsStore = useInstalledItemsStore();
+const systemConfigStore = useSystemConfigStore();
 
 const welcomeItemList = ref<CardFace[]>([]);
 const categoryList = ref<CardFace[]>([]);
 const result = ref<CardFace[][]>([]);
 
 let params = ref<AppListParams>({
+    repoName: systemConfigStore.defaultRepoName,
     pageNo: 1, 
     pageSize: 10 
 })

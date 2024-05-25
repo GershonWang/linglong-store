@@ -76,7 +76,6 @@ import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import elertTip from "@/util/NetErrorTips";
-import si from 'systeminformation';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();

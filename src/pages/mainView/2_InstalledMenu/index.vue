@@ -24,7 +24,7 @@ import { useSystemConfigStore } from "@/store/systemConfig";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
-import hasUpdateVersion, { compareVersions } from "@/util/checkVersion";
+import { compareVersions } from "@/util/checkVersion";
 import elertTip from "@/util/NetErrorTips";
 import { CardFace } from "@/interface";
 
