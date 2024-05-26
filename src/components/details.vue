@@ -18,10 +18,10 @@
                         <el-col :span="5" class="base-message-value" :title="query.zhName">{{ query.zhName }}</el-col>
                     </el-row>
                     <el-row style="margin-bottom: 10px;">
-                        <el-col :span="3" class="base-message-key">AppID：</el-col>
+                        <el-col :span="3" class="base-message-key">appId：</el-col>
                         <el-col :span="5" class="base-message-value" :title="query.appId">{{ query.appId }}</el-col>
-                        <el-col :span="3" class="base-message-key">应用架构：</el-col>
-                        <el-col :span="5" class="base-message-value" :title="query.arch">{{ query.arch }}</el-col>
+                        <el-col :span="3" class="base-message-key">架构：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="formatArch">{{ formatArch }}</el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="3" class="base-message-key">应用简述：</el-col>
@@ -78,19 +78,26 @@ import { useSystemConfigStore } from "@/store/systemConfig";
 import elertTip from "@/util/NetErrorTips";
 import { useRouter } from 'vue-router';
 
-const router = useRouter();
-
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
 const systemConfigStore = useSystemConfigStore();
+
+const router = useRouter();
 // 路由传递的对象
 const query = router.currentRoute.value.query;
 // 格式化程序名称
 const defaultName = computed(() => {
     return query.zhName ? query.zhName : query.name;
+})
+// 格式化架构字段
+const formatArch = computed(() => {
+    if(query.arch && (query.arch as string).startsWith('[')) {
+        return JSON.parse(query.arch as string).join(',');
+    }
+    return query.arch;
 })
 // 格式化运行时字段
 function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
@@ -107,12 +114,15 @@ const changeStatus = async (item: any, flag: string) => {
     installedItemsStore.updateItemLoadingStatus(item, true);
     difVersionItemsStore.updateItemLoadingStatus(item, true);
     welcomeItemsStore.updateItemLoadingStatus(item, true);
-    // 新增到加载中列表
-    installingItemsStore.addItem(item);
     // 根据flag判断是安装还是卸载
-    let message: string = '正在安装' + item.name + '(' + item.version + ')';
-    let command: string = 'll-cli install ' + item.appId + '/' + item.version;
-    if (flag == 'uninstall') {
+    let message = '';
+    let command = '';
+    if (flag == 'install') {
+        // 新增到加载中列表
+        installingItemsStore.addItem(item);
+        message = '正在安装' + item.name + '(' + item.version + ')';
+        command= 'll-cli install ' + item.appId + '/' + item.version;
+    } else {
         message = '正在卸载' + item.name + '(' + item.version + ')';
         command = 'll-cli uninstall ' + item.appId + '/' + item.version;
     }
@@ -120,18 +130,13 @@ const changeStatus = async (item: any, flag: string) => {
     const allItems = allServItemsStore.allServItemList;
     const findItem = allItems.find(it => it.appId == item.appId && it.name == item.name);
     // 发送操作命令
-    const commandParams = {
+    let commandType = compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0 ? 'command' : 'linglong';
+    ipcRenderer.send(commandType, {
         ...item,
         icon: findItem ? findItem.icon : '',
         command: command,
         loading: false,
-    }
-    if(compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 
-        && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
-        ipcRenderer.send('command', commandParams);
-    } else {
-        ipcRenderer.send('linglong', commandParams);
-    }
+    });
     // 弹出提示框
     ElNotification({
         title: '提示',

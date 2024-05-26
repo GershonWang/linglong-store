@@ -87,10 +87,14 @@
                     <el-table :data="installingItemsStore.installingItemList" style="width: 100%;height: 100%;">
                         <el-table-column prop="name" label="名称" header-align="center" align="center" />
                         <el-table-column prop="version" label="版本" header-align="center" align="center" width="180" />
-                        <el-table-column prop="schedule" label="安装进度" header-align="center" align="center" width="80" />
+                        <el-table-column label="安装进度" header-align="center" align="center" width="80">
+                            <template #default="scope">
+                                <a v-if="compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') >= 0">{{ scope.row.schedule }}</a>
+                                <a v-else>-</a>
+                            </template>
+                        </el-table-column>
                         <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                             <template #default="scope">
-                                <!-- 安装按钮 -->
                                 <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
                             </template>
                         </el-table-column>
@@ -105,6 +109,7 @@ import { ipcRenderer } from 'electron';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import si from 'systeminformation';
+import { compareVersions } from '@/util/checkVersion';
 import { ElNotification } from 'element-plus'
 import { CardFace,InstalledEntity } from '@/interface';
 import { useAllServItemsStore } from "@/store/allServItems";
@@ -220,7 +225,6 @@ const linglongResult = (_event: any, res: any) => {
         installedItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
         difVersionItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
         welcomeItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
-        console.log('仓库地址：', systemConfigStore.defaultRepoName);
         const installedEntity: InstalledEntity = params;
         installedEntity.isInstalled = false;
         // 移除加载中列表
@@ -270,7 +274,6 @@ const linglongResult = (_event: any, res: any) => {
         const aaa = res.result.replace('[K[?25l','').replace('[?25h','');
         const schedule = aaa.split(' ')[0];
         installingItemsStore.updateItemSchedule(params as InstalledEntity, schedule);
-        console.log('linglongResult',res);
     }
 }
 // 页面初始化时执行

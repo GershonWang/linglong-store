@@ -6,9 +6,8 @@
         <span class="card-name" :title="name">{{ name }}</span>
         <span class="card-zh-name">{{ defaultName }}</span>
         <span class="card-version">{{ version }}</span>
-        <div class="card-bottom" v-loading="loading" element-loading-svg-view-box="-10, -10, 50, 50"
-            element-loading-background="rgba(122, 122, 122, 0.8)" :element-loading-svg="svg">
-            <div class="card-arch">{{ arch }}</div>
+        <div class="card-bottom" v-loading="loading" :element-loading-svg="svg"
+            element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
             <el-button class="uninstall-btn" @click="changeStatus(props)">卸载</el-button>
         </div>
     </el-card>
@@ -119,5 +118,14 @@ const changeStatus = (item: CardFace) => {
 <style scoped>
 :deep(.el-card__body) {
     padding-top: 0px;
+}
+
+.card-bottom {
+    justify-content: center;
+}
+
+.uninstall-btn {
+    padding: 6px;
+    width: 75%;
 }
 </style>
