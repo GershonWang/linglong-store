@@ -26,10 +26,23 @@ export const useInstallingItemsStore = defineStore("installingItems", () => {
             installingItemList.value.splice(index, 1);
         }
     };
-    
+    /**
+     * 更新对象的加载进度
+     * @param item 要更新的对象
+     */
+    const updateItemSchedule = (item: InstalledEntity,schedule: string) => {
+        const index = installingItemList.value.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+        if (index !== -1) {
+            const aItem = installingItemList.value[index];
+            aItem.schedule = schedule;
+            installingItemList.value.splice(index, 1, aItem);
+        }
+    }
+
     return {
         installingItemList,
         addItem,
         removeItem,
+        updateItemSchedule,
     };
 });

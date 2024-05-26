@@ -36,7 +36,7 @@
         <el-table :data="difVersionItemsStore.difVersionItemList" style="width: 100%;border-radius: 5px;flex-grow: 1;">
             <el-table-column prop="version" label="版本号" width="120" />
             <el-table-column prop="kind" label="应用类型" header-align="center" align="center" width="100" />
-            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="240"
+            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="250"
                 :formatter="formatRuntime" />
             <el-table-column prop="channel" label="通道" header-align="center" align="center" width="100"/>
             <el-table-column prop="repoName" label="仓库来源" header-align="center" align="center" width="100"/>

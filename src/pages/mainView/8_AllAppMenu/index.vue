@@ -178,7 +178,6 @@ onBeforeRouteLeave((to, _from, next) => {
     align-items: center;
     margin-right: 10px;
 }
-
 .apps-container {
     height: 92%;
 }

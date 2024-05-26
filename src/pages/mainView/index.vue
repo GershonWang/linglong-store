@@ -87,6 +87,7 @@
                     <el-table :data="installingItemsStore.installingItemList" style="width: 100%;height: 100%;">
                         <el-table-column prop="name" label="名称" header-align="center" align="center" />
                         <el-table-column prop="version" label="版本" header-align="center" align="center" width="180" />
+                        <el-table-column prop="schedule" label="安装进度" header-align="center" align="center" width="80" />
                         <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                             <template #default="scope">
                                 <!-- 安装按钮 -->
@@ -265,6 +266,10 @@ const linglongResult = (_event: any, res: any) => {
         return;
     }
     if ('stdout' == code) {
+        // "[K[?25l0% prepare installing main:app.web.baidu.map/0.9.1.2/x86_64[?25h"
+        const aaa = res.result.replace('[K[?25l','').replace('[?25h','');
+        const schedule = aaa.split(' ')[0];
+        installingItemsStore.updateItemSchedule(params as InstalledEntity, schedule);
         console.log('linglongResult',res);
     }
 }

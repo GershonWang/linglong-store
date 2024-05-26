@@ -41,25 +41,29 @@ export interface RunTime {
  * 安装对象
  */
 export interface InstalledEntity {
-    appId: string,
-    arch: string,
-    channel: string,
-    description: string,
-    icon: string,
-    kind: string,
-    module: string,
-    name: string,
-    zhName?: string,
-    repoName: string,
-    runtime: string,
-    size: string,
-    uabUrl: string,
-    user: string,
-    version: string,
-    isInstalled: boolean,
-    loading: boolean,
+    appId: string, // 玲珑id
+    name: string, // 玲珑名称
+    version: string, // 玲珑版本
+    arch: string, // 架构
+    channel: string, // 玲珑渠道
+    description: string, // 玲珑描述
+    icon: string, // 玲珑图标
+    kind: string, // 玲珑类型
+    module: string, // 玲珑模块
+    zhName?: string, // 玲珑名称
+    repoName: string, // 来源仓库
+    runtime: string, // 运行依赖
+    size: string, // 文件大小
+    uabUrl?: string, // 玲珑地址
+    user?: string, // 用户名
+    /* ********** 非命令传递字段 ********* */
+    isInstalled?: boolean, // 是否已安装
+    loading?: boolean,  // 是否正在安装
+    schedule?: string,  // 安装进度
 }
-
+/**
+ * 安装对象(1.5.0版本)
+ */
 export interface InstalledSoftware {
     appid: string,
     name: string,
@@ -73,6 +77,10 @@ export interface InstalledSoftware {
     module: string,
     runtime: string,
     size: number,
+    /* ********** 非命令传递字段 ********* */
+    isInstalled?: boolean, // 是否已安装
+    loading?: boolean,  // 是否正在安装
+    schedule?: string,  // 安装进度
 }
 
 /**
