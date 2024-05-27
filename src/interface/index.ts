@@ -22,6 +22,7 @@ export interface CardFace {
     installCount?: number,
     zhName?: string,
     size?: string,
+    repoName?: string,
 }
 
 /**

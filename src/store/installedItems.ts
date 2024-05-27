@@ -44,31 +44,7 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
             }
         } else {
             const datas: InstalledSoftware[] = data.trim() ? JSON.parse(data.trim()) : [];
-            if (datas.length > 0 && !systemConfigStore.isShowBaseService) {
-                datas.forEach((item: InstalledSoftware) => {
-                    if (item.kind == "app") {
-                        const card: InstalledEntity = {
-                            appId: item.appid,
-                            arch: item.arch[0],
-                            channel: item.channel,
-                            description: item.description,
-                            icon: "",
-                            kind: item.kind,
-                            module: item.module,
-                            name: item.name,
-                            repoName: "",
-                            runtime: item.runtime,
-                            size: String(item.size),
-                            uabUrl: "",
-                            user: "",
-                            version: item.version,
-                            isInstalled: false,
-                            loading: false
-                        }
-                        installedItemList.value.push(card);
-                    }
-                })
-            } else {
+            if (datas.length > 0) {
                 datas.forEach((item: InstalledSoftware) => {
                     const card: InstalledEntity = {
                         appId: item.appid,
@@ -92,21 +68,24 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                 })
             }
         }
-        await getAppDetails(installedItemList.value).then((res) => {
-            if(res.code == 200) {
-                const datas: InstalledEntity[] = res.data as unknown as InstalledEntity[];
-                if(datas.length > 0) {
-                    clearItems();
-                    datas.forEach((item: InstalledEntity) => {
-                        if (item) {
-                            installedItemList.value.push(item);
+        if (installedItemList.value.length > 0) {
+            await getAppDetails(installedItemList.value).then((res) => {
+                if(res.code == 200) {
+                    const datas: InstalledEntity[] = res.data as unknown as InstalledEntity[];
+                    if(datas.length > 0) {
+                        for(let i = 0; i < installedItemList.value.length; i++) {
+                            const item = installedItemList.value[i];
+                            const findItem = datas.find(i => i.appId == item.appId && i.name == item.name && i.version == item.version);
+                            if (findItem) {
+                                installedItemList.value[i] = findItem;
+                            }
                         }
-                    })
+                    }
+                } else {
+                    console.log(res.msg);
                 }
-            } else {
-                console.log(res.msg);
-            }
-        })
+            })
+        }
         return installedItemList;
     }
     /**
