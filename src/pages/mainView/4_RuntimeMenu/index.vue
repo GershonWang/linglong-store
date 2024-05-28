@@ -78,6 +78,7 @@ const commandResult = (_event: any, res: any) => {
                     const runItem: any = apps[index];
                     const pack = runItem['package'];
                     // main:org.dde.calendar/5.13.1.1/x86_64
+                    // linglong:org.mamedev.mamedev
                     const parts = pack.split('/');
                     if (parts.length !== 3) {
                         ElNotification({
