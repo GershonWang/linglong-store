@@ -86,6 +86,7 @@ const commandResult = (_event: any, res: any) => {
                             type: 'error',
                             duration: 1000,
                         });
+                        loading.value = false;
                         return;
                     }
                     const [newName, version, architecture] = parts;
