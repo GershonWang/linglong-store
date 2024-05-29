@@ -1,7 +1,7 @@
 <template>
     <el-breadcrumb :separator-icon="ArrowRight">
-        <el-breadcrumb-item class="firstMenu" @click="router.back">{{ query.menuName }}</el-breadcrumb-item>
-        <el-breadcrumb-item class="secondMenu">{{ defaultName }}</el-breadcrumb-item>
+        <el-breadcrumb-item class="first-menu" @click="router.back">{{ query.menuName }}</el-breadcrumb-item>
+        <el-breadcrumb-item class="second-menu">{{ defaultName }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="base-container">
         <div class="title">参数信息</div>
@@ -207,22 +207,6 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 })
 </script>
 <style scoped>
-.el-breadcrumb {
-    height: 25px;
-    --el-text-color-placeholder: var(--menu-base-font-color);
-}
-
-.firstMenu :deep(.el-breadcrumb__inner) {
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
-    color: var(--menu-base-font-color);
-}
-
-.second-menu :deep(.el-breadcrumb__inner) {
-    color: var(--menu-base-font-color);
-}
-
 .base-container {
     display: flex;
     flex-direction: column;
@@ -251,15 +235,19 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border-radius: 10px;
-    background-color: bisque;
+    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    backdrop-filter:blur(10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background-clip: padding-box;
 }
 
 .choose-version {
     display: flex;
     flex-direction: column;
     border-radius: 5px;
-    height: 60%;
+    height: calc(70% - 82px);
     background-color: #6a6d7b;
     padding: 10px;
 }

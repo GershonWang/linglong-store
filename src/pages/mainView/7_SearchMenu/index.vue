@@ -134,23 +134,7 @@ onBeforeRouteLeave((to, _from, next) => {
 })
 </script>
 <style scoped>
-.el-breadcrumb {
-    height: 25px;
-    --el-text-color-placeholder: var(--menu-base-font-color);
-}
-
-.first-menu :deep(.el-breadcrumb__inner) {
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
-    color: var(--menu-base-font-color);
-}
-
-.second-menu :deep(.el-breadcrumb__inner) {
-    color: var(--menu-base-font-color);
-}
-
 .apps-container {
-    height: 97%;
+    height: calc(100% - 37px);
 }
 </style>

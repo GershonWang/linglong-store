@@ -13,29 +13,47 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
-
+/*    全局基础样式    */
 html,body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
 }
-
 #app {
   width: 100%;
   height: 100%;
   position: relative;
 }
-
+/*   面包屑层级菜单   */
+.el-breadcrumb {
+  height: 25px;
+  line-height: 25px;
+  margin-bottom: 12px;
+  --el-text-color-placeholder: var(--menu-base-font-color);
+}
+.first-menu > .el-breadcrumb__inner {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--menu-base-font-color);
+}
+.first-menu > .el-breadcrumb__inner:hover {
+  color: #E2AB5F;
+}
+.second-menu > .el-breadcrumb__inner {
+  cursor: default !important;
+  color: var(--menu-base-font-color) !important;
+}
+/*     表单基础公共样式     */
 .el-table {
   --el-table-header-bg-color: #E2AB5F;
   border-radius: 12px;
 }
-
 .el-table th {
   color: #000;
 }
-
+/*     页面整体基础样式     */
 .apps-container {
   height: 100%;
   width: 100%;
