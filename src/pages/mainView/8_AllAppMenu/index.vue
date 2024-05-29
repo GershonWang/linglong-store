@@ -52,7 +52,7 @@ const allAppItemsStore = useAllAppItemsStore();
 const systemConfigStore = useSystemConfigStore();
 
 const appsContainer = ref<HTMLDivElement>()
-
+const categoryList = ref<any[]>([]);
 const params = ref({ 
     name: '', 
     categoryId: '',
@@ -60,8 +60,6 @@ const params = ref({
     pageNo: 1, 
     pageSize: 50
 })
-
-let categoryList = ref<any[]>([]);
 
 // 滚动条监听事件
 const handleScroll = async () => {
@@ -152,46 +150,7 @@ onBeforeRouteLeave((to, _from, next) => {
 })
 </script>
 <style scoped>
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 45px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 5px;
-    border-radius: 5px;
-}
-.header-left {
-    display: flex;
-    align-items: center;
-}
-.header-left-title {
-    margin-left: 10px;
-}
-.header-right {
-    display: flex;
-    align-items: center;
-}
-.header-right-search {
-    display: flex;
-    align-items: center;
-    margin-right: 10px;
-}
 .apps-container {
     height: calc(100% - 70px);
-}
-
-@media (prefers-color-scheme: light) {
-    .header {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .header {
-        background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
-    }
 }
 </style>
