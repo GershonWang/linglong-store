@@ -76,29 +76,43 @@ const commandResult = (_event: any, res: any) => {
             if (apps.length > 0) {
                 for (let index = 0; index < apps.length; index++) {
                     const runItem: any = apps[index];
-                    const pack = runItem['package'];
                     // main:org.dde.calendar/5.13.1.1/x86_64
                     // linglong:org.mamedev.mamedev
-                    const parts = pack.split('/');
-                    if (parts.length !== 3) {
-                        ElNotification({
-                            title: '提示',
-                            message: '参数解析异常！',
-                            type: 'error',
-                            duration: 1000,
-                        });
-                        loading.value = false;
-                        return;
+                    let appId = '',version = '',arch = '',repo = '';
+                    const pack = runItem['package'];
+                    if (pack) {
+                        if (pack.includes(':')) {
+                            const parts = pack.split(':');
+                            repo = parts[0];
+                            const other = parts[1];
+                            if (other.includes('/')) {
+                                const partss = other.split('/');
+                                appId = partss[0];
+                                version = partss[1];
+                                if (partss.length > 2) {
+                                    arch = partss[2];
+                                }
+                            } else {
+                                appId = other;
+                            }
+                        } else if (pack.includes('/')){
+                            const parts = pack.split('/');
+                            appId = parts[0];
+                            version = parts[1];
+                            if (parts.length > 2) {
+                                arch = parts[2];
+                            }
+                        } else {
+                            appId = pack;
+                        }
                     }
-                    const [newName, version, architecture] = parts;
-                    const [repo, appId] = newName.split(':');
                     const runTime: RunTime = {
                         App: appId,
                         ContainerID: runItem["id"],
                         Pid: runItem["pid"],
                         Path: '',
                         version: version,
-                        arch: architecture,
+                        arch: arch,
                         repo: repo
                     }
                     runtimeList.value.push(runTime);
