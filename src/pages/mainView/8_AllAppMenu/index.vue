@@ -156,6 +156,7 @@ onBeforeRouteLeave((to, _from, next) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 45px;
     padding-top: 10px;
     padding-bottom: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -179,7 +180,7 @@ onBeforeRouteLeave((to, _from, next) => {
     margin-right: 10px;
 }
 .apps-container {
-    height: 92%;
+    height: calc(100% - 70px);
 }
 
 @media (prefers-color-scheme: light) {

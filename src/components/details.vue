@@ -272,22 +272,19 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     padding: 6px;
     height: 24px;
 }
-
-/* 隐藏滚动条 */
-::-webkit-scrollbar {
-    display: none;
-}
-
 .base-message-key {
     color: black;
     text-align: right;
     font-weight: bold;
 }
-
 .base-message-value {
     color: #213547;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
 }
 </style>

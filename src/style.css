@@ -59,14 +59,12 @@ html,body {
   width: 100%;
   overflow-y: auto;
 }
-
 .card-items-container {
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
   margin-right: 12px;
 }
-
 .card-items {
   padding: 10px;
   flex: 1;
@@ -76,13 +74,11 @@ html,body {
   box-sizing: border-box;
   background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
 }
-
 .card-container {
   width: 100%;
   position: relative;
   background: radial-gradient(circle at 50% 20%, #6E6E6E, transparent);
 }
-
 .card-icon {
   display: flex;
   justify-content: center;
@@ -91,7 +87,6 @@ html,body {
   width: 120px;
   height: 120px;
 }
-
 .card-name {
   display: flex;
   text-align: center;
@@ -104,7 +99,6 @@ html,body {
   white-space: nowrap;
   color: var(--menu-base-font-color);
 }
-
 .card-zh-name {
   background-color: #6d6d6d;
   display: flex;
@@ -115,7 +109,6 @@ html,body {
   color: #E2E2E2;
   padding: 3px;
 }
-
 .card-version {
   display: flex;
   justify-content: center;
@@ -123,25 +116,21 @@ html,body {
   font-size: 14px;
   color: var(--menu-base-font-color);
 }
-
 .card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .card-arch {
   font-size: 14px;
   color: white;
 }
-
 .no-data-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
 }
-
 .install-btn {
   height: 24px;
   width: 58px;
@@ -149,12 +138,10 @@ html,body {
   color: #c7bdbd;
   border: none;
 }
-
 .install-btn:hover {
   background-color: #c9c9ef;
   color: #2D2F2F;
 }
-
 .uninstall-btn {
   height: 24px;
   width: 58px;
@@ -162,7 +149,6 @@ html,body {
   color: white;
   border: none;
 }
-
 .uninstall-btn:hover {
   background-color: #c9c9ef;
   color: #2D2F2F;
@@ -177,15 +163,12 @@ html,body {
     --menu-base-font-color: #000;
     --base-background-color: #DCDCDC;
   }
-
   .card-items {
     border: 1px solid #ccc;
   }
-
   .card-container {
     border: 1px solid #ccc;
   }
-
 }
 
 @media (prefers-color-scheme: dark) {
@@ -197,13 +180,10 @@ html,body {
     --menu-base-font-color: #ffffff;
     --base-background-color: #2D2F2F;
   }
-
   .card-items {
     border: none;
   }
-
   .card-container {
     border: none;
   }
-
 }
