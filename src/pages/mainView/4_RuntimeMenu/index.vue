@@ -76,6 +76,10 @@ const commandResult = (_event: any, res: any) => {
             if (apps.length > 0) {
                 for (let index = 0; index < apps.length; index++) {
                     const runItem: any = apps[index];
+                    // ref唯一标识的组成结构 ${repo}/${channel}:${id}/${version}/${arch}
+                    // deepin/main:org.deepin.calculator/1.2.2/x86_64
+                    // 默认 repo 为 deepin
+                    // 默认 channel 为 main
                     // main:org.dde.calendar/5.13.1.1/x86_64
                     // linglong:org.mamedev.mamedev
                     let appId = '',version = '',arch = '',repo = '';
@@ -132,7 +136,7 @@ const commandResult = (_event: any, res: any) => {
         }
     }
     if (command.startsWith('ll-cli kill')) {
-        console.log(res.result);
+        console.log('1111',res.result);
         if ('stdout' == res.code) {
             if ((res.result as string).trim().endsWith('success')) {
                 // 弹出提示框
