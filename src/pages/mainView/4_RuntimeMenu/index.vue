@@ -1,12 +1,13 @@
 <template>
     <div class="apps-container" v-loading="loading" element-loading-text="加载中...">
         <el-table :data="runtimeList" height="100%" style="width: 100%;border-radius: 5px;">
-            <el-table-column prop="App" label="AppId" width="180" />
+            <el-table-column prop="App" label="AppId" width="200" />
             <el-table-column prop="version" label="版本号" width="100" />
             <el-table-column prop="arch" label="架构" width="100" />
+            <el-table-column prop="channel" label="渠道" width="100" />
             <el-table-column prop="repo" label="来源" width="100" />
-            <el-table-column prop="ContainerID" label="容器ID" width="500" />
             <el-table-column prop="Pid" label="进程ID" width="100" />
+            <el-table-column prop="ContainerID" label="容器ID" width="500" />
             <el-table-column prop="Path" label="玲珑目录" width="500"/>
             <el-table-column fixed="right" label="操作" width="120">
                 <template #default="scope">
@@ -24,12 +25,16 @@ import { onMounted, onBeforeUnmount, ref } from 'vue';
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { RunTime } from "@/interface";
+import { parseRef } from "@/util/refParam";
 import { compareVersions } from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 
 const systemConfigStore = useSystemConfigStore();
+const linglongBinVersion = systemConfigStore.linglongBinVersion;
+
 const loading = ref(true);
 let runtimeList = ref([] as RunTime[]);
+
 // 监听命令事件
 const commandResult = (_event: any, res: any) => {
     const command: string = res.param.command;
@@ -48,6 +53,7 @@ const commandResult = (_event: any, res: any) => {
                             Path: items[3],
                             version: '',
                             arch: '',
+                            channel: '',
                             repo: ''
                         }
                         runtimeList.value.push(runTime);
@@ -67,57 +73,24 @@ const commandResult = (_event: any, res: any) => {
             });
         }
     }
-    /**
-     * 玲珑1.5.0-1版本使用命令
-     */
+    // 玲珑1.5.0-1版本使用命令
      if (command == 'll-cli ps --json') {
         if ('stdout' == res.code) {
             const apps: any[] = JSON.parse(res.result);
             if (apps.length > 0) {
                 for (let index = 0; index < apps.length; index++) {
                     const runItem: any = apps[index];
-                    // ref唯一标识的组成结构 ${repo}/${channel}:${id}/${version}/${arch}
-                    // deepin/main:org.deepin.calculator/1.2.2/x86_64
-                    // 默认 repo 为 deepin
-                    // 默认 channel 为 main
-                    // main:org.dde.calendar/5.13.1.1/x86_64
-                    // linglong:org.mamedev.mamedev
-                    let appId = '',version = '',arch = '',repo = '';
                     const pack = runItem['package'];
-                    if (pack) {
-                        if (pack.includes(':')) {
-                            const parts = pack.split(':');
-                            repo = parts[0];
-                            const other = parts[1];
-                            if (other.includes('/')) {
-                                const partss = other.split('/');
-                                appId = partss[0];
-                                version = partss[1];
-                                if (partss.length > 2) {
-                                    arch = partss[2];
-                                }
-                            } else {
-                                appId = other;
-                            }
-                        } else if (pack.includes('/')){
-                            const parts = pack.split('/');
-                            appId = parts[0];
-                            version = parts[1];
-                            if (parts.length > 2) {
-                                arch = parts[2];
-                            }
-                        } else {
-                            appId = pack;
-                        }
-                    }
+                    const packs = parseRef(pack);
                     const runTime: RunTime = {
-                        App: appId,
+                        App: packs.appId,
                         ContainerID: runItem["id"],
                         Pid: runItem["pid"],
                         Path: '',
-                        version: version,
-                        arch: arch,
-                        repo: repo
+                        version: packs.version,
+                        arch: packs.arch,
+                        channel: packs.channel,
+                        repo: packs.repo
                     }
                     runtimeList.value.push(runTime);
                 }
@@ -136,7 +109,6 @@ const commandResult = (_event: any, res: any) => {
         }
     }
     if (command.startsWith('ll-cli kill')) {
-        console.log('1111',res.result);
         if ('stdout' == res.code) {
             if ((res.result as string).trim().endsWith('success')) {
                 // 弹出提示框
@@ -161,25 +133,55 @@ const commandResult = (_event: any, res: any) => {
         }
     }
 }
+// 强制退出程序
+const killAppResult = (_event: any, res: any) => {
+    console.log('killAppResult',res.result);
+    if ('close' == res.code && 0 == res.result) {
+        // 弹出提示框
+        ElNotification({
+            title: '提示',
+            message: "操作成功",
+            type: 'info',
+            duration: 500,
+        });
+        runtimeList.value.splice(0, runtimeList.value.length);
+        if (linglongBinVersion && compareVersions(linglongBinVersion,'1.5.0') < 0) {
+            ipcRenderer.send('command', { command: "ll-cli ps" });
+        } else {
+            ipcRenderer.send('command', { command: "ll-cli ps --json" });
+        }
+    } else if ('close' == res.code && 0 != res.result) {
+        // 弹出提示框
+        ElNotification({
+            title: '错误',
+            message: res.result,
+            type: 'error',
+            duration: 500,
+        });
+    }
+}
 // 停止服务按钮点击事件
 const stopPross = (item: RunTime) => {
     const { ContainerID } = item;
-    ipcRenderer.send('command', { command: `ll-cli kill ${ContainerID}` });
+    if (linglongBinVersion && compareVersions(linglongBinVersion,'1.5.0') < 0) {
+        ipcRenderer.send('command', { command: `ll-cli kill ${ContainerID}` });
+    } else {
+        ipcRenderer.send('kill-app', { command: `ll-cli kill ${ContainerID}` });
+    }
 }
-
+// 页面启动时加载
 onMounted(() => {
-    // 发送操作命令
-    const linglongBinVersion = systemConfigStore.linglongBinVersion;
-    const llVersion = systemConfigStore.llVersion;
     if (linglongBinVersion && compareVersions(linglongBinVersion,'1.5.0') < 0) {
         ipcRenderer.send('command', { command: "ll-cli ps" });
     } else {
         ipcRenderer.send('command', { command: "ll-cli ps --json" });
     }
     ipcRenderer.on('command-result', commandResult);
+    ipcRenderer.on('kill-app-result', killAppResult);
 })
 onBeforeUnmount(() => {
-    ipcRenderer.removeListener('command-result', commandResult);
+    ipcRenderer.removeListener('command-result', commandResult); // 公共调用方法
+    ipcRenderer.removeListener('kill-app-result', killAppResult); // 强制退出程序
 })
 </script>
 <style scoped>

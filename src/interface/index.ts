@@ -35,6 +35,7 @@ export interface RunTime {
     Path: string,
     version: string,
     arch: string,
+    channel: string,
     repo: string,
 }
 

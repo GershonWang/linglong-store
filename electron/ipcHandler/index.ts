@@ -51,6 +51,23 @@ const IPCHandler = (win: BrowserWindow) => {
             win.webContents.send("linglong-result", { code: 'close', param: params, result: code });
         })
     })
+    /* ****************** 强制退出程序 ******************* */
+    ipcMain.on('kill-app',(_event, params) => {
+        ipcLog.info('kill-app：', JSON.stringify(params));
+        const installProcess = exec(params.command, { encoding: 'utf8' });
+        installProcess.stdout.on('data', (data) => {
+            ipcLog.info(`stdout: ${data}`);
+            win.webContents.send("kill-app-result", { code: 'stdout', param: params, result: data });
+        })
+        installProcess.stderr.on('data', (data) => {
+            ipcLog.info(`stderr: ${data}`);
+            win.webContents.send("kill-app-result", { code: 'stderr', param: params, result: data });
+        })
+        installProcess.on('close', (code) => {
+            ipcLog.info(`child process exited with code ${code}`);
+            win.webContents.send("kill-app-result", { code: 'close', param: params, result: code });
+        })
+    })
     /* ********** 执行网络请求 ********** */
     ipcMain.on("network", (_event, data) => {
         ipcLog.info('ipc-network：', JSON.stringify(data));
