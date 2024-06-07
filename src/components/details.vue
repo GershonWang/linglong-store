@@ -70,6 +70,7 @@ import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { compareVersions } from "@/util/checkVersion";
 import { useAllServItemsStore } from "@/store/allServItems";
+import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useWelcomeItemsStore } from "@/store/welcomeItems";
@@ -79,6 +80,7 @@ import elertTip from "@/util/NetErrorTips";
 import { useRouter } from 'vue-router';
 
 const allServItemsStore = useAllServItemsStore();
+const allAppItemsStore = useAllAppItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const welcomeItemsStore = useWelcomeItemsStore();
@@ -107,13 +109,28 @@ function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, 
     const value = values.length > 2 ? values[0] + "/" + values[1] : values[0];
     return value; // 做一些格式化处理并返回字符串
 };
-// 操作按钮的点击事件
+/**
+ * 操作按钮的点击事件
+ * @param item 要操作的对象
+ * @param flag 安装/卸载
+ */
 const changeStatus = async (item: any, flag: string) => {
+    if (installingItemsStore.installingItemList.length >= 10) {
+        // 弹出提示框
+        ElNotification({
+            title: '提示',
+            message: '当前下载队列超过10条，请稍后操作...',
+            type: 'warning',
+            duration: 500,
+        });
+        return;
+    }
     // 启用加载框
-    allServItemsStore.updateItemLoadingStatus(item, true);
-    installedItemsStore.updateItemLoadingStatus(item, true);
-    difVersionItemsStore.updateItemLoadingStatus(item, true);
-    welcomeItemsStore.updateItemLoadingStatus(item, true);
+    allServItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表
+    // allAppItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表(新)
+    installedItemsStore.updateItemLoadingStatus(item, true); // 已安装程序列表
+    difVersionItemsStore.updateItemLoadingStatus(item, true); // 不同版本列表
+    welcomeItemsStore.updateItemLoadingStatus(item, true); // 欢迎页面程序列表
     // 根据flag判断是安装还是卸载
     let message = '';
     let command = '';

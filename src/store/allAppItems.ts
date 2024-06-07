@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { CardFace } from "@/interface";
 
 /**
- * 全部应用
+ * 全部应用(新)
  */
 export const useAllAppItemsStore = defineStore("allAppItems", () => {
 
