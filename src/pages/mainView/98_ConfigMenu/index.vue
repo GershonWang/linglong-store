@@ -1,23 +1,27 @@
 <template>
-  <div>
+  <div style="height: calc(100vh - 88px);">
     <h1>基础设置</h1>
     玲珑源：
     <el-select style="width: 300px;" v-model="defaultSource" @change="changeEvent">
       <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com"
         :key="1" />
     </el-select><br>
-    <el-checkbox v-model="isShowDisArch" size="large" @change="checkedArch(isShowDisArch)">
+    <!-- <el-checkbox v-model="isShowDisArch" size="large" @change="checkedArch(isShowDisArch)">
       是否显示非当前({{ systemConfigStore.arch }})架构程序
-    </el-checkbox><br>
-    <el-checkbox v-model="isShowNoIcon" size="large" @change="checkedNoIcon(isShowNoIcon)">
+    </el-checkbox><br> -->
+    <!-- <el-checkbox v-model="isShowNoIcon" size="large" @change="checkedNoIcon(isShowNoIcon)">
       是否显示无图标玲珑程序
-    </el-checkbox><br>
+    </el-checkbox><br> -->
     <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
       是否显示基础运行服务
     </el-checkbox><br>
     <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
       启动App自动检测商店版本
     </el-checkbox><br>
+  </div>
+  <div class="visitorId" v-if="systemConfigStore.visitorId">
+    指纹码：
+    <el-text size="small">{{ systemConfigStore.visitorId }}</el-text>
   </div>
 </template>
 <script setup lang="ts">
@@ -127,4 +131,9 @@ onBeforeUnmount(() => {
   ipcRenderer.removeListener('network-result', networkResult)
 })
 </script>
-<style scoped></style>
+<style scoped>
+.visitorId {
+  text-align: center;
+  font-family: monospace;
+}
+</style>

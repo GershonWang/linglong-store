@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 自动检测更新
 const checkUpdate = import.meta.env.VITE_CONFIG_CHECKUPDATE as boolean;
-console.log('checkUpdate',checkUpdate);
 /**
  * 系统基本参数配置
  */
@@ -30,6 +29,8 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         linglongBinVersion: ref(''),
         // 默认仓库名称
         defaultRepoName: ref(''),
+        // 指纹码
+        visitorId: ref(''),
     }),
     getters: {
         getSystemConfigInfo: (state) => {
@@ -44,6 +45,7 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             + ',linglongCount:' + state.linglongCount
             + ',linglongBinVersion:' + state.linglongBinVersion
             + ',defaultRepoName:' + state.defaultRepoName
+            + ',visitorId:' + state.visitorId
         },
         getIsShowDisArch: (state) => state.isShowDisArch,
     },
@@ -102,6 +104,11 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         changeDefaultRepoName(defaultRepoName: string){
             const that = this;
             that.defaultRepoName = defaultRepoName;
+        },
+        // 修改指纹码
+        changeVisitorId(visitorId: string){
+            const that = this;
+            that.visitorId = visitorId;
         }
     },
     persist: true

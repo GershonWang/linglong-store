@@ -22,6 +22,7 @@ import { ElMessageBox } from 'element-plus';
 import { ipcRenderer } from "electron";
 import { useRouter } from 'vue-router';
 import pkg from '../../package.json';
+import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import { compareVersions } from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
@@ -238,9 +239,8 @@ const networkResult = async (_event: any, res: any) => {
     if (mode != "development") {
         // 非开发环境发送通知APP登陆！
         let baseURL = import.meta.env.VITE_SERVER_URL as string;
-        const url = baseURL + "/visit/appLogin";
         ipcRenderer.send('appLogin', { 
-            url: url, 
+            url: baseURL + "/visit/appLogin", 
             llVersion: systemConfigStore.llVersion,
             linglongBinVersion: systemConfigStore.linglongBinVersion,
             defaultRepoName: systemConfigStore.defaultRepoName,
@@ -256,6 +256,11 @@ const networkResult = async (_event: any, res: any) => {
 onMounted(async () => {
     // 开启系统参数中的网络标识
     systemConfigStore.changeNetworkRunStatus(true);
+    // 获取指纹码
+    const fp = await FingerprintJS.load()
+    const result = await fp.get()
+    let visitorId = result.visitorId
+    systemConfigStore.changeVisitorId(visitorId);
     // 开启先检测商店版本号是否有更新
     if (systemConfigStore.autoCheckUpdate) {
         message.value = "正在检测商店版本号...";
