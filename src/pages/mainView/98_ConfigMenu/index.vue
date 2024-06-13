@@ -37,7 +37,7 @@ const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
 // 默认源
-const defaultSource = ref('');
+let defaultSource = ref('');
 // 是否显示不匹配架构程序
 let isShowDisArch = ref(true);
 // 是否显示无图标玲珑程序
