@@ -85,9 +85,16 @@
             <transition name="el-zoom-in-left">
                 <div v-show="showQueueBox" class="transition-queue-box">
                     <el-table :data="installingItemsStore.installingItemList" style="width: 100%;height: 100%;">
-                        <el-table-column prop="name" label="名称" header-align="center" align="center" />
+                        <el-table-column prop="name" label="名称" width="100" 
+                            class-name="name-column" header-align="center" align="center">
+                            <template #default="scope">
+                                <el-tooltip class="item" effect="dark" :content=scope.row.name placement="top">  
+                                    <span>{{ scope.row.name }}</span>  
+                                </el-tooltip>
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="version" label="版本" header-align="center" align="center" width="180" />
-                        <el-table-column label="安装进度" header-align="center" align="center" width="80">
+                        <el-table-column label="安装进度" header-align="center" align="center">
                             <template #default="scope">
                                 <a v-if="compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') >= 0">{{ scope.row.schedule }}</a>
                                 <a v-else>-</a>
@@ -411,5 +418,11 @@ onBeforeUnmount(() => {
     width: 38%;
     border-radius: 12px;
     background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
+}
+
+.name-column .cell{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>
