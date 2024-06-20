@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, Menu } from "electron";
 import { join } from "node:path";
 import fs from "fs-extra";
 import { mainLog } from "./logger";
+import TrayMenu from "./trayMenu";
 import IPCHandler from "./ipcHandler";
 import { updateHandle } from "./update";
 
@@ -58,6 +59,8 @@ function createWindow() {
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
   createWindow();
+  // 加载托盘
+  TrayMenu();
   // 加载IPC服务
   IPCHandler(win);
   // 自动更新
