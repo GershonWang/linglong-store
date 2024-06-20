@@ -1,23 +1,32 @@
 <template>
   <div style="height: calc(100vh - 88px);">
     <h1>基础设置</h1>
-    玲珑源：
-    <el-select style="width: 300px;" v-model="defaultSource" @change="changeEvent">
-      <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com"
-        :key="1" />
+    <em style="font-size: 14px;">切换玲珑仓库：</em>
+    <el-select style="width: 120px;" v-model="defaultSource" @change="changeEvent">
+      <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com" :key="1"/>
     </el-select><br>
+    <el-select v-model="defaultRepo" style="width: 120px" @change="changeDefaultRepo">
+      <el-option v-for="item in options" 
+          :key="item.value" 
+          :label="item.label" 
+          :value="item.value"
+          />
+    </el-select><br>
+    <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
+      启动App自动检测商店版本
+    </el-checkbox><br>
+    <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
+      卸载程序 - 显示基础运行服务
+    </el-checkbox>
+    <el-checkbox v-model="mergeApp" size="large" @change="changeMergeAppStatus(mergeApp)">
+      卸载程序 - 同AppId程序合并
+    </el-checkbox><br>
     <!-- <el-checkbox v-model="isShowDisArch" size="large" @change="checkedArch(isShowDisArch)">
       是否显示非当前({{ systemConfigStore.arch }})架构程序
     </el-checkbox><br> -->
     <!-- <el-checkbox v-model="isShowNoIcon" size="large" @change="checkedNoIcon(isShowNoIcon)">
       是否显示无图标玲珑程序
     </el-checkbox><br> -->
-    <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
-      是否显示基础运行服务
-    </el-checkbox><br>
-    <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
-      启动App自动检测商店版本
-    </el-checkbox><br>
   </div>
   <div class="visitorId" v-if="systemConfigStore.visitorId">
     指纹码：
@@ -38,22 +47,42 @@ const installedItemsStore = useInstalledItemsStore();
 
 // 默认源
 let defaultSource = ref('');
+let defaultRepo = ref('stable');
+
+// 自动检测更新
+let autoCheckUpdate = ref(true);
+// 是否显示基础运行服务
+let isShowBaseService = ref(false);
+// 卸载程序页面同程序合并
+let mergeApp = ref(true);
 // 是否显示不匹配架构程序
 let isShowDisArch = ref(true);
 // 是否显示无图标玲珑程序
 let isShowNoIcon = ref(false);
-// 是否显示基础运行服务
-let isShowBaseService = ref(false);
-// 自动检测更新
-let autoCheckUpdate = ref(true);
+
+const options = [
+  {
+    label: "stable",
+    value: "https://mirror-repo-linglong.deepin.com1"
+  },
+  {
+    label: "repo",
+    value: "https://mirror-repo-linglong.deepin.com"
+  }
+]
+
 // 切换源事件
 const changeEvent = (data: any) => {
-  systemConfigStore.changeSourceUrl(data);
+  console.log('切换仓库',data);
+  // systemConfigStore.changeSourceUrl(data);
   // 发送网络命令，重新获取源内所有应用
-  const baseUrl: string = systemConfigStore.sourceUrl;
-  const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
-  ipcRenderer.send('network', { url: requestUrl });
-  ipcRenderer.on('network-result', networkResult);
+  // const baseUrl: string = systemConfigStore.sourceUrl;
+  // const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
+  // ipcRenderer.send('network', { url: requestUrl });
+  // ipcRenderer.on('network-result', networkResult);
+}
+const changeDefaultRepo = () => {
+  console.log('defaultRepo',defaultRepo.value);
 }
 // 是否显示不匹配架构程序的变更事件
 const checkedArch = (data: boolean) => {
@@ -86,6 +115,10 @@ const checkedBaseService = (data: boolean) => {
 // 自动检测更新事件
 const checkedUpdate = (data: boolean) => {
   systemConfigStore.changeAutoCheckUpdate(data);
+}
+// 卸载程序菜单-同程序合并
+const changeMergeAppStatus = (params: boolean) => {
+  console.log("切换状态",params);
 }
 // 网络执行返回结果
 const networkResult = (_event: any, res: any) => {

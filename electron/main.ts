@@ -59,12 +59,9 @@ function createWindow() {
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
   createWindow();
-  // 加载托盘
-  TrayMenu();
-  // 加载IPC服务
-  IPCHandler(win);
-  // 自动更新
-  updateHandle(win);
+  // TrayMenu(); // 加载托盘
+  IPCHandler(win); // 加载IPC服务
+  updateHandle(win); // 自动更新
 });
 // 应用监听所有关闭事件，退出程序
 app.on("window-all-closed", () => {

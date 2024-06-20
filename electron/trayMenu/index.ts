@@ -12,6 +12,9 @@ const TrayMenu = () => {
         { label: '退出', click: () => app.quit() }
     ]);
     
+    // tray.setToolTip('This is my application')
+    // tray.setTitle('This is my title')
+
     // 为托盘图标设置上下文菜单
     tray.setContextMenu(contextMenu);
     
