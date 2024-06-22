@@ -262,13 +262,23 @@ onMounted(async () => {
     let visitorId = result.visitorId
     systemConfigStore.changeVisitorId(visitorId);
     // 开启先检测商店版本号是否有更新
-    if (systemConfigStore.autoCheckUpdate) {
-        message.value = "正在检测商店版本号...";
-        ipcRenderer.send('logger', 'info', "正在检测商店版本号...");
-        ipcRenderer.send('checkForUpdate');    
+    if (process.env.NODE_ENV != "development") {
+        if (systemConfigStore.autoCheckUpdate) {
+            message.value = "正在检测商店版本号...";
+            ipcRenderer.send('logger', 'info', "正在检测商店版本号...");
+            ipcRenderer.send('checkForUpdate');    
+        } else {
+            message.value = "跳过商店版本号检测...";
+            ipcRenderer.send('logger', 'warn', "跳过商店版本号检测...");
+            message.value = "开始环境检测...";
+            ipcRenderer.send('logger', 'info', "开始环境检测...");
+            message.value = "检测当前系统架构...";
+            ipcRenderer.send('logger', 'info', "检测当前系统架构...");
+            ipcRenderer.send('command', { command: 'uname -m' });
+        }
     } else {
-        message.value = "跳过商店版本号检测...";
-        ipcRenderer.send('logger', 'warn', "跳过商店版本号检测...");
+        message.value = "开发模式，跳过商店版本号检测...";
+        ipcRenderer.send('logger', 'warn', "开发模式，跳过商店版本号检测...");
         message.value = "开始环境检测...";
         ipcRenderer.send('logger', 'info', "开始环境检测...");
         message.value = "检测当前系统架构...";
