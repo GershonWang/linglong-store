@@ -55,6 +55,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
         clearItems(); // 清空原始对象
         let searchVersionItemList: InstalledSoftware[] = data.trim() ? JSON.parse(data.trim()) : [];
         console.log('searchVersionItemList',searchVersionItemList);
+        console.log('query',query);
         if (searchVersionItemList.length > 0) {
             // 过滤不同appId和时devel的数据
             searchVersionItemList = searchVersionItemList.filter(item => item && item.appid == query.appId && item.module == 'runtime');
