@@ -146,6 +146,9 @@ const commandResult = (_event: any, res: any) => {
     if (command == 'dpkg -l | grep linglong') {
         systemConfigStore.changeDetailMsg(res.result);
     }
+    if (command == 'uname -a') {
+        systemConfigStore.changeOsVersion(res.result);
+    }
     if(command == 'll-cli repo show') {
         const lines = result.split('\n');
         let defaultRepoName = '';
@@ -247,6 +250,7 @@ const networkResult = async (_event: any, res: any) => {
             llVersion: systemConfigStore.llVersion,
             linglongBinVersion: systemConfigStore.linglongBinVersion,
             detailMsg: systemConfigStore.detailMsg,
+            osVersion: systemConfigStore.osVersion,
             defaultRepoName: systemConfigStore.defaultRepoName,
             appVersion: pkg.version 
         })
@@ -267,6 +271,8 @@ onMounted(async () => {
     systemConfigStore.changeVisitorId(visitorId);
     // 获取组件基本信息
     ipcRenderer.send('command', { command: 'dpkg -l | grep linglong' });
+    // 获取系统信息
+    ipcRenderer.send('command', { command: 'uname -a' });
     // 开启先检测商店版本号是否有更新
     if (process.env.NODE_ENV != "development") {
         if (systemConfigStore.autoCheckUpdate) {

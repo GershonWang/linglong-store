@@ -33,6 +33,8 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         visitorId: ref(''),
         // 玲珑基本信息
         detailMsg: ref(''),
+        // 系统版本
+        osVersion: ref(''),
     }),
     getters: {
         getSystemConfigInfo: (state) => {
@@ -49,6 +51,7 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             + ',defaultRepoName:' + state.defaultRepoName
             + ',visitorId:' + state.visitorId
             + ',detailMsg:' + state.detailMsg
+            + ',osVersion:' + state.osVersion
         },
         getIsShowDisArch: (state) => state.isShowDisArch,
     },
@@ -117,6 +120,11 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         changeDetailMsg(detailMsg: string){
             const that = this;
             that.detailMsg = detailMsg;
+        },
+        // 修改系统版本信息
+        changeOsVersion(osVersion: string){
+            const that = this;
+            that.osVersion = osVersion;
         }
     },
     persist: true
