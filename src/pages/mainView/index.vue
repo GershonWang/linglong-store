@@ -267,7 +267,7 @@ const linglongResult = (_event: any, res: any) => {
         }
         const aaa = res.result.replace('[K[?25l','').replace('[?25h','');
         const schedule = aaa.split(' ')[0];
-        installingItemsStore.updateItemSchedule(params as InstalledEntity, aaa);
+        installingItemsStore.updateItemSchedule(params as InstalledEntity, schedule);
     }
 }
 function initNetStatus() {
