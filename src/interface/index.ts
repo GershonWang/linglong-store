@@ -43,7 +43,9 @@ export interface RunTime {
  * 安装对象
  */
 export interface InstalledEntity {
-    appId: string, // 玲珑id
+    appId: string, // 1.4.x版本玲珑id
+    appid?: string, // 1.5.0版本玲珑id
+    id?: string, // 1.5.1版本玲珑id
     name: string, // 玲珑名称
     version: string, // 玲珑版本
     arch: string, // 架构
@@ -58,27 +60,6 @@ export interface InstalledEntity {
     size: string, // 文件大小
     uabUrl?: string, // 玲珑地址
     user?: string, // 用户名
-    /* ********** 非命令传递字段 ********* */
-    isInstalled?: boolean, // 是否已安装
-    loading?: boolean,  // 是否正在安装
-    schedule?: string,  // 安装进度
-}
-/**
- * 安装对象(1.5.0版本)
- */
-export interface InstalledSoftware {
-    appid: string,
-    name: string,
-    version: string,
-    arch: string[],
-    base: string,
-    channel: string,
-    command: string[],
-    description: string,
-    kind: string,
-    module: string,
-    runtime: string,
-    size: number,
     /* ********** 非命令传递字段 ********* */
     isInstalled?: boolean, // 是否已安装
     loading?: boolean,  // 是否正在安装

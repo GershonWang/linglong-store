@@ -1,10 +1,9 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import string2card from "@/util/string2card";
-import { CardFace,InstalledEntity, InstalledSoftware } from "@/interface";
+import { CardFace,InstalledEntity } from "@/interface";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { getAppDetails } from "@/api/server";
-import { compareVersions } from "@/util/checkVersion";
 
 const systemConfigStore = useSystemConfigStore();
 /**
@@ -37,36 +36,26 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
      */
     const initInstalledItems = async (data: string) => {
         clearItems(); // 清空已安装列表
-        if (systemConfigStore.linglongBinVersion && compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") < 0) {
-            const datas: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
-            if (datas.length > 0 && !systemConfigStore.isShowBaseService) {
-                installedItemList.value = datas.filter((item: InstalledEntity) => item.kind == "app")
-            }
-        } else {
-            const datas: InstalledSoftware[] = data.trim() ? JSON.parse(data.trim()) : [];
-            if (datas.length > 0) {
-                datas.forEach((item: InstalledSoftware) => {
-                    const card: InstalledEntity = {
-                        appId: item.appid,
-                        arch: item.arch[0],
-                        channel: item.channel,
-                        description: item.description,
-                        icon: "",
-                        kind: item.kind,
-                        module: item.module,
-                        name: item.name,
-                        repoName: "",
-                        runtime: item.runtime,
-                        size: String(item.size),
-                        uabUrl: "",
-                        user: "",
-                        version: item.version,
-                        isInstalled: false,
-                        loading: false
-                    }
-                    installedItemList.value.push(card);
-                })
-            }
+        const datas: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
+        if (datas.length > 0) {
+            installedItemList.value = datas.filter(item => {
+                if (item.id) {
+                    item.appId = item.id;
+                } else if (item.appid) {
+                    item.appId = item.appid
+                }
+                if (typeof item.arch === 'string') {
+                    item.arch = item.arch
+                } else if (Array.isArray(item.arch)) {
+                    item.arch = item.arch[0]
+                } else {
+                    console.log('架构arch字段传入错误',item.arch);
+                }
+                if (systemConfigStore.isShowBaseService) {
+                    return true;
+                }
+                return item.kind == "app"
+            })
         }
         if (installedItemList.value.length > 0) {
             await getAppDetails(installedItemList.value).then((res) => {
