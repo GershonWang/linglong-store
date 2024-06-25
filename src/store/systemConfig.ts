@@ -31,6 +31,8 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         defaultRepoName: ref(''),
         // 指纹码
         visitorId: ref(''),
+        // 玲珑基本信息
+        detailMsg: ref(''),
     }),
     getters: {
         getSystemConfigInfo: (state) => {
@@ -46,6 +48,7 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             + ',linglongBinVersion:' + state.linglongBinVersion
             + ',defaultRepoName:' + state.defaultRepoName
             + ',visitorId:' + state.visitorId
+            + ',detailMsg:' + state.detailMsg
         },
         getIsShowDisArch: (state) => state.isShowDisArch,
     },
@@ -109,6 +112,11 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         changeVisitorId(visitorId: string){
             const that = this;
             that.visitorId = visitorId;
+        },
+        // 修改组件基础信息
+        changeDetailMsg(detailMsg: string){
+            const that = this;
+            that.detailMsg = detailMsg;
         }
     },
     persist: true
