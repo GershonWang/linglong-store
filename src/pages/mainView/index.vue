@@ -262,13 +262,12 @@ const linglongResult = (_event: any, res: any) => {
     }
     if ('stdout' == code) {
         // "[K[?25l0% prepare installing main:app.web.baidu.map/0.9.1.2/x86_64[?25h"
-        if (result.startsWith("[K[?25l") && result.endsWith("[?25h")) {
-            const aaa = res.result.replace('[K[?25l','').replace('[?25h','');
-            const schedule = aaa.split(' ')[0];
-            installingItemsStore.updateItemSchedule(params as InstalledEntity, schedule);
-        } else {
+        if (result.toLowerCase().includes('error')) {
             flag.value = false;
         }
+        const aaa = res.result.replace('[K[?25l','').replace('[?25h','');
+        const schedule = aaa.split(' ')[0];
+        installingItemsStore.updateItemSchedule(params as InstalledEntity, aaa);
     }
 }
 function initNetStatus() {
