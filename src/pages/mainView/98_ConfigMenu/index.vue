@@ -1,26 +1,26 @@
 <template>
   <div style="height: calc(100vh - 88px);">
     <h1>基础设置</h1>
-    <em style="font-size: 14px;">切换玲珑仓库：</em>
+    <!-- <em style="font-size: 14px;">切换玲珑仓库：</em>
     <el-select style="width: 120px;" v-model="defaultSource" @change="changeEvent">
       <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com" :key="1"/>
-    </el-select><br>
-    <el-select v-model="defaultRepo" style="width: 120px" @change="changeDefaultRepo">
+    </el-select><br> -->
+    <!-- <el-select v-model="defaultRepo" style="width: 120px" @change="changeDefaultRepo">
       <el-option v-for="item in options" 
           :key="item.value" 
           :label="item.label" 
           :value="item.value"
           />
-    </el-select><br>
+    </el-select><br> -->
     <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
       启动App自动检测商店版本
     </el-checkbox><br>
     <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
       卸载程序 - 显示基础运行服务
     </el-checkbox>
-    <el-checkbox v-model="mergeApp" size="large" @change="changeMergeAppStatus(mergeApp)">
+    <!-- <el-checkbox v-model="mergeApp" size="large" @change="changeMergeAppStatus(mergeApp)">
       卸载程序 - 同AppId程序合并
-    </el-checkbox><br>
+    </el-checkbox><br> -->
     <!-- <el-checkbox v-model="isShowDisArch" size="large" @change="checkedArch(isShowDisArch)">
       是否显示非当前({{ systemConfigStore.arch }})架构程序
     </el-checkbox><br> -->

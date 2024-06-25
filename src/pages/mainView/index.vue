@@ -149,6 +149,10 @@ const uploadSpeed = ref("0");
 const downloadSpeed = ref("0");
 // 显示下载队列框
 const showQueueBox = ref(false);
+// 下载过程中状态标识
+const flag = ref(true);
+// 下载日志
+let downloadLogMsg = "";
 // 命令执行响应函数
 const commandResult = (_event: any, res: any) => {
     const params = res.param;
@@ -204,62 +208,67 @@ const linglongResult = (_event: any, res: any) => {
     const params = res.param;
     const code: string = res.code;
     const command: string = params.command;
+    const result: string = res.result;
+    downloadLogMsg += result + '\n';
     if ('close' == code) {
-        // 执行异常时，停止相关的加载状态
-        installingItemsStore.removeItem(params as InstalledEntity);
-        allServItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
-        installedItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
-        difVersionItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
-        welcomeItemsStore.updateItemLoadingStatus(params as InstalledEntity, false);
         const installedEntity: InstalledEntity = params;
-        installedEntity.isInstalled = false;
-        // 移除加载中列表
+        // 1.从加载列表中移除
         installingItemsStore.removeItem(installedEntity);
-        if (command.startsWith('ll-cli install')) {
-            installedEntity.isInstalled = true;
-            installedItemsStore.addItem(installedEntity);
-        } else {
-            installedItemsStore.removeItem(installedEntity);
-        }
-        difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
+        // 2.关闭各个列表中的加载状态
+        allServItemsStore.updateItemLoadingStatus(installedEntity, false);
         welcomeItemsStore.updateItemLoadingStatus(installedEntity, false);
-        difVersionItemsStore.updateItemInstallStatus(installedEntity);
-        welcomeItemsStore.updateItemInstallStatus(installedEntity);
-        // 更新全部应用列表
-        const item: CardFace = params;
-        item.isInstalled = command.startsWith('ll-cli install');
-        allServItemsStore.updateItemLoadingStatus(item, false);
-        // 判断当前应用安装版本个数小于两个，才进行状态更新
-        const app = installedItemsStore.installedItemList.findIndex(item => item.appId === params.appId);
-        if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
-            allServItemsStore.updateItemInstallStatus(item);
+        installedItemsStore.updateItemLoadingStatus(installedEntity, false);
+        difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
+        if (flag.value) {
+            // 3.获取安装/卸载状态
+            installedEntity.isInstalled = command.startsWith('ll-cli install');
+            // 4.更新各个列表中的安装状态
+            // 判断当前应用安装版本个数小于两个，才进行状态更新
+            const app = installedItemsStore.installedItemList.findIndex(item => item.appId === params.appId);
+            if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
+                allServItemsStore.updateItemInstallStatus(installedEntity);
+            }
+            welcomeItemsStore.updateItemInstallStatus(installedEntity);
+            if (command.startsWith('ll-cli install')) {
+                installedItemsStore.addItem(installedEntity);
+            } else {
+                installedItemsStore.removeItem(installedEntity);
+            }
+            difVersionItemsStore.updateItemInstallStatus(installedEntity);
+            // 检测当前环境
+            const mode = import.meta.env.MODE as string;
+            if (mode != "development") {
+                // 非开发环境发送发送操作命令！
+                let baseURL = import.meta.env.VITE_SERVER_URL as string;
+                params.url = baseURL + "/visit/save";
+                ipcRenderer.send('visit', params);
+            }
+            // 安装成功后，弹出通知
+            const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
+            ElNotification({
+                title: msg + '成功!',
+                message: params.name + '(' + params.version + ')被成功' + msg + '!',
+                type: 'success',
+                duration: 500,
+            });
+        } else {
+            ElNotification({
+                title: '操作异常!',
+                message: downloadLogMsg,
+                type: 'error',
+                duration: 5000,
+            });
         }
-        // 移除需要更新的应用
-        updateItemsStore.removeItem(item);
-        // 检测当前环境
-        const mode = import.meta.env.MODE as string;
-        if (mode != "development") {
-            // 非开发环境发送发送操作命令！
-            let baseURL = import.meta.env.VITE_SERVER_URL as string;
-            params.url = baseURL + "/visit/save";
-            ipcRenderer.send('visit', params);
-        }
-        // 弹框提示
-        // 安装成功后，弹出通知
-        const msg = command.startsWith('ll-cli install') ? '安装' : '卸载';
-        ElNotification({
-            title: msg + '成功!',
-            message: params.name + '(' + params.version + ')被成功' + msg + '!',
-            type: 'success',
-            duration: 500,
-        });
-        return;
     }
     if ('stdout' == code) {
         // "[K[?25l0% prepare installing main:app.web.baidu.map/0.9.1.2/x86_64[?25h"
-        const aaa = res.result.replace('[K[?25l','').replace('[?25h','');
-        const schedule = aaa.split(' ')[0];
-        installingItemsStore.updateItemSchedule(params as InstalledEntity, schedule);
+        if (result.startsWith("[K[?25l") && result.endsWith("[?25h")) {
+            const aaa = res.result.replace('[K[?25l','').replace('[?25h','');
+            const schedule = aaa.split(' ')[0];
+            installingItemsStore.updateItemSchedule(params as InstalledEntity, schedule);
+        } else {
+            flag.value = false;
+        }
     }
 }
 function initNetStatus() {

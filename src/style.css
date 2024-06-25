@@ -58,6 +58,13 @@ html,body {
 .el-table th {
   color: #000;
 }
+.el-notification__content {  
+  max-height: 100px; /* 设置合适的高度 */  
+  overflow-y: auto; /* 垂直方向滚动 */  
+}
+.el-notification__content::-webkit-scrollbar {  
+  display: none;  
+}
 /*     全部程序上部搜索栏样式      */
 .header {
   display: flex;
