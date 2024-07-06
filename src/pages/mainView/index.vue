@@ -252,6 +252,8 @@ const linglongResult = (_event: any, res: any) => {
                 type: 'error',
                 duration: 5000,
             });
+            downloadLogMsg = "";
+            flag.value = true;
         }
     }
     if ('stdout' == code) {
