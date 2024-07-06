@@ -11,9 +11,9 @@
     <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
       卸载程序 - 显示基础运行服务
     </el-checkbox><br>
-    <el-checkbox v-model="mergeApp" size="large" @change="changeMergeAppStatus(mergeApp)">
+    <!-- <el-checkbox v-model="mergeApp" size="large" @change="changeMergeAppStatus(mergeApp)">
       卸载程序 - 同AppId程序合并
-    </el-checkbox><br>
+    </el-checkbox><br> -->
   </div>
   <div class="visitorId" v-if="systemConfigStore.visitorId">
     指纹码：
