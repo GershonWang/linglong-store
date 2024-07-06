@@ -94,7 +94,18 @@ const router = createRouter({
                 {
                     path: '/search',
                     name: 'Search',
-                    component: () => import("../pages/mainView/7_SearchMenu/index.vue")
+                    component: () => import("../pages/mainView/7_SearchMenu/index.vue"),
+                    beforeEnter: (to, from, next) => {
+                        // 在路由进入时执行的操作(非明细页面重置元数据)
+                        if (from.name != 'Detail') {
+                            to.meta.savedCategoryId = ''; // 将分类ID保存到路由元数据中
+                            to.meta.savedPageNo = 0; // 将页码保存到路由元数据中
+                            to.meta.savedPageSize = 0; // 将每页条数保存到路由元数据中
+                            to.meta.savedPosition = 0;
+                        }
+                        // 如果需要继续导航，调用 next()
+                        next();
+                    },
                 },
                 {
                     path: '/all_app_menu',

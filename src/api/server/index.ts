@@ -4,10 +4,11 @@ import request from '@/util/request';
 /**
  * 推荐页面-获取轮播图列表
  */
-export const getWelcomeCarouselList = () => {
+export const getWelcomeCarouselList = (data: any) => {
     return request<Result>({
-        method: 'GET',
-        url: '/visit/getWelcomeCarouselList'
+        method: 'POST',
+        url: '/visit/getWelcomeCarouselList',
+        data
     })
 }
 

@@ -12,7 +12,7 @@
         <h3 style="text-align: center;margin: 10px;">分类推荐</h3>
         <div class="category-items">
             <el-button v-for="(item, itemIndex) in categoryList" :key="itemIndex" class="category-item"
-                @click="categoryClick(item.name)">
+                @click="categoryClick(item)">
                 {{ item.name }}
             </el-button>
         </div>
@@ -43,7 +43,7 @@ const installedItemsStore = useInstalledItemsStore();
 const systemConfigStore = useSystemConfigStore();
 
 const welcomeItemList = ref<CardFace[]>([]);
-const categoryList = ref<CardFace[]>([]);
+const categoryList = ref<any[]>([]);
 const result = ref<CardFace[][]>([]);
 
 let params = ref<AppListParams>({
@@ -53,14 +53,14 @@ let params = ref<AppListParams>({
 })
 // 轮播图推荐程序
 const carouselChart = async () => {
-    let res = await getWelcomeCarouselList();
+    let res = await getWelcomeCarouselList({ repoName: systemConfigStore.defaultRepoName });
     welcomeItemList.value = res.data as unknown as CardFace[];
 }
 // 分类推荐程序
 const groupedItems = () => {
-    categoryList.value.push({ name: '深度制造', appId: 'system' } as CardFace);
-    categoryList.value.push({ name: '游戏竞技', appId: 'game' } as CardFace);
-    categoryList.value.push({ name: '开发系统', appId: 'development' } as CardFace);
+    categoryList.value.push({ name: '深度制造', categoryId: '88' });
+    categoryList.value.push({ name: '游戏竞技', categoryId: '06' });
+    categoryList.value.push({ name: '编程开发', categoryId: '03' });
 }
 // 获取最受欢迎的前十名程序
 const getWelcomeApp = async (param: AppListParams) => {
@@ -79,14 +79,12 @@ const getWelcomeApp = async (param: AppListParams) => {
     }
 }
 // 分类选择点击事件
-const categoryClick = (name: string) => {
-    router.push({ 
-        path: '/search', 
-        query: { 
-            menuName: '分类推荐',
-            name: name,
-        } 
-    });
+const categoryClick = (item: any) => {
+    let queryParams: LocationQueryRaw = {
+        menuName: '分类推荐',
+        ...item,
+    } as any as unknown as LocationQueryRaw;
+    router.push({ path: '/search', query: queryParams });
 }
 // 打开明细界面
 const openDetail = (item: CardFace) => {
