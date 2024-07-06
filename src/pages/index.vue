@@ -27,11 +27,13 @@ import pkg from '../../package.json';
 import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import { compareVersions } from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
+import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { getSearchAppList } from '@/api/server';
 import { pageResult } from '@/interface';
 
 const systemConfigStore = useSystemConfigStore();
+const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
 // 获取路由对象
@@ -221,6 +223,12 @@ const networkResult = async (_event: any, res: any) => {
         ipcRenderer.send('logger', 'info', "网络源玲珑程序列表获取完成...");
         // 将请求的数据条数记录到系统参数store中
         systemConfigStore.changeLinglongCount(data.length);
+        // 初始化所有应用程序列表
+        const installedItemList = installedItemsStore.installedItemList;
+        allServItemsStore.initAllItems(data, installedItemList);
+        // 更新已安装程序图标
+        const allItems = allServItemsStore.allServItemList;
+        installedItemsStore.updateInstalledItemsIcons(allItems);
     } else {
         message.value = "网络源玲珑程序列表获取失败...";
         ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
