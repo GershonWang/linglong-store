@@ -9,7 +9,9 @@
         <div style="text-align: left;">
             <h3 style="color: chocolate;">注意：</h3>
             <p>1.刚程序运行时，会检测当前系统是否满足玲珑环境;如果环境不满足则弹出提示，程序不会进入到后续界面;这里需要您手动安装玲珑环境方可使用。</p>
-            <p>2.点击安装时，受网速和程序大小的影响，程序安装比较缓慢甚至可能会没反应，此时无需操作耐心等待程序安装成功提示即可。</p>
+            <p>2.点击安装时，受网速和程序包大小(本体+依赖)的影响，程序安装比较缓慢甚至可能会没反应，此时请耐心等待一下下。</p>
+            <p>3.执行操作时，若出现长时间卡住无反应，或者报错提示时，请使用官方命令行方式进行操作，尝试玲珑基础环境组件是否异常，如无异常，请重启商店重试。</p>
+            <p>4.如出现特殊现象，请在商店内-关于程序-意见反馈，进行反馈，或者进入作者gitee仓库提交issue。</p>
         </div>
     </div>
     <div class="footer" v-if="downloadPercent > 0">
@@ -27,12 +29,10 @@ import { compareVersions } from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useAllServItemsStore } from '@/store/allServItems';
 import { useInstalledItemsStore } from "@/store/installedItems";
-import { useWelcomeItemsStore } from "@/store/welcomeItems";
 
 const systemConfigStore = useSystemConfigStore();
 const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
-const welcomeItemsStore = useWelcomeItemsStore();
 
 // 获取路由对象
 const router = useRouter();
@@ -228,8 +228,6 @@ const networkResult = async (_event: any, res: any) => {
         // 更新已安装程序图标
         const allItems = allServItemsStore.allServItemList;
         installedItemsStore.updateInstalledItemsIcons(allItems);
-        // 初始化推荐程序列表
-        welcomeItemsStore.initWelcomeItems();
     } else {
         message.value = "网络源玲珑程序列表获取失败...";
         ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
@@ -255,8 +253,8 @@ const networkResult = async (_event: any, res: any) => {
             appVersion: pkg.version 
         })
     }
-    // 延时500毫秒进入
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // 延时1000毫秒进入
+    await new Promise(resolve => setTimeout(resolve, 1000));
     // 跳转到主界面
     router.push('/main_view');
 }
@@ -319,6 +317,7 @@ onBeforeUnmount(() => {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    width: 90%;
 }
 
 .logo {

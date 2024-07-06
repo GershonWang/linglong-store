@@ -73,7 +73,6 @@ import { useAllServItemsStore } from "@/store/allServItems";
 import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
-import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import elertTip from "@/util/NetErrorTips";
@@ -83,7 +82,6 @@ const allServItemsStore = useAllServItemsStore();
 const allAppItemsStore = useAllAppItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
-const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
 const systemConfigStore = useSystemConfigStore();
 
@@ -130,7 +128,6 @@ const changeStatus = async (item: any, flag: string) => {
     // allAppItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表(新)
     installedItemsStore.updateItemLoadingStatus(item, true); // 已安装程序列表
     difVersionItemsStore.updateItemLoadingStatus(item, true); // 不同版本列表
-    welcomeItemsStore.updateItemLoadingStatus(item, true); // 欢迎页面程序列表
     // 根据flag判断是安装还是卸载
     let message = '';
     let command = '';

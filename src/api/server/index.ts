@@ -2,6 +2,29 @@ import { AppListParams, CardFace, GetAppListByAppIdParam, Result } from '@/inter
 import request from '@/util/request';
 
 /**
+ * 推荐页面-获取轮播图列表
+ */
+export const getWelcomeCarouselList = () => {
+    return request<Result>({
+        method: 'GET',
+        url: '/visit/getWelcomeCarouselList'
+    })
+}
+
+/**
+ * 获取最受欢迎的推荐应用列表
+ * @param data 入参条件(分页参数)
+ * @returns 
+ */
+export const getWelcomeAppList = (data: AppListParams) => {
+    return request<Result>({
+        method: 'POST',
+        url: '/visit/getWelcomeAppList',
+        data
+    })
+}
+
+/**
  * 获取最新应用列表
  * @param data 入参条件
  * @returns 
@@ -23,19 +46,6 @@ export const getInstallAppList = (data: AppListParams) => {
     return request<Result>({
         method: 'POST',
         url: '/visit/getInstallAppList',
-        data
-    })
-}
-
-/**
- * 获取最受欢迎的推荐应用列表
- * @param data 入参条件(分页参数)
- * @returns 
- */
-export const getWelcomeAppList = (data: AppListParams) => {
-    return request<Result>({
-        method: 'POST',
-        url: '/visit/getWelcomeAppList',
         data
     })
 }

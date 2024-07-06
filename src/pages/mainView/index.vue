@@ -123,7 +123,6 @@ import { useAllServItemsStore } from "@/store/allServItems";
 import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
-import { useWelcomeItemsStore } from "@/store/welcomeItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
@@ -132,7 +131,6 @@ const allServItemsStore = useAllServItemsStore();
 const allAppItemsStore = useAllAppItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
-const welcomeItemsStore = useWelcomeItemsStore();
 const installingItemsStore = useInstallingItemsStore();
 const updateItemsStore = useUpdateItemsStore();
 const systemConfigStore = useSystemConfigStore();
@@ -170,9 +168,7 @@ const commandResult = (_event: any, res: any) => {
             installedItemsStore.removeItem(installedEntity);
         }
         difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
-        welcomeItemsStore.updateItemLoadingStatus(installedEntity, false);
         difVersionItemsStore.updateItemInstallStatus(installedEntity);
-        welcomeItemsStore.updateItemInstallStatus(installedEntity);
         // 更新全部应用列表
         const item: CardFace = params;
         item.isInstalled = command.startsWith('ll-cli install');
@@ -216,7 +212,6 @@ const linglongResult = (_event: any, res: any) => {
         installingItemsStore.removeItem(installedEntity);
         // 2.关闭各个列表中的加载状态
         allServItemsStore.updateItemLoadingStatus(installedEntity, false);
-        welcomeItemsStore.updateItemLoadingStatus(installedEntity, false);
         installedItemsStore.updateItemLoadingStatus(installedEntity, false);
         difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
         if (flag.value) {
@@ -228,7 +223,6 @@ const linglongResult = (_event: any, res: any) => {
             if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
                 allServItemsStore.updateItemInstallStatus(installedEntity);
             }
-            welcomeItemsStore.updateItemInstallStatus(installedEntity);
             if (command.startsWith('ll-cli install')) {
                 installedItemsStore.addItem(installedEntity);
             } else {

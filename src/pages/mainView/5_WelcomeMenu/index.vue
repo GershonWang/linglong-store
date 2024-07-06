@@ -4,7 +4,7 @@
             <el-carousel height="260px" type="card" :autoplay="true">
                 <el-carousel-item v-for="item in welcomeItemList" :key="item.appId" @click="openDetail(item)">
                     <img :src="item.icon" style="width: 150px; height: 150px;margin: 20px auto 0 auto;">
-                    <h1>{{ item.name }}</h1>
+                    <h1>{{ item.zhName }}</h1>
                 </el-carousel-item>
             </el-carousel>
         </div>
@@ -30,16 +30,15 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { getWelcomeAppList } from "@/api/server";
+import { getWelcomeAppList, getWelcomeCarouselList } from "@/api/server";
 import defaultImage from '@/assets/logo.svg';
 import WelcomeCard from "@/components/welcomeCard.vue";
-import { AppListParams, CardFace, pageResult } from "@/interface";
-import { useWelcomeItemsStore } from "@/store/welcomeItems";
+import { AppListParams, CardFace, OpenDetailParams, pageResult } from "@/interface";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import router from "@/router";
+import { LocationQueryRaw } from "vue-router";
 
-const welcomeItemsStore = useWelcomeItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const systemConfigStore = useSystemConfigStore();
 
@@ -53,8 +52,9 @@ let params = ref<AppListParams>({
     pageSize: 10 
 })
 // 轮播图推荐程序
-const carouselChart = () => {
-    welcomeItemList.value = welcomeItemsStore.welcomeItemList;
+const carouselChart = async () => {
+    let res = await getWelcomeCarouselList();
+    welcomeItemList.value = res.data as unknown as CardFace[];
 }
 // 分类推荐程序
 const groupedItems = () => {
@@ -90,18 +90,11 @@ const categoryClick = (name: string) => {
 }
 // 打开明细界面
 const openDetail = (item: CardFace) => {
-    router.push({ 
-        path: '/details', 
-        query: {
-            menuName: '珑珑推荐',
-            appId: item.appId,
-            name: item.name,
-            version: item.version,
-            description: item.description,
-            arch: item.arch,
-            icon: item.icon
-        } 
-    });
+    let queryParams: LocationQueryRaw = {
+        menuName: '珑珑推荐',
+        ...item,
+    } as OpenDetailParams as unknown as LocationQueryRaw;
+    router.push({ path: '/details', query: queryParams });
 }
 // 页面加载时启动
 onMounted(async () => {
