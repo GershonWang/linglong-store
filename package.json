@@ -1,6 +1,6 @@
 {
   "name": "linglong-store",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "license": "MIT",
   "main": "dist-electron/main.js",
   "description": "简易式玲珑商店客户端",
