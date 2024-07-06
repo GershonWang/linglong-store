@@ -1,32 +1,19 @@
 <template>
   <div style="height: calc(100vh - 88px);">
     <h1>基础设置</h1>
-    <!-- <em style="font-size: 14px;">切换玲珑仓库：</em>
-    <el-select style="width: 120px;" v-model="defaultSource" @change="changeEvent">
-      <el-option label="https://mirror-repo-linglong.deepin.com" value="https://mirror-repo-linglong.deepin.com" :key="1"/>
-    </el-select><br> -->
-    <!-- <el-select v-model="defaultRepo" style="width: 120px" @change="changeDefaultRepo">
-      <el-option v-for="item in options" 
-          :key="item.value" 
-          :label="item.label" 
-          :value="item.value"
-          />
-    </el-select><br> -->
+    <em style="font-size: 14px;">更换玲珑仓库：</em>
+    <el-select v-model="defaultRepo" style="width: 120px" @change="changeDefaultRepo">
+      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
+    </el-select><br>
     <el-checkbox v-model="autoCheckUpdate" size="large" @change="checkedUpdate(autoCheckUpdate)">
       启动App自动检测商店版本
     </el-checkbox><br>
     <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
       卸载程序 - 显示基础运行服务
-    </el-checkbox>
-    <!-- <el-checkbox v-model="mergeApp" size="large" @change="changeMergeAppStatus(mergeApp)">
+    </el-checkbox><br>
+    <el-checkbox v-model="mergeApp" size="large" @change="changeMergeAppStatus(mergeApp)">
       卸载程序 - 同AppId程序合并
-    </el-checkbox><br> -->
-    <!-- <el-checkbox v-model="isShowDisArch" size="large" @change="checkedArch(isShowDisArch)">
-      是否显示非当前({{ systemConfigStore.arch }})架构程序
-    </el-checkbox><br> -->
-    <!-- <el-checkbox v-model="isShowNoIcon" size="large" @change="checkedNoIcon(isShowNoIcon)">
-      是否显示无图标玲珑程序
-    </el-checkbox><br> -->
+    </el-checkbox><br>
   </div>
   <div class="visitorId" v-if="systemConfigStore.visitorId">
     指纹码：
@@ -34,73 +21,36 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
+import { ElNotification } from 'element-plus'
 import hasUpdateVersion from '@/util/checkVersion';
 import { useSystemConfigStore } from "@/store/systemConfig";
-import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
+import { useRouter } from "vue-router";
+// 路由对象
+const router = useRouter();
 
 const systemConfigStore = useSystemConfigStore();
-const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 
-// 默认源
-let defaultSource = ref('');
-let defaultRepo = ref('stable');
-
+// 默认玲珑仓库对象
+let defaultRepo = ref('');
 // 自动检测更新
 let autoCheckUpdate = ref(true);
 // 是否显示基础运行服务
 let isShowBaseService = ref(false);
 // 卸载程序页面同程序合并
 let mergeApp = ref(true);
-// 是否显示不匹配架构程序
-let isShowDisArch = ref(true);
-// 是否显示无图标玲珑程序
-let isShowNoIcon = ref(false);
 
 const options = [
-  {
-    label: "stable",
-    value: "https://mirror-repo-linglong.deepin.com1"
-  },
-  {
-    label: "repo",
-    value: "https://mirror-repo-linglong.deepin.com"
-  }
+  { label: "stable", value: "stable" },
+  { label: "repo", value: "repo" }
 ]
 
-// 切换源事件
-const changeEvent = (data: any) => {
-  console.log('切换仓库',data);
-  // systemConfigStore.changeSourceUrl(data);
-  // 发送网络命令，重新获取源内所有应用
-  // const baseUrl: string = systemConfigStore.sourceUrl;
-  // const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
-  // ipcRenderer.send('network', { url: requestUrl });
-  // ipcRenderer.on('network-result', networkResult);
-}
 const changeDefaultRepo = () => {
-  console.log('defaultRepo',defaultRepo.value);
-}
-// 是否显示不匹配架构程序的变更事件
-const checkedArch = (data: boolean) => {
-  systemConfigStore.changeIsShowDisArch(data);
-  // 发送网络命令，重新获取源内所有应用
-  const baseUrl: string = systemConfigStore.sourceUrl;
-  const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
-  ipcRenderer.send('network', { url: requestUrl });
-  ipcRenderer.on('network-result', networkResult);
-}
-// 是否显示无图标玲珑程序的变更事件
-const checkedNoIcon = (data: boolean) => {
-  systemConfigStore.changeIsShowNoIcon(data);
-  // 发送网络命令，重新获取源内所有应用
-  const baseUrl: string = systemConfigStore.sourceUrl;
-  const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
-  ipcRenderer.send('network', { url: requestUrl });
-  ipcRenderer.on('network-result', networkResult);
+  ipcRenderer.send('command', { command: 'll-cli repo modify --name=' + defaultRepo.value + ' https://mirror-repo-linglong.deepin.com' });
+  router.push('/'); // 返回首页重新加载商店
 }
 // 是否显示基础运行服务的变更事件
 const checkedBaseService = (data: boolean) => {
@@ -119,16 +69,12 @@ const checkedUpdate = (data: boolean) => {
 // 卸载程序菜单-同程序合并
 const changeMergeAppStatus = (params: boolean) => {
   console.log("切换状态",params);
-}
-// 网络执行返回结果
-const networkResult = (_event: any, res: any) => {
-  const code = res.code;
-  const data = res.data;
-  if (code == 200) {
-    // 初始化所有应用程序列表
-    const installedItemList = installedItemsStore.installedItemList;
-    allServItemsStore.initAllItems(data, installedItemList);
-  }
+  ElNotification({
+      title: '温馨提示',
+      message: '功能尚未开发！',
+      type: 'success',
+      duration: 1000,
+  });
 }
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
@@ -142,9 +88,6 @@ const commandResult = (_event: any, res: any) => {
       if (command == 'll-cli list --json') {
         installedItemsStore.initInstalledItems(result);
       }
-      // 更新已安装程序图标
-      const allItems = allServItemsStore.allServItemList;
-      installedItemsStore.updateInstalledItemsIcons(allItems);
     } else {
       // 网络异常，变更标识
       systemConfigStore.changeNetworkRunStatus(false);
@@ -153,15 +96,10 @@ const commandResult = (_event: any, res: any) => {
 }
 // 页面启动时加载
 onMounted(() => {
-  defaultSource.value = systemConfigStore.sourceUrl;
-  isShowDisArch.value = systemConfigStore.isShowDisArch;
-  isShowNoIcon.value = systemConfigStore.isShowNoIcon;
-  isShowBaseService.value = systemConfigStore.isShowBaseService;
-  autoCheckUpdate.value = systemConfigStore.autoCheckUpdate;
-})
-// 页面关闭时卸载
-onBeforeUnmount(() => {
-  ipcRenderer.removeListener('network-result', networkResult)
+  defaultRepo.value = systemConfigStore.defaultRepoName;  // 默认仓库
+  autoCheckUpdate.value = systemConfigStore.autoCheckUpdate;  // 是否自动检测更新
+  isShowBaseService.value = systemConfigStore.isShowBaseService;  // 是否显示基础运行服务
+
 })
 </script>
 <style scoped>

@@ -1,7 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-// 自动检测更新
-const checkUpdate = import.meta.env.VITE_CONFIG_CHECKUPDATE as boolean;
 /**
  * 系统基本参数配置
  */
@@ -20,7 +18,7 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         // 是否显示基础运行服务
         isShowBaseService: ref(false),
         // 自动检测更新
-        autoCheckUpdate: ref(checkUpdate),
+        autoCheckUpdate: ref(true),
         // 网络运行状态
         networkRunStatus: ref(true),
         // 当前收录玲珑程序数量

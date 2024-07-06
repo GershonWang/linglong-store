@@ -138,6 +138,8 @@ const commandResult = (_event: any, res: any) => {
         lines.forEach((line: string) => {
             if (line.includes('已安装：')) {
                 installedVersion = line.split('已安装：')[1].trim();
+            } else if (line.trim().startsWith('Installed:')) {
+                installedVersion = line.split('Installed:')[1].trim();
             }
         });
         console.log('已安装版本：', installedVersion);
@@ -213,26 +215,15 @@ const updateMessage = (_event: any, text: string) => {
 }
 // 网络执行返回结果
 const networkResult = async (_event: any, res: any) => {
-    const code = res.code;
     const data = res.data;
-    if (code == 200) {
+    if (res.code == 200) {
         message.value = "网络源玲珑程序列表获取完成...";
         ipcRenderer.send('logger', 'info', "网络源玲珑程序列表获取完成...");
-        // 设定当前网络状态为可用状态
-        systemConfigStore.changeNetworkRunStatus(true);
         // 将请求的数据条数记录到系统参数store中
         systemConfigStore.changeLinglongCount(data.length);
-        // 初始化所有应用程序列表
-        const installedItemList = installedItemsStore.installedItemList;
-        allServItemsStore.initAllItems(data, installedItemList);
-        // 更新已安装程序图标
-        const allItems = allServItemsStore.allServItemList;
-        installedItemsStore.updateInstalledItemsIcons(allItems);
     } else {
         message.value = "网络源玲珑程序列表获取失败...";
         ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
-        // 设定当前网络状态为不可用状态
-        systemConfigStore.changeNetworkRunStatus(false);
     }
     message.value = "加载完成...";
     ipcRenderer.send('logger', 'info', "加载完成...");
