@@ -1,15 +1,8 @@
 <template>
   <div>
     <h1>关于程序</h1>
-    <!-- <li>
-      <a class="title">项目环境</a>
-    </li>
-    <div class="item">Node版本：{{ versions.node }}</div>
-    <div class="item">Electron版本：{{ versions.electron }}</div>
-    <div class="item">Chrome版本：{{ versions.chrome }}</div>
-    <br> -->
     <li>
-      <a class="title" :title="`Node版本：${versions.node} Electron版本：${versions.electron} Chrome版本：${versions.chrome}`">玲珑信息</a>
+      <a class="title" :title="`Node版本：${versions.node}&#10;Electron版本：${versions.electron}&#10;Chrome版本：${versions.chrome}`">玲珑信息</a>
     </li>
     <div class="item">玲珑官网：<a class="link" href="https://linglong.dev/" target="_blank">https://linglong.dev/</a></div>
     <div class="item">玲珑网页版商店：<a class="link" href="https://store.linglong.dev/"
