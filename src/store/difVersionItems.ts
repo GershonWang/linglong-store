@@ -74,14 +74,13 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                 // 来源仓库
                 item.repoName = systemConfigStore.defaultRepoName
                 // 处理当前版本是否已安装状态
-                item.isInstalled = installedItemsStore.installedItemList.some(it => 
-                    it.appId === item.appId && it.name === item.name 
-                    && it.version === item.version && it.module === item.module 
-                    && it.channel === item.channel && it.kind === item.kind 
-                    && it.repoName === item.repoName);
+                item.isInstalled = installedItemsStore.installedItemList.some(it =>
+                    it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module 
+                    && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName
+                );
                 // 处理当前版本是否加载中状态
                 item.loading = installingItemsStore.installingItemList.some(it => it.appId === item.appId && it.name === item.name && it.version === item.version);
-                return item && item.appId == query.appId && item.module == 'runtime'
+                return item && item.appId == query.appId && (item.module == 'runtime' || item.module == 'binary');
             });
             difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
         }

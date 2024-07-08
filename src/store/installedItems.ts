@@ -39,11 +39,13 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         const datas: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
         if (datas.length > 0) {
             installedItemList.value = datas.filter(item => {
+                // 设定appId
                 if (item.id) {
                     item.appId = item.id;
                 } else if (item.appid) {
                     item.appId = item.appid
                 }
+                // 设定arch架构
                 if (typeof item.arch === 'string') {
                     item.arch = item.arch
                 } else if (Array.isArray(item.arch)) {
@@ -51,6 +53,9 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                 } else {
                     console.log('架构arch字段传入错误',item.arch);
                 }
+                // 设定仓库源
+                item.repoName = systemConfigStore.defaultRepoName;
+                // 如果不显示基础服务，则过滤掉基础服务
                 if (systemConfigStore.isShowBaseService) {
                     return true;
                 }
