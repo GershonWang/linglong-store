@@ -127,8 +127,8 @@ html,body {
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
 }
 .card-name {
   display: flex;

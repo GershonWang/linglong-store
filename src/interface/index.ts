@@ -23,6 +23,7 @@ export interface CardFace {
     zhName?: string,
     size?: string,
     repoName?: string,
+    categoryName?: string,
 }
 
 /**

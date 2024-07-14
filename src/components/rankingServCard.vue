@@ -1,5 +1,6 @@
 <template>
     <el-card class="card-container">
+        <el-tag effect="plain" class="tag-diagonal">{{ categoryName }} </el-tag>
         <div class="card-icon" :title="desc" @click="openDetails">
             <img style="width: 100px;height: 100px;" v-lazy="icon" alt="Image" />
         </div>
@@ -58,5 +59,19 @@ const openDetails = () => {
 <style scoped>
 :deep(.el-card__body) {
   padding-top: 0px;
+  padding-bottom: 5px
+}
+
+.tag-diagonal {
+  transform: rotate(-40deg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  margin-left: -30px;
+  margin-bottom: -6px;
+  color: #E2AB5F;
+  font-size: 12px;
+  font-weight: bold;
 }
 </style>
