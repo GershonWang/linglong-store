@@ -205,7 +205,7 @@ const linglongResult = (_event: any, res: any) => {
     const code: string = res.code;
     const command: string = params.command;
     const result: string = res.result;
-    downloadLogMsg += result + '\n';
+    downloadLogMsg += result + '<br>';
     if ('close' == code) {
         const installedEntity: InstalledEntity = params;
         // 1.从加载列表中移除
@@ -251,10 +251,11 @@ const linglongResult = (_event: any, res: any) => {
                 message: downloadLogMsg,
                 type: 'error',
                 duration: 5000,
+                dangerouslyUseHTMLString: true
             });
-            downloadLogMsg = "";
             flag.value = true;
         }
+        downloadLogMsg = ""; // 清除当前程序安装的日志记录
     }
     if ('stdout' == code) {
         // "[K[?25l0% prepare installing main:app.web.baidu.map/0.9.1.2/x86_64[?25h"
