@@ -96,13 +96,15 @@
                         <el-table-column prop="version" label="版本" header-align="center" align="center" width="180" />
                         <el-table-column label="安装进度" header-align="center" align="center">
                             <template #default="scope">
-                                <a v-if="compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') >= 0">{{ scope.row.schedule }}</a>
+                                <a v-if="compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') >= 0 && scope.row.schedule != '-'">{{ scope.row.schedule }}</a>
+                                <a v-else-if="compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') >= 0 && scope.row.schedule == '-'">等待中...</a>
                                 <a v-else>-</a>
                             </template>
                         </el-table-column>
                         <el-table-column fixed="right" label="操作" header-align="center" align="center" width="120">
                             <template #default="scope">
-                                <el-button v-if="!scope.row.isInstalled && scope.row.loading" loading>安装中</el-button>
+                                <el-button v-if="!scope.row.isInstalled && scope.row.loading && scope.row.schedule != '-'" loading>安装中...</el-button>
+                                <el-button v-else @click="cancelInstall(scope.row)" type="danger" size="small">取消安装</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -267,6 +269,15 @@ const linglongResult = (_event: any, res: any) => {
         installingItemsStore.updateItemSchedule(params as InstalledEntity, schedule);
     }
 }
+// 终止安装点击事件
+const cancelInstall = (row: any) => {
+    ipcRenderer.send('stop-linglong',{ ...row });
+    installingItemsStore.removeItem(row);
+    // 关闭各个列表中的加载状态
+    installedItemsStore.updateItemLoadingStatus(row, false);
+    difVersionItemsStore.updateItemLoadingStatus(row, false);
+}
+// 网卡网速检测函数
 function initNetStatus() {
     si.networkStats().then((data: { [x: string]: any; }) => {
         // 假设我们使用的是第一个网络接口

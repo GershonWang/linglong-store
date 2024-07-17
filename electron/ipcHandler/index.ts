@@ -38,6 +38,7 @@ const IPCHandler = (win: BrowserWindow) => {
     let isRunning = false;
     let commandQueue = [];
     let currentProcess = null;
+    let installingApp = null;
 
     ipcMain.on('linglong', (_event, params) => {
         ipcLog.info('linglong：', JSON.stringify(params));
@@ -47,9 +48,15 @@ const IPCHandler = (win: BrowserWindow) => {
         }
     });
 
-    ipcMain.on('stop-command', () => {
-        if (currentProcess) {
+    ipcMain.on('stop-linglong', async (_event, params) => {
+        if (currentProcess && installingApp.appId === params.appId && installingApp.name == params.name && installingApp.version == params.version) {
             currentProcess.kill();
+            executeNextCommand();
+        } else {
+            const index = commandQueue.findIndex((i) => i.appId === params.appId && i.name === params.name && i.version === params.version);
+            if (index !== -1) {
+                commandQueue.splice(index, 1);
+            }
         }
     });
 
@@ -61,6 +68,7 @@ const IPCHandler = (win: BrowserWindow) => {
 
         isRunning = true;
         const params = commandQueue.shift();
+        installingApp = params;
         currentProcess = exec(params.command, { encoding: 'utf8' });
 
         currentProcess.stdout.on('data', (data) => {

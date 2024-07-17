@@ -124,8 +124,8 @@ const changeStatus = async (item: any, flag: string) => {
         return;
     }
     // 启用加载框
-    allServItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表
-    // allAppItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表(新)
+    // allServItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表
+    allAppItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表(新)
     installedItemsStore.updateItemLoadingStatus(item, true); // 已安装程序列表
     difVersionItemsStore.updateItemLoadingStatus(item, true); // 不同版本列表
     // 根据flag判断是安装还是卸载
@@ -141,16 +141,24 @@ const changeStatus = async (item: any, flag: string) => {
         command = 'll-cli uninstall ' + item.appId + '/' + item.version;
     }
     // 从所有程序列表中捞取程序图标icon
-    const allItems = allServItemsStore.allServItemList;
-    const findItem = allItems.find(it => it.appId == item.appId && it.name == item.name);
+    // const allItems = allServItemsStore.allServItemList;
+    // const findItem = allItems.find(it => it.appId == item.appId && it.name == item.name);
     // 发送操作命令
-    let commandType = compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0 ? 'command' : 'linglong';
-    ipcRenderer.send(commandType, {
-        ...item,
-        icon: findItem ? findItem.icon : '',
-        command: command,
-        loading: false,
-    });
+    if (compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
+        ipcRenderer.send('command', {
+            ...item,
+            // icon: findItem ? findItem.icon : '',
+            command: command,
+            loading: false,
+        });
+    } else {
+        ipcRenderer.send('linglong', {
+            ...item,
+            // icon: findItem ? findItem.icon : '',
+            command: command,
+            loading: false,
+        });
+    }
     // 弹出提示框
     ElNotification({
         title: '提示',

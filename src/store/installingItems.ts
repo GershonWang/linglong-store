@@ -14,6 +14,7 @@ export const useInstallingItemsStore = defineStore("installingItems", () => {
      * @param item 要新增的对象
      */
     const addItem = (item: InstalledEntity) => {
+        item.schedule = "-";
         installingItemList.value.push(item);
     };
     /**
