@@ -35,22 +35,60 @@ const IPCHandler = (win: BrowserWindow) => {
         });
     });
     /* ****************** 监听命令动态返回结果 ******************* */
-    ipcMain.on('linglong',(_event, params) => {
+    let isRunning = false;
+    let commandQueue = [];
+    let currentProcess = null;
+
+    ipcMain.on('linglong', (_event, params) => {
         ipcLog.info('linglong：', JSON.stringify(params));
-        const installProcess = exec(params.command, { encoding: 'utf8' });
-        installProcess.stdout.on('data', (data) => {
+        commandQueue.push(params);
+        if (!isRunning) {
+            executeNextCommand();
+        }
+    });
+
+    ipcMain.on('stop-command', () => {
+        if (currentProcess) {
+            currentProcess.kill();
+        }
+    });
+
+    function executeNextCommand() {
+        if (commandQueue.length === 0) {
+            isRunning = false;
+            return;
+        }
+
+        isRunning = true;
+        const params = commandQueue.shift();
+        currentProcess = exec(params.command, { encoding: 'utf8' });
+
+        currentProcess.stdout.on('data', (data) => {
             ipcLog.info(`stdout: ${data}`);
             win.webContents.send("linglong-result", { code: 'stdout', param: params, result: data });
-        })
-        installProcess.stderr.on('data', (data) => {
+        });
+
+        currentProcess.stderr.on('data', (data) => {
             ipcLog.info(`stderr: ${data}`);
             win.webContents.send("linglong-result", { code: 'stderr', param: params, result: data });
-        })
-        installProcess.on('close', (code) => {
+        });
+
+        currentProcess.on('close', (code) => {
             ipcLog.info(`child process exited with code ${code}`);
             win.webContents.send("linglong-result", { code: 'close', param: params, result: code });
-        })
-    })
+            isRunning = false;
+            currentProcess = null;
+            executeNextCommand();
+        });
+
+        currentProcess.on('error', (err) => {
+            ipcLog.error(`child process encountered an error: ${err}`);
+            win.webContents.send("linglong-result", { code: 'error', param: params, result: err });
+            isRunning = false;
+            currentProcess = null;
+            executeNextCommand();
+        });
+    }
     /* ****************** 强制退出程序 ******************* */
     ipcMain.on('kill-app',(_event, params) => {
         ipcLog.info('kill-app：', JSON.stringify(params));
