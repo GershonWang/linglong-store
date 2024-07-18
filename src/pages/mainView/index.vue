@@ -121,7 +121,6 @@ import si from 'systeminformation';
 import { compareVersions } from '@/util/checkVersion';
 import { ElNotification } from 'element-plus'
 import { CardFace,InstalledEntity } from '@/interface';
-import { useAllServItemsStore } from "@/store/allServItems";
 import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
@@ -129,7 +128,6 @@ import { useInstallingItemsStore } from "@/store/installingItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 
-const allServItemsStore = useAllServItemsStore();
 const allAppItemsStore = useAllAppItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
@@ -174,12 +172,10 @@ const commandResult = (_event: any, res: any) => {
         // 更新全部应用列表
         const item: CardFace = params;
         item.isInstalled = command.startsWith('ll-cli install');
-        allServItemsStore.updateItemLoadingStatus(item, false); // 全部程序列表-加载状态停止
-        // allAppItemsStore.updateItemLoadingStatus(item, false); // 全部程序列表(新)-加载状态停止
+        allAppItemsStore.updateItemLoadingStatus(item, false); // 全部程序列表(新)-加载状态停止
         // 判断当前应用安装版本个数小于两个，才进行状态更新
         const app = installedItemsStore.installedItemList.findIndex(item => item.appId === params.appId);
         if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
-            allServItemsStore.updateItemInstallStatus(item); // 全部程序列表-安装状态更新
             allAppItemsStore.updateItemInstallStatus(item); // 全部程序列表(新)-安装状态更新
         }
         // 移除需要更新的应用
@@ -213,7 +209,7 @@ const linglongResult = (_event: any, res: any) => {
         // 1.从加载列表中移除
         installingItemsStore.removeItem(installedEntity);
         // 2.关闭各个列表中的加载状态
-        allServItemsStore.updateItemLoadingStatus(installedEntity, false);
+        allAppItemsStore.updateItemLoadingStatus(installedEntity, false);
         installedItemsStore.updateItemLoadingStatus(installedEntity, false);
         difVersionItemsStore.updateItemLoadingStatus(installedEntity, false);
         if (flag.value) {
@@ -223,7 +219,7 @@ const linglongResult = (_event: any, res: any) => {
             // 判断当前应用安装版本个数小于两个，才进行状态更新
             const app = installedItemsStore.installedItemList.findIndex(item => item.appId === params.appId);
             if ((app == -1 && command.startsWith('ll-cli uninstall')) || (app != -1 && command.startsWith('ll-cli install'))) {
-                allServItemsStore.updateItemInstallStatus(installedEntity);
+                allAppItemsStore.updateItemInstallStatus(installedEntity);
             }
             if (command.startsWith('ll-cli install')) {
                 installedItemsStore.addItem(installedEntity);
@@ -276,6 +272,7 @@ const cancelInstall = (row: any) => {
     // 关闭各个列表中的加载状态
     installedItemsStore.updateItemLoadingStatus(row, false);
     difVersionItemsStore.updateItemLoadingStatus(row, false);
+    allAppItemsStore.updateItemLoadingStatus(row, false);
 }
 // 网卡网速检测函数
 function initNetStatus() {
