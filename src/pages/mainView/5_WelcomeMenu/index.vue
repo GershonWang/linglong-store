@@ -106,7 +106,7 @@ onMounted(async () => {
 </script>
 <style scoped>
 .el-carousel__item:nth-child(2n) {
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
     backdrop-filter:blur(10px);
     text-align: center;
     border-radius: 10px;
@@ -115,7 +115,7 @@ onMounted(async () => {
 }
 
 .el-carousel__item:nth-child(2n + 1) {
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
     backdrop-filter:blur(10px);
     text-align: center;
     border-radius: 10px;
@@ -161,5 +161,15 @@ onMounted(async () => {
 /* 隐藏滚动条 */
 ::-webkit-scrollbar {
     display: none;
+}
+
+@media (prefers-color-scheme: light) {
+    .el-carousel__item:nth-child(2n) {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    }
+
+    .el-carousel__item:nth-child(2n + 1) {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    }
 }
 </style>

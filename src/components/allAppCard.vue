@@ -54,8 +54,8 @@ const openDetails = () => {
 
 <style scoped>
 :deep(.el-card__body) {
-  padding-top: 5px;
-  padding-bottom: 5px;
+    padding-top: 15px;
+    padding-bottom: 5px;
 }
 
 .card-bottom {

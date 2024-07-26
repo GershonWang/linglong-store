@@ -259,7 +259,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     align-items: center;
     text-align: center;
     border-radius: 10px;
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
     backdrop-filter:blur(10px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     background-clip: padding-box;
@@ -308,5 +308,11 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 /* 隐藏滚动条 */
 ::-webkit-scrollbar {
     display: none;
+}
+
+@media (prefers-color-scheme: light) {
+    .image-icon {
+        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    }
 }
 </style>

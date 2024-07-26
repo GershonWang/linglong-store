@@ -70,8 +70,14 @@ const openDetails = () => {
   vertical-align: middle;
   margin-left: -30px;
   margin-bottom: -6px;
-  color: #E2AB5F;
+  color: #6E6E6E;
   font-size: 12px;
   font-weight: bold;
+}
+
+@media (prefers-color-scheme: light) {
+    .tag-diagonal {
+        color: #E2AB5F;
+    }
 }
 </style>

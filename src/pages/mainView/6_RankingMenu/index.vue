@@ -51,18 +51,24 @@ onMounted(() => {
 }
 
 :deep(.el-tabs__item) {
-  color: #FFFFFF;
+  color: #6E6E6E;
   padding: 10px;
 }
 
 :deep(.el-tabs__item.is-active) {
-  color: #DAAD71;
+  color: #FFFFFF;
   font-weight: bold;
-
 }
 
 /* 隐藏滚动条 */
 /* ::-webkit-scrollbar {
     display: none;
 } */
+
+@media (prefers-color-scheme: light) {
+  :deep(.el-tabs__item.is-active) {
+    color: #DAAD71;
+    font-weight: bold;
+  }
+}
 </style>

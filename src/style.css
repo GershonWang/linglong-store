@@ -44,7 +44,7 @@ html,body {
   color: var(--menu-base-font-color);
 }
 .first-menu > .el-breadcrumb__inner:hover {
-  color: #E2AB5F;
+  color: var(--menu-base-color);
 }
 .second-menu > .el-breadcrumb__inner {
   cursor: default !important;
@@ -52,7 +52,7 @@ html,body {
 }
 /*     表单基础公共样式     */
 .el-table {
-  --el-table-header-bg-color: #E2AB5F;
+  --el-table-header-bg-color: #ccc;
   border-radius: 12px;
 }
 .el-table th {
@@ -126,7 +126,7 @@ html,body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
+  margin: 0 auto 10px;
   width: 100px;
   height: 100px;
 }
@@ -134,8 +134,8 @@ html,body {
   display: flex;
   text-align: center;
   justify-content: center;
-  font-size: 14px;
-  margin: 3px auto 3px;
+  font-size: 12px;
+  margin: 6px auto 3px;
   max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -148,7 +148,8 @@ html,body {
   justify-content: center;
   white-space: nowrap;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: bold;
   color: #E2E2E2;
   padding: 3px;
 }
@@ -205,6 +206,12 @@ html,body {
     --menu-base-color: #C1C1C1;
     --menu-base-font-color: #000;
     --base-background-color: #DCDCDC;
+  }
+  .first-menu > .el-breadcrumb__inner:hover {
+    color: #E2AB5F;
+  }
+  .el-table {
+    --el-table-header-bg-color: #E2AB5F;
   }
   .header {
     background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);

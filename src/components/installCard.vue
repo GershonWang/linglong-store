@@ -117,7 +117,7 @@ const changeStatus = (item: CardFace) => {
 
 <style scoped>
 :deep(.el-card__body) {
-    padding-top: 5px;
+    padding-top: 15px;
     padding-bottom: 5px;
 }
 
