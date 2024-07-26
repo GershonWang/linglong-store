@@ -13,15 +13,15 @@
                 <el-col :span="20" style="padding: 10px;">
                     <el-row style="margin-bottom: 10px;">
                         <el-col :span="3" class="base-message-key">应用名称：</el-col>
-                        <el-col :span="5" class="base-message-value" :title="query.name">{{ query.name }}</el-col>
+                        <el-col :span="9" class="base-message-value" :title="query.name">{{ query.name }}</el-col>
                         <el-col :span="3" class="base-message-key">中文名称：</el-col>
-                        <el-col :span="5" class="base-message-value" :title="query.zhName">{{ query.zhName }}</el-col>
+                        <el-col :span="9" class="base-message-value" :title="query.zhName">{{ query.zhName }}</el-col>
                     </el-row>
                     <el-row style="margin-bottom: 10px;">
                         <el-col :span="3" class="base-message-key">appId：</el-col>
-                        <el-col :span="5" class="base-message-value" :title="query.appId">{{ query.appId }}</el-col>
+                        <el-col :span="9" class="base-message-value" :title="query.appId">{{ query.appId }}</el-col>
                         <el-col :span="3" class="base-message-key">架构：</el-col>
-                        <el-col :span="5" class="base-message-value" :title="formatArch">{{ formatArch }}</el-col>
+                        <el-col :span="9" class="base-message-value" :title="formatArch">{{ formatArch }}</el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="3" class="base-message-key">应用简述：</el-col>
@@ -34,13 +34,15 @@
     <div class="choose-version">
         <div class="title">版本选择</div>
         <el-table :data="difVersionItemsStore.difVersionItemList" style="width: 100%;border-radius: 5px;flex-grow: 1;">
-            <el-table-column prop="version" label="版本号" width="120" />
-            <el-table-column prop="kind" label="应用类型" header-align="center" align="center" width="100" />
-            <el-table-column prop="runtime" label="运行环境" header-align="center" align="center" width="250"
-                :formatter="formatRuntime" />
+            <el-table-column prop="version" label="版本号" width="120"/>
+            <el-table-column prop="kind" label="应用类型" header-align="center" align="center" width="100"/>
             <el-table-column prop="channel" label="通道" header-align="center" align="center" width="100"/>
             <el-table-column prop="repoName" label="仓库来源" header-align="center" align="center" width="100"/>
-            <el-table-column prop="description" label="描述" min-width="800"/>
+            <el-table-column label="文件大小" header-align="center" align="center" width="120" :formatter="formatSize"/>
+            <el-table-column label="安装/卸载次数" header-align="center" align="center" width="120" :formatter="formatCount"/>
+            <el-table-column label="上架时间" header-align="center" align="center" width="150" :formatter="formatUploadTime"/>
+            <el-table-column label="运行环境" header-align="center" align="center" width="250" :formatter="formatRuntime"/>
+            <!-- <el-table-column prop="description" label="描述" min-width="800"/> -->
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="160">
                 <template #default="scope">
                     <!-- 卸载按钮 -->
@@ -69,7 +71,6 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { ElNotification, TableColumnCtx } from 'element-plus'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { compareVersions } from "@/util/checkVersion";
-import { useAllServItemsStore } from "@/store/allServItems";
 import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
@@ -78,7 +79,6 @@ import { useSystemConfigStore } from "@/store/systemConfig";
 import elertTip from "@/util/NetErrorTips";
 import { useRouter } from 'vue-router';
 
-const allServItemsStore = useAllServItemsStore();
 const allAppItemsStore = useAllAppItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
@@ -100,6 +100,21 @@ const formatArch = computed(() => {
     return query.arch;
 })
 // 格式化运行时字段
+function formatSize(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
+    let size = row.size;
+    if (!size) return '';
+    return (size / 1024 / 1024).toFixed(2) + 'MB'; // 做一些格式化处理并返回字符串
+}
+function formatCount(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
+    let count = row.count;
+    if (!count) return '0次/0次';
+    return count; // 做一些格式化处理并返回字符串
+}
+function formatUploadTime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
+    let uploadTime = row.uploadTime;
+    if (!uploadTime) return '';
+    return uploadTime; // 做一些格式化处理并返回字符串
+}
 function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
     const runtime = row.runtime;
     if (!runtime) return '';
@@ -124,7 +139,6 @@ const changeStatus = async (item: any, flag: string) => {
         return;
     }
     // 启用加载框
-    // allServItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表
     allAppItemsStore.updateItemLoadingStatus(item, true); // 全部程序列表(新)
     installedItemsStore.updateItemLoadingStatus(item, true); // 已安装程序列表
     difVersionItemsStore.updateItemLoadingStatus(item, true); // 不同版本列表
@@ -140,21 +154,16 @@ const changeStatus = async (item: any, flag: string) => {
         message = '正在卸载' + item.name + '(' + item.version + ')';
         command = 'll-cli uninstall ' + item.appId + '/' + item.version;
     }
-    // 从所有程序列表中捞取程序图标icon
-    // const allItems = allServItemsStore.allServItemList;
-    // const findItem = allItems.find(it => it.appId == item.appId && it.name == item.name);
     // 发送操作命令
     if (compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
         ipcRenderer.send('command', {
             ...item,
-            // icon: findItem ? findItem.icon : '',
             command: command,
             loading: false,
         });
     } else {
         ipcRenderer.send('linglong', {
             ...item,
-            // icon: findItem ? findItem.icon : '',
             command: command,
             loading: false,
         });
