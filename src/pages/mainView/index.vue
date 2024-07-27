@@ -186,6 +186,7 @@ const commandResult = (_event: any, res: any) => {
             // 非开发环境发送发送操作命令！
             let baseURL = import.meta.env.VITE_SERVER_URL as string;
             params.url = baseURL + "/visit/save";
+            params.visitorId = systemConfigStore.visitorId;
             ipcRenderer.send('visit', params);
         }
         // 安装成功后，弹出通知
@@ -233,6 +234,7 @@ const linglongResult = (_event: any, res: any) => {
                 // 非开发环境发送发送操作命令！
                 let baseURL = import.meta.env.VITE_SERVER_URL as string;
                 params.url = baseURL + "/visit/save";
+                params.visitorId = systemConfigStore.visitorId;
                 ipcRenderer.send('visit', params);
             }
             // 安装成功后，弹出通知

@@ -253,7 +253,8 @@ const networkResult = async (_event: any, res: any) => {
             detailMsg: systemConfigStore.detailMsg,
             osVersion: systemConfigStore.osVersion,
             defaultRepoName: systemConfigStore.defaultRepoName,
-            appVersion: pkg.version 
+            appVersion: pkg.version,
+            visitorId: systemConfigStore.visitorId 
         })
     }
     // 延时1000毫秒进入

@@ -81,7 +81,12 @@ const suggest = () => {
       // 发送建议到主进程
       let baseURL = import.meta.env.VITE_SERVER_URL as string;
       const url = baseURL + "/visit/suggest";
-      ipcRenderer.send('suggest', { url: url, llVersion: systemConfigStore.llVersion, appVersion: pkg.version, message: value })
+      ipcRenderer.send('suggest', { url: url, 
+        llVersion: systemConfigStore.llVersion, 
+        appVersion: pkg.version, 
+        message: value,
+        visitorId: systemConfigStore.visitorId  
+      })
       ElMessage({
         type: 'success',
         message: `反馈内容已发送`,
