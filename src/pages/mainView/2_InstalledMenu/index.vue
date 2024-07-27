@@ -41,7 +41,7 @@ onMounted(() => {
     elertTip(); // 检测网络
     // 根据版本环境获取安装程序列表发送命令
     let getInstalledItemsCommand = "";
-    console.log('当前版本',systemConfigStore.llVersion);
+    // console.log('当前版本',systemConfigStore.llVersion);
     if (compareVersions(systemConfigStore.llVersion, "1.3.99") < 0) {
         getInstalledItemsCommand = "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'";
     } else if (compareVersions(systemConfigStore.llVersion, "1.3.99") > 0 
@@ -54,7 +54,7 @@ onMounted(() => {
             getInstalledItemsCommand = "ll-cli list --json";
         }
     }
-    console.log('发送查询已安装命令',getInstalledItemsCommand);
+    // console.log('发送查询已安装命令',getInstalledItemsCommand);
     ipcRenderer.send('command', { command: getInstalledItemsCommand});
     ipcRenderer.once('command-result', async (_event: any, res: any) => {
         const result: string = res.result;

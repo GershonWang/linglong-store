@@ -2,7 +2,7 @@ import { useSystemConfigStore } from "@/store/systemConfig";
 const systemConfigStore = useSystemConfigStore();
 
 const elertTip = () => {
-    console.log("进入网络状态提示...");
+    // console.log("进入网络状态提示...");
     if (!systemConfigStore.networkRunStatus) {
         ElNotification({
             title: '提示',

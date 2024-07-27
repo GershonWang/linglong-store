@@ -20,10 +20,6 @@ const IPCHandler = (win: BrowserWindow) => {
         // 在主进程中执行命令，并将结果返回到渲染进程
         exec(data.command, (error, stdout, stderr) => {
             ipcLog.info('ipc-command：：error:',error,' | stdout:',stdout,' | stderr:',stderr);
-            if (stdout) {
-                win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
-                return;
-            }
             if (stderr) {
                 win.webContents.send("command-result", { code: 'stderr', param: data, result: stderr });
                 return;
@@ -32,6 +28,7 @@ const IPCHandler = (win: BrowserWindow) => {
                 win.webContents.send("command-result", { code: 'error', param: data, result: error.message });
                 return;
             }
+            win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
         });
     });
     /* ****************** 监听命令动态返回结果 ******************* */

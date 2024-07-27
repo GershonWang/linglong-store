@@ -70,7 +70,7 @@ const commandResult = (_event: any, res: any) => {
             ipcRenderer.send('logger', 'info', "检测玲珑环境版本...");
             ipcRenderer.send('command', { command: 'll-cli --version' });
             // 获取玲珑包程序(linglong-bin)的版本号
-            ipcRenderer.send("command",{ command: 'apt policy linglong-bin' })
+            ipcRenderer.send("command",{ command: 'apt-cache policy linglong-bin' })
             // 获取玲珑包当前使用的仓库名
             ipcRenderer.send("command",{ command: 'll-cli repo show' })
         } else {
@@ -134,7 +134,7 @@ const commandResult = (_event: any, res: any) => {
         const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
         ipcRenderer.send('network', { url: requestUrl });
     }
-    if(command == 'apt policy linglong-bin') {
+    if(command == 'apt-cache policy linglong-bin') {
         const lines = result.split('\n');
         let installedVersion = '';
         lines.forEach((line: string) => {
