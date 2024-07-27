@@ -53,12 +53,15 @@ export interface InstalledEntity {
     channel: string, // 玲珑渠道
     description: string, // 玲珑描述
     icon: string, // 玲珑图标
-    kind: string, // 玲珑类型
+    kind?: string, // 玲珑类型
     module: string, // 玲珑模块
     zhName?: string, // 玲珑名称
     repoName: string, // 来源仓库
     runtime: string, // 运行依赖
     size: string, // 文件大小
+    createTime?: string, // 上架时间
+    installCount?: number, // 安装次数
+    uninstallCount?: number, // 卸载次数
     uabUrl?: string, // 玲珑地址
     user?: string, // 用户名
     /* ********** 非命令传递字段 ********* */
@@ -129,7 +132,8 @@ export interface AppMain {
  * 根据appid获取程序列表-入参对象
  */
 export interface GetAppListByAppIdParam {
-    appId: string
+    appId: string,
+    repoName: string,
 }
 
 /**

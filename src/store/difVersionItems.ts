@@ -7,6 +7,7 @@ import { useInstalledItemsStore } from "@/store/installedItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { CardFace,InstalledEntity } from "@/interface";
+import { getSearchAppVersionList } from "@/api/server";
 
 const installedItemsStore = useInstalledItemsStore();
 const installingItemsStore = useInstallingItemsStore();
@@ -51,10 +52,18 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
      * @param data 待处理的数据
      * @returns 将数据放入后的对象数组
      */
-    const initDifVersionItems = (data: string, query: LocationQuery) => {
+    const initDifVersionItems = async (data: string, query: LocationQuery) => {
         clearItems(); // 清空原始对象
         let searchVersionItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
         if (searchVersionItemList.length > 0) {
+            // 1.获取服务器端数据
+            let result: InstalledEntity[] = [];
+            let appId = query.appId as string;
+            await getSearchAppVersionList({ appId, repoName: 'stable'}).then((res: any) => {
+                if (res.code = 200) {
+                    result = res.data;
+                }
+            });
             // 过滤不同appId和不是runtime的数据
             searchVersionItemList = searchVersionItemList.filter(item => {
                 // 处理主键id标识
@@ -73,6 +82,12 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                 }
                 // 来源仓库
                 item.repoName = systemConfigStore.defaultRepoName
+                // 安装卸载次数
+                let app = result.find(it => it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
+                item.installCount = app?.installCount;
+                item.uninstallCount = app?.uninstallCount;
+                item.createTime = app?.createTime;
+                item.kind = app?.kind;
                 // 处理当前版本是否已安装状态
                 item.isInstalled = installedItemsStore.installedItemList.some(it =>
                     it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module 

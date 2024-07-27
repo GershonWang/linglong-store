@@ -41,7 +41,7 @@
             <el-table-column label="文件大小" header-align="center" align="center" width="120" :formatter="formatSize"/>
             <el-table-column label="安装/卸载次数" header-align="center" align="center" width="120" :formatter="formatCount"/>
             <el-table-column label="上架时间" header-align="center" align="center" width="150" :formatter="formatUploadTime"/>
-            <el-table-column label="运行环境" header-align="center" align="center" width="250" :formatter="formatRuntime"/>
+            <el-table-column label="运行环境" header-align="center" align="center" min-width="260" :formatter="formatRuntime"/>
             <!-- <el-table-column prop="description" label="描述" min-width="800"/> -->
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="160">
                 <template #default="scope">
@@ -106,14 +106,25 @@ function formatSize(row: any, _column: TableColumnCtx<any>, _cellValue: any, _in
     return (size / 1024 / 1024).toFixed(2) + 'MB'; // 做一些格式化处理并返回字符串
 }
 function formatCount(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
-    let count = row.count;
-    if (!count) return '0次/0次';
-    return count; // 做一些格式化处理并返回字符串
+    if (row.kind && row.kind != 'app') return '-';
+    let installCount = row.installCount;
+    if (!installCount) {
+        installCount = 0;
+    }
+    let uninstallCount = row.uninstallCount;
+    if (!uninstallCount) {
+        uninstallCount = 0;
+    }
+    return installCount + "次/" + uninstallCount + "次"; // 做一些格式化处理并返回字符串
 }
 function formatUploadTime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
-    let uploadTime = row.uploadTime;
+    let uploadTime = row.createTime;
     if (!uploadTime) return '';
-    return uploadTime; // 做一些格式化处理并返回字符串
+    const date = new Date(uploadTime);
+    if (isNaN(date.getTime())) {
+        return '';
+    }
+    return date.toISOString().split('T')[0]; // 做一些格式化处理并返回字符串
 }
 function formatRuntime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
     const runtime = row.runtime;
@@ -144,27 +155,29 @@ const changeStatus = async (item: any, flag: string) => {
     difVersionItemsStore.updateItemLoadingStatus(item, true); // 不同版本列表
     // 根据flag判断是安装还是卸载
     let message = '';
-    let command = '';
     if (flag == 'install') {
-        // 新增到加载中列表
-        installingItemsStore.addItem(item);
+        installingItemsStore.addItem(item); // 新增到加载中列表
         message = '正在安装' + item.name + '(' + item.version + ')';
-        command= 'll-cli install ' + item.appId + '/' + item.version;
+        let command= 'll-cli install ' + item.appId + '/' + item.version;
+        // 发送操作命令
+        if (compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
+            ipcRenderer.send('command', {
+                ...item,
+                command: command,
+                loading: false,
+            });
+        } else {
+            ipcRenderer.send('linglong', {
+                ...item,
+                command: command,
+                loading: false,
+            });
+        }
     } else {
         message = '正在卸载' + item.name + '(' + item.version + ')';
-        command = 'll-cli uninstall ' + item.appId + '/' + item.version;
-    }
-    // 发送操作命令
-    if (compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
         ipcRenderer.send('command', {
             ...item,
-            command: command,
-            loading: false,
-        });
-    } else {
-        ipcRenderer.send('linglong', {
-            ...item,
-            command: command,
+            command: 'll-cli uninstall ' + item.appId + '/' + item.version,
             loading: false,
         });
     }
@@ -193,13 +206,10 @@ const toRun = (item: CardFace) => {
     });
 }
 // 页面启动时加载
-onMounted(() => {
+onMounted(async () => {
     difVersionItemsStore.clearItems(); // 清除表单数据
     elertTip(); // 检测网络
-    // 初始化数据：
-    // 1.获取服务器端数据
-    // await getAppListByAppId()
-    // 2.发送命令到主线程获取版本列表结果
+    // 发送命令到主线程获取版本列表结果
     let itemsCommand = '';
     if (compareVersions(systemConfigStore.llVersion, '1.3.99') < 0) {
         itemsCommand = "ll-cli query " + query.appId;
@@ -213,7 +223,6 @@ onMounted(() => {
             itemsCommand = "ll-cli search " + query.appId + " --json";
         }
     }
-
     ipcRenderer.send("command", { 'command': itemsCommand });
     ipcRenderer.once('command-result', (_event: any, res: any) => {
         const command: string = res.param.command;

@@ -87,10 +87,10 @@ export const getDisCategoryList = () => {
 /**
  * 根据appid获取程序列表
  */
-export const getAppListByAppId = (data: GetAppListByAppIdParam) => {
+export const getSearchAppVersionList = (data: GetAppListByAppIdParam) => {
     return request<Result>({
         method: 'POST',
-        url: '/visit/getAppListByAppId',
+        url: '/visit/getSearchAppVersionList',
         data
     })
 }
