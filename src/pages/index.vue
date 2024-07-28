@@ -17,6 +17,21 @@
     <div class="footer" v-if="downloadPercent > 0">
         <el-progress :percentage="downloadPercent" :stroke-width="10" status="success" striped striped-flow :duration="10" :show-text="false" />
     </div>
+    <el-dialog title="警告" width="500" center destroy-on-close  v-model="centerDialogVisible">
+        <span>
+            <strong>检测当前系统中不存在玲珑环境</strong>
+            <div>
+                请先安装玲珑环境，方可使用玲珑商店。
+            </div>
+        </span>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button @click="exitBtnClick">退出</el-button>
+                <el-button type="primary" @click="manualInstallBtnClick">手动安装</el-button>
+                <el-button type="primary" @click="autoInstallBtnClick">自动安装</el-button>
+            </div>
+        </template>
+    </el-dialog>
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
@@ -43,6 +58,8 @@ const message = ref('');
 // 进度条状态
 const downloadPercent = ref(0);
 const downloadPercentMsg = ref('');
+// 环境检测
+const centerDialogVisible = ref(false);
 
 // 命令执行返回结果
 const commandResult = (_event: any, res: any) => {
@@ -76,17 +93,18 @@ const commandResult = (_event: any, res: any) => {
         } else {
             message.value = "检测玲珑环境不存在...";
             ipcRenderer.send('logger', 'error', "检测玲珑环境不存在...");
-            ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
-                confirmButtonText: '前往',
-                cancelButtonText: '退出',
-                type: 'warning',
-                center: true,
-            }).then(() => {
-                window.open('https://linglong.dev/guide/start/install.html');
-                window.close();
-            }).catch(() => {
-                window.close();
-            })
+            // ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
+            //     confirmButtonText: '前往',
+            //     cancelButtonText: '退出',
+            //     type: 'warning',
+            //     center: true,
+            // }).then(() => {
+            //     window.open('https://linglong.dev/guide/start/install.html');
+            //     window.close();
+            // }).catch(() => {
+            //     window.close();
+            // })
+            centerDialogVisible.value = true; // 显示弹窗
         }
     }
     if (command == 'll-cli --version') {
@@ -262,6 +280,31 @@ const networkResult = async (_event: any, res: any) => {
     // 跳转到主界面
     router.push('/main_view');
 }
+// 退出按钮点击事件
+const exitBtnClick = () => {
+    ElMessageBox.confirm('确定退出吗？', '提示', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info',
+        center: true,
+    }).then(() => {
+        window.close();
+    }).catch(() => {
+        // do nothing
+    })
+}
+// 手动安装点击事件
+const manualInstallBtnClick = () => {
+    window.open('https://linglong.dev/guide/start/install.html');
+    window.close();
+}
+// 自动安装点击事件
+const autoInstallBtnClick = () => {
+    centerDialogVisible.value = false
+    // ipcRenderer.send('to_install_linglong',systemConfigStore.osVersion); // 执行脚本文件
+    router.push('/'); // 返回首页重新加载商店
+}
+
 // 加载前执行
 onMounted(async () => {
     // 开启系统参数中的网络标识

@@ -1,10 +1,22 @@
 import { BrowserWindow, ipcMain, shell } from "electron";
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 import axios from "axios";
 import { ipcLog, mainLog } from "../logger";
+const path = require('path'); 
 
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
+    /* ********** 执行自动化安装玲珑环境的脚本文件 ********** */
+    ipcMain.on("to_install_linglong", (_event, code: string) => {
+        ipcLog.info('to_install_linglong', code);
+        const scriptPath = path.join(path.join(process.env.DIST_ELECTRON, '../public'), 'shFile', 'install.sh');
+        const script = spawn('pkexec', ['bash', scriptPath], {
+            stdio: 'inherit', // 继承父进程的输入输出
+        });
+        script.on('close', (code) => {  
+            console.log(`child process exited with code ${code}`);  
+        });  
+    })
     /* ********** 执行脚本命令 ********** */
     ipcMain.on("command_only_stdout", (_event, code: string) => {
         ipcLog.info('command_only_stdout：', code);
