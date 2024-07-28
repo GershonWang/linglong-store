@@ -302,7 +302,7 @@ const manualInstallBtnClick = () => {
 const autoInstallBtnClick = () => {
     centerDialogVisible.value = false
     // ipcRenderer.send('to_install_linglong',systemConfigStore.osVersion); // 执行脚本文件
-    router.push('/'); // 返回首页重新加载商店
+    router.replace({ path: '/', query: { reload: 'true' } }); // 跳转主页面 
 }
 
 // 加载前执行
@@ -314,6 +314,8 @@ onMounted(async () => {
     const result = await fp.get()
     let visitorId = result.visitorId
     systemConfigStore.changeVisitorId(visitorId);
+    centerDialogVisible.value = true; // 显示弹窗
+    return;
     // 获取组件基本信息
     ipcRenderer.send('command', { command: 'dpkg -l | grep linglong' });
     // 获取系统信息
