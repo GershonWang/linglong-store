@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, Menu } from "electron";
+import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
 import { join } from "node:path";
 import fs from "fs-extra";
 import { mainLog } from "./logger";
@@ -15,6 +15,7 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
 
 let win: BrowserWindow | null;
+let floatingBallWindow; // 悬浮球窗口
 
 // 创建窗口并初始化相关参数
 function createWindow() {
@@ -55,6 +56,38 @@ function createWindow() {
     }
     return { action: "deny" };
   });
+
+
+  // Create the floating ball window
+  // floatingBallWindow = new BrowserWindow({
+  //   width: 50,
+  //   height: 50,
+  //   frame: false,
+  //   transparent: true,
+  //   alwaysOnTop: true,
+  //   resizable: false,
+  //   webPreferences: {
+  //     preload,
+  //     contextIsolation: false,
+  //     nodeIntegration: true
+  //   }
+  // });
+  // floatingBallWindow.webContents.openDevTools({ mode: "detach" });
+
+  // floatingBallWindow.loadFile('floatingBall.html');
+  // floatingBallWindow.setBounds({ x: 100, y: 100, width: 50, height: 50 }); // 设置悬浮球初始位置
+  // floatingBallWindow.setIgnoreMouseEvents(false); // 使悬浮球窗口不接收鼠标事件
+
+  // 监听悬浮球位置更新
+  // ipcMain.on('update-floating-ball-position', (event, position) => {
+  //   mainLog.info("悬浮球位置更新", position);
+  //   floatingBallWindow.setBounds({
+  //     x: position.x,
+  //     y: position.y,
+  //     width: 50,
+  //     height: 50
+  //   });
+  // });
 }
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
@@ -71,14 +104,14 @@ app.on("window-all-closed", () => {
   }
 });
 // 应用监听开启第二个窗口
-app.on('second-instance', () => {
-  if (win) {
-    if (win.isMinimized()) {
-      win.restore()
-    }
-    win.focus()
-  }
-})
+// app.on('second-instance', () => {
+//   if (win) {
+//     if (win.isMinimized()) {
+//       win.restore()
+//     }
+//     win.focus()
+//   }
+// })
 // macOS事件(应用被激活时触发)
 app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows();
