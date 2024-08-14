@@ -26,7 +26,7 @@
         </span>
         <template #footer>
             <div class="dialog-footer">
-                <el-button @click="exitBtnClick">退出</el-button>
+                <el-button @click="exitBtnClick">退出商店</el-button>
                 <el-button type="primary" @click="manualInstallBtnClick">手动安装</el-button>
                 <el-button type="primary" @click="autoInstallBtnClick">自动安装</el-button>
             </div>
@@ -93,18 +93,18 @@ const commandResult = (_event: any, res: any) => {
         } else {
             message.value = "检测玲珑环境不存在...";
             ipcRenderer.send('logger', 'error', "检测玲珑环境不存在...");
-            // ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
-            //     confirmButtonText: '前往',
-            //     cancelButtonText: '退出',
-            //     type: 'warning',
-            //     center: true,
-            // }).then(() => {
-            //     window.open('https://linglong.dev/guide/start/install.html');
-            //     window.close();
-            // }).catch(() => {
-            //     window.close();
-            // })
-            centerDialogVisible.value = true; // 显示弹窗
+            ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
+                confirmButtonText: '前往',
+                cancelButtonText: '退出',
+                type: 'warning',
+                center: true,
+            }).then(() => {
+                window.open('https://www.linglong.space/guide/start/install.html');
+                window.close();
+            }).catch(() => {
+                window.close();
+            })
+            // centerDialogVisible.value = true; // 显示弹窗
         }
     }
     if (command == 'll-cli --version') {
@@ -289,13 +289,11 @@ const exitBtnClick = () => {
         center: true,
     }).then(() => {
         window.close();
-    }).catch(() => {
-        // do nothing
     })
 }
 // 手动安装点击事件
 const manualInstallBtnClick = () => {
-    window.open('https://linglong.dev/guide/start/install.html');
+    window.open('https://www.linglong.space/guide/start/install.html');
     window.close();
 }
 // 自动安装点击事件
@@ -314,8 +312,6 @@ onMounted(async () => {
     const result = await fp.get()
     let visitorId = result.visitorId
     systemConfigStore.changeVisitorId(visitorId);
-    // centerDialogVisible.value = true; // 显示弹窗
-    // return;
     // 获取组件基本信息
     ipcRenderer.send('command', { command: 'dpkg -l | grep linglong' });
     // 获取系统信息
