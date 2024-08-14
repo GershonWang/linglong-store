@@ -3,12 +3,24 @@ import { ElMessage } from 'element-plus';
 
 const baseURL = import.meta.env.VITE_SERVER_URL as string;
 
+// 处理 类型“AxiosResponse<LoginResult, any>”上不存在属性“code”。
+declare module 'axios' {
+  interface AxiosResponse<T = any> {
+    // 这里追加你的参数
+    code: null;
+    msg: '';
+  }
+  export function create(config?: AxiosRequestConfig): AxiosInstance;
+}
+
 // 创建 axios 实例
 const service = axios.create({
   baseURL: baseURL,
   timeout: 60000,
   headers: {
-    'Content-Type': 'application/json;charset=utf-8'
+    'Content-Type': 'application/json;charset=utf-8',
+    'Access-Control-Allow-Origin': '*', // 设置允许的域名
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
   }
 });
 

@@ -60,7 +60,7 @@ const downloadPercentMsg = ref('');
 const centerDialogVisible = ref(false);
 
 // 命令执行返回结果
-const commandResult = (_event: any, res: any) => {
+const commandResult = async (_event: any, res: any) => {
     const code: string = res.code;
     const result: any = res.result;
     const command: string = res.param.command;
@@ -146,9 +146,40 @@ const commandResult = (_event: any, res: any) => {
         }
         message.value = "正在获取网络源玲珑程序列表...";
         ipcRenderer.send('logger', 'info', "正在获取网络源玲珑程序列表...");
-        const baseUrl: string = systemConfigStore.sourceUrl;
-        const requestUrl: string = baseUrl.concat('/api/v0/web-store/apps??page=1&size=100000');
-        ipcRenderer.send('network', { url: requestUrl });
+        let response = await getSearchAppList({
+            repoName: systemConfigStore.defaultRepoName, 
+            pageNo: 1, 
+            pageSize: 1 
+        });
+        if (response.code == 200) {
+            systemConfigStore.changeLinglongCount((response.data as unknown as pageResult).total);
+            message.value = "网络源玲珑程序列表获取完成...";
+            ipcRenderer.send('logger', 'info', "网络源玲珑程序列表获取完成...");
+        } else {
+            message.value = "网络源玲珑程序列表获取失败...";
+            ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
+        }
+        message.value = "加载完成...";
+        ipcRenderer.send('logger', 'info', "加载完成...");
+        downloadPercentMsg.value = "";
+        ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
+        // 检测当前环境(非开发环境发送通知APP登陆！)
+        if (import.meta.env.MODE != "development") {
+            ipcRenderer.send('appLogin', { 
+                url: import.meta.env.VITE_SERVER_URL + "/visit/appLogin", 
+                llVersion: systemConfigStore.llVersion,
+                linglongBinVersion: systemConfigStore.linglongBinVersion,
+                detailMsg: systemConfigStore.detailMsg,
+                osVersion: systemConfigStore.osVersion,
+                defaultRepoName: systemConfigStore.defaultRepoName,
+                appVersion: pkg.version,
+                visitorId: systemConfigStore.visitorId 
+            })
+        }
+        // 延时1000毫秒进入
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // 跳转到主界面
+        router.push('/main_view');
     }
     if(command == 'apt-cache policy linglong-bin') {
         const lines = result.split('\n');
@@ -231,46 +262,6 @@ const updateMessage = (_event: any, text: string) => {
         ipcRenderer.send('command', { command: 'uname -m' });
     }
 }
-// 网络执行返回结果
-const networkResult = async (_event: any, res: any) => {
-    if (res.code == 200) {
-        message.value = "网络源玲珑程序列表获取完成...";
-        ipcRenderer.send('logger', 'info', "网络源玲珑程序列表获取完成...");
-    } else {
-        message.value = "网络源玲珑程序列表获取失败...";
-        ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
-    }
-    let params = {
-        repoName: systemConfigStore.defaultRepoName, 
-        pageNo: 1, 
-        pageSize: 1 
-    }
-    let response = await getSearchAppList(params);
-    if (response.code == 200) {
-        systemConfigStore.changeLinglongCount((response.data as unknown as pageResult).total);
-    }
-    message.value = "加载完成...";
-    ipcRenderer.send('logger', 'info', "加载完成...");
-    downloadPercentMsg.value = "";
-    ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
-    // 检测当前环境(非开发环境发送通知APP登陆！)
-    if (import.meta.env.MODE != "development") {
-        ipcRenderer.send('appLogin', { 
-            url: import.meta.env.VITE_SERVER_URL + "/visit/appLogin", 
-            llVersion: systemConfigStore.llVersion,
-            linglongBinVersion: systemConfigStore.linglongBinVersion,
-            detailMsg: systemConfigStore.detailMsg,
-            osVersion: systemConfigStore.osVersion,
-            defaultRepoName: systemConfigStore.defaultRepoName,
-            appVersion: pkg.version,
-            visitorId: systemConfigStore.visitorId 
-        })
-    }
-    // 延时1000毫秒进入
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // 跳转到主界面
-    router.push('/main_view');
-}
 // 退出按钮点击事件
 const exitBtnClick = () => {
     ElMessageBox.confirm('确定退出吗？', '提示', {
@@ -333,15 +324,12 @@ onMounted(async () => {
     }
     // 监听命令行执行结果
     ipcRenderer.on('command-result', commandResult);
-    // 监听网络请求执行结果
-    ipcRenderer.on('network-result', networkResult);
     // 监听更新事件
     ipcRenderer.on('update-message', updateMessage);
 });
 // 销毁前执行
 onBeforeUnmount(() => {
     ipcRenderer.removeListener('command-result', commandResult);
-    ipcRenderer.removeListener('network-result', networkResult);
     ipcRenderer.removeListener('update-message', updateMessage);
     ipcRenderer.removeAllListeners('downloadProgress');
 });
