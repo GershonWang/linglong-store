@@ -1,6 +1,6 @@
 <template>
     <div class="containner">
-        <a href="https://linglong.dev/" target="_blank">
+        <a href="https://www.linglong.space/" target="_blank">
             <img src="/logo.svg" class="logo" alt="玲珑商店" />
         </a>
         <h1>玲珑应用商店</h1>
@@ -249,7 +249,12 @@ const networkResult = async (_event: any, res: any) => {
         message.value = "网络源玲珑程序列表获取失败...";
         ipcRenderer.send('logger', 'error', "网络源玲珑程序列表获取失败...");
     }
-    let response = await getSearchAppList({ repoName: systemConfigStore.defaultRepoName, pageNo: 1, pageSize: 1 });
+    let params = {
+        repoName: systemConfigStore.defaultRepoName, 
+        pageNo: 1, 
+        pageSize: 1 
+    }
+    let response = await getSearchAppList(params);
     if (response.code == 200) {
         systemConfigStore.changeLinglongCount((response.data as unknown as pageResult).total);
     }
@@ -257,13 +262,10 @@ const networkResult = async (_event: any, res: any) => {
     ipcRenderer.send('logger', 'info', "加载完成...");
     downloadPercentMsg.value = "";
     ipcRenderer.send('logger', 'info', systemConfigStore.getSystemConfigInfo);
-    // 检测当前环境
-    const mode = import.meta.env.MODE as string;
-    if (mode != "development") {
-        // 非开发环境发送通知APP登陆！
-        let baseURL = import.meta.env.VITE_SERVER_URL as string;
+    // 检测当前环境(非开发环境发送通知APP登陆！)
+    if (import.meta.env.MODE != "development") {
         ipcRenderer.send('appLogin', { 
-            url: baseURL + "/visit/appLogin", 
+            url: import.meta.env.VITE_SERVER_URL + "/visit/appLogin", 
             llVersion: systemConfigStore.llVersion,
             linglongBinVersion: systemConfigStore.linglongBinVersion,
             detailMsg: systemConfigStore.detailMsg,

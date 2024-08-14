@@ -14,6 +14,7 @@
   "scripts": {
     "dev": "vite --mode development",
     "pro": "vite --mode production",
+    "test": "vite --mode test",
     "build": "vue-tsc --noEmit && vite build && electron-builder",
     "preview": "vite preview"
   },
