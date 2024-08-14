@@ -27,14 +27,12 @@ import updateCard from "@/components/updateCard.vue";
 import string2card from "@/util/string2card";
 import hasUpdateVersion from "@/util/checkVersion";
 import defaultImage from '@/assets/logo.svg';
-import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import elertTip from "@/util/NetErrorTips";
 
-const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const updateItemsStore = useUpdateItemsStore();
 const systemConfig = useSystemConfigStore();
@@ -93,12 +91,6 @@ const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
                     searchVersionItemList = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
                     const entity: InstalledEntity = searchVersionItemList[0];
                     if (hasUpdateVersion(res.param.version, entity.version) == 1) {
-                        // 从所有程序列表中捞取程序图标icon
-                        const allServItemList = allServItemsStore.allServItemList;
-                        if (allServItemList && allServItemList.length > 0) {
-                            const findItem = allServItemList.find(it => it.appId == appId);
-                            entity.icon = findItem ? (findItem.icon ? findItem.icon : '') : '';
-                        }
                         updateItemsStore.addItem(entity);
                     }
                 }

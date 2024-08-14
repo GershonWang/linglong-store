@@ -19,13 +19,11 @@ import { ipcRenderer } from "electron";
 import { ElNotification, ElMessageBox } from 'element-plus'
 import { CardFace,InstalledEntity, OpenDetailParams } from "@/interface";
 import { LocationQueryRaw, useRouter } from 'vue-router';
-import { useAllServItemsStore } from "@/store/allServItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { compareVersions } from "@/util/checkVersion";
 
-const allServItemsStore = useAllServItemsStore();
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const systemConfigStore = useSystemConfigStore();
@@ -70,7 +68,6 @@ const changeStatus = (item: CardFace) => {
         center: true,
     }).then(() => {
         // 启用加载框
-        allServItemsStore.updateItemLoadingStatus(item, true);
         const installedItem: InstalledEntity = {
             appId: item.appId,
             arch: item.arch,

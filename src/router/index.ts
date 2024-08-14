@@ -14,16 +14,17 @@ const router = createRouter({
             component: () => import("../pages/mainView/index.vue"),
             children: [
                 {
-                    path: '/all_serv_menu',
-                    name: 'AllServMenu',
-                    component: () => import("../pages/mainView/1_AllServMenu/index.vue"),
+                    path: '/all_app_menu',
+                    name: 'AllAppMenu',
+                    component: () => import("../pages/mainView/8_AllAppMenu/index.vue"),
                     beforeEnter: (to, from, next) => {
                         // 在路由进入时执行的操作(非明细页面重置元数据)
                         if (from.name != 'Detail') {
-                            to.meta.savedPosition = 0;
+                            to.meta.savedSearchName = ''; // 将搜索内容保存到路由元数据中
+                            to.meta.savedCategoryId = ''; // 将分类ID保存到路由元数据中
                             to.meta.savedPageNo = 0; // 将页码保存到路由元数据中
                             to.meta.savedPageSize = 0; // 将每页条数保存到路由元数据中
-                            to.meta.savedSearchName = ''; // 将搜索内容保存到路由元数据中
+                            to.meta.savedPosition = 0;
                         }
                         // 如果需要继续导航，调用 next()
                         next();
@@ -107,23 +108,6 @@ const router = createRouter({
                         next();
                     },
                 },
-                {
-                    path: '/all_app_menu',
-                    name: 'AllAppMenu',
-                    component: () => import("../pages/mainView/8_AllAppMenu/index.vue"),
-                    beforeEnter: (to, from, next) => {
-                        // 在路由进入时执行的操作(非明细页面重置元数据)
-                        if (from.name != 'Detail') {
-                            to.meta.savedSearchName = ''; // 将搜索内容保存到路由元数据中
-                            to.meta.savedCategoryId = ''; // 将分类ID保存到路由元数据中
-                            to.meta.savedPageNo = 0; // 将页码保存到路由元数据中
-                            to.meta.savedPageSize = 0; // 将每页条数保存到路由元数据中
-                            to.meta.savedPosition = 0;
-                        }
-                        // 如果需要继续导航，调用 next()
-                        next();
-                    },
-                }
             ],
         },
     ], // `routes: routes` 的缩写

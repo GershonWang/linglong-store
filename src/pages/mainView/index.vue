@@ -15,13 +15,7 @@
                         </el-icon>
                         <span>排行榜</span>
                     </el-menu-item>
-                    <!-- <el-menu-item index="2" @click="toPage('/all_serv_menu')">
-                        <el-icon color="#D3D3D3">
-                            <HomeFilled />
-                        </el-icon>
-                        <span>全部程序</span>
-                    </el-menu-item> -->
-                    <el-menu-item index="22" @click="toPage('/all_app_menu')">
+                    <el-menu-item index="2" @click="toPage('/all_app_menu')">
                         <el-icon color="#D3D3D3">
                             <HomeFilled />
                         </el-icon>
