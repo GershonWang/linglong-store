@@ -239,8 +239,6 @@ const networkResult = async (_event: any, res: any) => {
     if (res.code == 200) {
         message.value = "网络源玲珑程序列表获取完成...";
         ipcRenderer.send('logger', 'info', "网络源玲珑程序列表获取完成...");
-        // 将请求的数据条数记录到系统参数store中
-        systemConfigStore.changeLinglongCount(data.length);
         // 初始化所有应用程序列表
         const installedItemList = installedItemsStore.installedItemList;
         allServItemsStore.initAllItems(data, installedItemList);
