@@ -17,6 +17,8 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         isShowNoIcon: ref(false),
         // 是否显示基础运行服务
         isShowBaseService: ref(false),
+        // 是否合并显示同appId程序
+        isShowMergeApp: ref(true),
         // 自动检测更新
         autoCheckUpdate: ref(true),
         // 网络运行状态
@@ -42,6 +44,7 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             + ',isShowDisArch:' + state.isShowDisArch 
             + ',isShowNoIcon:' + state.isShowNoIcon 
             + ',isShowBaseService:' + state.isShowBaseService 
+            + ',isShowMergeApp:' + state.isShowMergeApp
             + ',autoCheckUpdate:' + state.autoCheckUpdate
             + ',networkRunStatus:' + state.networkRunStatus
             + ',linglongCount:' + state.linglongCount
@@ -83,6 +86,11 @@ export const useSystemConfigStore = defineStore('systemConfig', {
         changeIsShowBaseService(isShowBaseService: boolean){
             const that = this;
             that.isShowBaseService = isShowBaseService;
+        },
+        // 修改是否合并显示同appId程序
+        changeIsShowMergeApp(isShowMergeApp: boolean){
+            const that = this;
+            that.isShowMergeApp = isShowMergeApp;
         },
         // 修改是否自动检测更新
         changeAutoCheckUpdate(autoCheckUpdate: boolean){

@@ -150,6 +150,7 @@ const commandResult = (_event: any, res: any) => {
     const params = res.param;
     // 返回结果 - 当前执行安装的应用信息
     const command: string = params.command;
+    const result: any = res.result;
     if (command.startsWith('ll-cli install') || command.startsWith('ll-cli uninstall')) {
         const installedEntity: InstalledEntity = params;
         installedEntity.isInstalled = false;
@@ -191,6 +192,20 @@ const commandResult = (_event: any, res: any) => {
             type: 'success',
             duration: 500,
         });
+    }
+    // 监听获取玲珑列表的命令
+    if (command == 'll-cli list --json' || command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
+      if (res.code == 'stdout') {
+        if (command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
+          installedItemsStore.initInstalledItemsOld(result);
+        }
+        if (command == 'll-cli list --json') {
+          installedItemsStore.initInstalledItems(result);
+        }
+      } else {
+        // 网络异常，变更标识
+        systemConfigStore.changeNetworkRunStatus(false);
+      }
     }
 }
 const linglongResult = (_event: any, res: any) => {
