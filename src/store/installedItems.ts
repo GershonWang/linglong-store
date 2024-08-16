@@ -12,6 +12,7 @@ const systemConfigStore = useSystemConfigStore();
 export const useInstalledItemsStore = defineStore("installedItems", () => {
 
     let installedItemList = ref<InstalledEntity[]>([]);
+
     /**
      * 初始化已安装程序数组(1.4以前的版本)
      * @param data 待处理的数据
@@ -38,47 +39,36 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         clearItems(); // 清空已安装列表
         const datas: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
         if (datas.length > 0) {
-            installedItemList.value = datas.filter(item => {
+            datas.forEach(item => {
                 // 设定appId
-                if (item.id) {
-                    item.appId = item.id;
-                } else if (item.appid) {
-                    item.appId = item.appid
-                }
-                // 设定arch架构
-                if (typeof item.arch === 'string') {
-                    item.arch = item.arch
-                } else if (Array.isArray(item.arch)) {
-                    item.arch = item.arch[0]
-                } else {
-                    console.log('架构arch字段传入错误',item.arch);
-                }
-                // 设定仓库源
-                item.repoName = systemConfigStore.defaultRepoName;
-                // 如果不显示基础服务，则过滤掉基础服务
-                if (systemConfigStore.isShowBaseService) {
-                    return true;
-                }
-                return item.kind == "app"
-            })
-        }
-        if (installedItemList.value.length > 0) {
-            await getAppDetails(installedItemList.value).then((res) => {
-                if(res.code == 200) {
-                    const datas: InstalledEntity[] = res.data as unknown as InstalledEntity[];
-                    if(datas.length > 0) {
-                        for(let i = 0; i < installedItemList.value.length; i++) {
-                            const item = installedItemList.value[i];
-                            const findItem = datas.find(i => i.appId == item.appId && i.name == item.name && i.version == item.version);
-                            if (findItem) {
-                                installedItemList.value[i] = findItem;
-                            }
+                item.appId = item.id ? item.id : item.appid ? item.appid : item.appId;
+                addItem(item);  // 添加到已安装列表
+            });
+            let response = await getAppDetails(installedItemList.value);
+            if(response.code == 200) {
+                const datas: InstalledEntity[] = response.data as unknown as InstalledEntity[];
+                if(datas.length > 0) {
+                    for(let i = 0; i < installedItemList.value.length; i++) {
+                        const item = installedItemList.value[i];
+                        const findItem = datas.find(it => it.appId == item.appId && it.name == item.name && it.version == item.version);
+                        if (findItem) {
+                            // 设定arch架构
+                            findItem.arch = typeof findItem.arch === 'string' ? findItem.arch : Array.isArray(findItem.arch) ? findItem.arch[0] : '';
+                            // 设定仓库源
+                            findItem.repoName = systemConfigStore.defaultRepoName;
+                            installedItemList.value[i] = findItem;
+                            continue;
                         }
+                        // 设定arch架构
+                        item.arch = typeof item.arch === 'string' ? item.arch : Array.isArray(item.arch) ? item.arch[0] : '';
+                        // 设定仓库源
+                        item.repoName = systemConfigStore.defaultRepoName;
+                        installedItemList.value[i] = item;
                     }
-                } else {
-                    console.log(res.msg);
                 }
-            })
+            } else {
+                console.log(response.msg);
+            }
         }
         return installedItemList;
     }

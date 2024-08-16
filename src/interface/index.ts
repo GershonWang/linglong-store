@@ -68,6 +68,7 @@ export interface InstalledEntity {
     isInstalled?: boolean, // 是否已安装
     loading?: boolean,  // 是否正在安装
     schedule?: string,  // 安装进度
+    occurrenceNumber?: number, // 同appId安装个数
 }
 
 /**

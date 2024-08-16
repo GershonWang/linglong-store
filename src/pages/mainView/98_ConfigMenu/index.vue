@@ -66,7 +66,7 @@ const checkedBaseService = (checkStatus: boolean) => {
     // 1.4.0版本之前的命令
     getInstalledItemsCommand = "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'";
   }
-  ipcRenderer.send('command', { command: getInstalledItemsCommand});
+  ipcRenderer.send('command', { command: getInstalledItemsCommand, type: "refreshInstalledApps" });
 }
 // 页面启动时加载
 onMounted(() => {

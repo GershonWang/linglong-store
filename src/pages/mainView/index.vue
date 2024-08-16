@@ -147,10 +147,25 @@ const flag = ref(true);
 let downloadLogMsg = "";
 // 命令执行响应函数
 const commandResult = (_event: any, res: any) => {
-    const params = res.param;
-    // 返回结果 - 当前执行安装的应用信息
-    const command: string = params.command;
-    const result: any = res.result;
+    const code = res.code;   // 返回命令执行状态
+    const params = res.param;  // 返回命令执行入参参数
+    const result = res.result;  // 返回命令执行结果
+    const command: string = params.command;  // 返回执行的命令
+    if (code != 'stdout') {
+        ipcRenderer.send('logger', 'error', "\"" + command + "\"命令执行异常::" + result);
+        // 网络异常，变更标识
+        // systemConfigStore.changeNetworkRunStatus(false);
+        return;
+    }
+    // 监听获取玲珑列表的命令
+    if (command.startsWith('ll-cli list') && params.type && params.type == 'refreshInstalledApps') {
+        if (command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
+          installedItemsStore.initInstalledItemsOld(result);
+        }
+        if (command == 'll-cli list --json') {
+          installedItemsStore.initInstalledItems(result);
+        }
+    }
     if (command.startsWith('ll-cli install') || command.startsWith('ll-cli uninstall')) {
         const installedEntity: InstalledEntity = params;
         installedEntity.isInstalled = false;
@@ -193,26 +208,12 @@ const commandResult = (_event: any, res: any) => {
             duration: 500,
         });
     }
-    // 监听获取玲珑列表的命令
-    if (command == 'll-cli list --json' || command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
-      if (res.code == 'stdout') {
-        if (command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
-          installedItemsStore.initInstalledItemsOld(result);
-        }
-        if (command == 'll-cli list --json') {
-          installedItemsStore.initInstalledItems(result);
-        }
-      } else {
-        // 网络异常，变更标识
-        systemConfigStore.changeNetworkRunStatus(false);
-      }
-    }
 }
 const linglongResult = (_event: any, res: any) => {
-    const params = res.param;
-    const code: string = res.code;
-    const command: string = params.command;
-    const result: string = res.result;
+    const params = res.param;                   // 要执行的命令的入参对象
+    const code: string = res.code;              // 执行命令返回的状态码
+    const command: string = params.command;     // 执行的命令
+    const result: string = res.result;          // 执行命令返回的结果
     downloadLogMsg += result + '<br>';
     if ('close' == code) {
         const installedEntity: InstalledEntity = params;
