@@ -23,7 +23,7 @@ else
 fi
 
 echo "检测到的操作系统：$OS 版本：$VERSION"
-exit 1
+
 # 定义安装 Linglong 的函数
 install_linglong_apt() {
     apt update
@@ -50,7 +50,6 @@ case "$OS" in
     "UOS")
         if [ "$VERSION" == "1070" ]; then
             sudo bash -c "echo 'deb [trusted=yes] https://ci.deepin.com/repo/deepin/deepin-community/linglong-repo/ unstable main' > /etc/apt/sources.list.d/linglong.list"
-            # echo "deb [trusted=yes] https://ci.deepin.com/repo/deepin/deepin-community/linglong-repo/ unstable main" | sudo tee -a /etc/apt/sources.list
             install_linglong_apt
         else
             echo "不支持的 UOS 版本: $VERSION"
