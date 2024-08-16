@@ -23,7 +23,7 @@ else
 fi
 
 echo "检测到的操作系统：$OS 版本：$VERSION"
-exit1
+exit 1
 # 定义安装 Linglong 的函数
 install_linglong_apt() {
     apt update

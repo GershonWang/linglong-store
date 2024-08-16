@@ -13,6 +13,9 @@ const IPCHandler = (win: BrowserWindow) => {
         const script = spawn('pkexec', ['bash', scriptPath], {
             stdio: 'inherit', // 继承父进程的输入输出
         });
+        script.stdout.on('data', (data) => {
+            ipcLog.info(`stdout: ${data}`);
+        });
         script.on('close', (code) => {  
             console.log(`child process exited with code ${code}`);  
         });  

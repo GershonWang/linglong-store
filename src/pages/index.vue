@@ -21,7 +21,8 @@
         <span>
             <strong>检测当前系统中不存在玲珑环境</strong>
             <div>
-                请先安装玲珑环境，方可使用玲珑商店。
+                <p>请先安装玲珑环境，方可使用玲珑商店。</p>
+                <p>目前自动安装支持Deepin 23</p>
             </div>
         </span>
         <template #footer>
@@ -91,18 +92,18 @@ const commandResult = async (_event: any, res: any) => {
         } else {
             message.value = "检测玲珑环境不存在...";
             ipcRenderer.send('logger', 'error', "检测玲珑环境不存在...");
-            ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
-                confirmButtonText: '前往',
-                cancelButtonText: '退出',
-                type: 'warning',
-                center: true,
-            }).then(() => {
-                window.open('https://www.linglong.space/guide/start/install.html');
-                window.close();
-            }).catch(() => {
-                window.close();
-            })
-            // centerDialogVisible.value = true; // 显示弹窗
+            // ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
+            //     confirmButtonText: '前往',
+            //     cancelButtonText: '退出',
+            //     type: 'warning',
+            //     center: true,
+            // }).then(() => {
+            //     window.open('https://www.linglong.space/guide/start/install.html');
+            //     window.close();
+            // }).catch(() => {
+            //     window.close();
+            // })
+            centerDialogVisible.value = true; // 显示弹窗
         }
     }
     if (command == 'll-cli --version') {
@@ -281,8 +282,8 @@ const manualInstallBtnClick = () => {
 // 自动安装点击事件
 const autoInstallBtnClick = () => {
     centerDialogVisible.value = false
-    // ipcRenderer.send('to_install_linglong',systemConfigStore.osVersion); // 执行脚本文件
-    router.replace({ path: '/', query: { reload: 'true' } }); // 跳转主页面 
+    ipcRenderer.send('to_install_linglong',systemConfigStore.osVersion); // 执行脚本文件
+    // router.replace({ path: '/', query: { reload: 'true' } }); // 跳转主页面 
 }
 
 // 加载前执行
