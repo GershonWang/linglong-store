@@ -37,9 +37,10 @@
             <el-table-column prop="version" label="版本号" width="120"/>
             <el-table-column prop="kind" label="应用类型" header-align="center" align="center" width="100"/>
             <el-table-column prop="channel" label="通道" header-align="center" align="center" width="100"/>
+            <el-table-column prop="module" label="模式" header-align="center" align="center" width="100"/>
             <el-table-column prop="repoName" label="仓库来源" header-align="center" align="center" width="100"/>
             <el-table-column label="文件大小" header-align="center" align="center" width="120" :formatter="formatSize"/>
-            <el-table-column label="安装/卸载次数" header-align="center" align="center" width="120" :formatter="formatCount"/>
+            <el-table-column label="下载量" header-align="center" align="center" width="100" :formatter="formatCount"/>
             <el-table-column label="上架时间" header-align="center" align="center" width="150" :formatter="formatUploadTime"/>
             <el-table-column label="运行环境" header-align="center" align="center" min-width="260" :formatter="formatRuntime"/>
             <!-- <el-table-column prop="description" label="描述" min-width="800"/> -->
@@ -111,11 +112,11 @@ function formatCount(row: any, _column: TableColumnCtx<any>, _cellValue: any, _i
     if (!installCount) {
         installCount = 0;
     }
-    let uninstallCount = row.uninstallCount;
-    if (!uninstallCount) {
-        uninstallCount = 0;
-    }
-    return installCount + "次/" + uninstallCount + "次"; // 做一些格式化处理并返回字符串
+    // let uninstallCount = row.uninstallCount;
+    // if (!uninstallCount) {
+    //     uninstallCount = 0;
+    // }
+    return installCount + "次";
 }
 function formatUploadTime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
     let uploadTime = row.createTime;
