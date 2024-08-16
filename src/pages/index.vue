@@ -17,12 +17,16 @@
     <div class="footer" v-if="downloadPercent > 0">
         <el-progress :percentage="downloadPercent" :stroke-width="10" status="success" striped striped-flow :duration="10" :show-text="false" />
     </div>
-    <el-dialog title="警告" width="500" center destroy-on-close  v-model="centerDialogVisible">
-        <span>
-            <strong>检测当前系统中不存在玲珑环境</strong>
-            <div>
-                <p>请先安装玲珑环境，方可使用玲珑商店。</p>
-                <p>目前自动安装支持Deepin 23</p>
+    <el-dialog v-model="centerDialogVisible" width="500" center destroy-on-close :close-on-click-modal="false" :show-close="false"
+        :close-on-press-escape="false">
+        <template #title>
+            <span style="user-select: none;color: black;font-weight: bold;">警告</span>
+        </template>
+        <span style="user-select: none;">
+            <strong style="text-align: center; display: block; color: red">检测当前系统中不存在玲珑组件环境</strong>
+            <div style="text-align: center; margin-top: 10px">
+                <p>请先安装玲珑组件环境，方可使用本玲珑商店。</p>
+                <p>目前自动安装支持Deepin 23/UOS 1070/OpenEuler 24.03/Ubuntu 22.04/Ubuntu 24.04/Debian 12/openKylin 2.0rc</p>
             </div>
         </span>
         <template #footer>
@@ -283,7 +287,6 @@ const manualInstallBtnClick = () => {
 const autoInstallBtnClick = () => {
     centerDialogVisible.value = false
     ipcRenderer.send('to_install_linglong',systemConfigStore.osVersion); // 执行脚本文件
-    // router.replace({ path: '/', query: { reload: 'true' } }); // 跳转主页面 
 }
 
 // 加载前执行
