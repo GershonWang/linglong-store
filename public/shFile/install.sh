@@ -66,7 +66,10 @@ case "$OS" in
         fi
         ;;
     "Ubuntu")
-        if [ "$VERSION" == "24.04" ]; then
+        if [ "$VERSION" == "22.04" ]; then
+            sudo bash -c "echo 'deb [trusted=yes] https://ci.deepin.com/repo/deepin/deepin-community/linglong-repo/ unstable main' > /etc/apt/sources.list.d/linglong.list"
+            install_linglong_apt
+        elif [ "$VERSION" == "24.04" ]; then
             sudo bash -c "echo 'deb [trusted=yes] https://download.opensuse.org/repositories/home:/kamiyadm/xUbuntu_24.04/ ./' > /etc/apt/sources.list.d/linglong.list"
             install_linglong_apt
         else
