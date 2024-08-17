@@ -26,7 +26,7 @@ import { ipcRenderer } from "electron";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import { compareVersions } from "@/util/checkVersion";
 import elertTip from "@/util/NetErrorTips";
 import { InstalledEntity } from "@/interface";
@@ -63,40 +63,38 @@ const commandResult = async (_event: any, res: any) => {
         });
         return;
     }
-    if (command.startsWith('ll-cli list')) {
+    if (command.startsWith('ll-cli list') && params.type && params.type == 'installedPage') {
         if (command == 'll-cli list | sed \'s/\x1b\[[0-9;]*m//g\'') {
             await installedItemsStore.initInstalledItemsOld(result);
             displayedItems.value = installedItemsStore.installedItemList;
         }
         if (command == 'll-cli list --json' || command == 'll-cli list --json --type=all') {
             await installedItemsStore.initInstalledItems(result);
-            if (systemConfigStore.isShowMergeApp) {
-                const datas = installedItemsStore.installedItemList;
-                if (datas.length > 0) {
-                    const grouped = installedItemsStore.installedItemList.reduce<Record<string, GroupedItem>>((acc, item) => {
-                        const { appId, version } = item;
-                        if (!acc[appId]) {
-                            acc[appId] = { highestVersion: version, occurrenceNumber: 0 , record: item};
-                        }
-                        // 获取最高版本的记录
-                        if (compareVersions(version, acc[appId].highestVersion) > 0) {
-                            acc[appId].highestVersion = version;
-                            acc[appId].record = item;
-                        }
-                        // appId计数
-                        acc[appId].occurrenceNumber++;
-                        return acc;
-                    }, {});
+            const datas = installedItemsStore.installedItemList;
+            if (systemConfigStore.isShowMergeApp && datas.length > 0) {
+                const grouped = datas.reduce<Record<string, GroupedItem>>((acc, item) => {
+                    const { appId, version } = item;
+                    if (!acc[appId]) {
+                        acc[appId] = { highestVersion: version, occurrenceNumber: 0 , record: item};
+                    }
+                    // 获取最高版本的记录
+                    if (compareVersions(version, acc[appId].highestVersion) > 0) {
+                        acc[appId].highestVersion = version;
+                        acc[appId].record = item;
+                    }
+                    // appId计数
+                    acc[appId].occurrenceNumber++;
+                    return acc;
+                }, {});
 
-                    const results: InstalledEntity[] = Object.keys(grouped).map(appid => ({
-                        ...grouped[appid].record,
-                        occurrenceNumber: grouped[appid].occurrenceNumber,
-                    }));
+                const results: InstalledEntity[] = Object.keys(grouped).map(appid => ({
+                    ...grouped[appid].record,
+                    occurrenceNumber: grouped[appid].occurrenceNumber,
+                }));
 
-                    displayedItems.value = results;
-                }
+                displayedItems.value = results;
             } else {
-                displayedItems.value = installedItemsStore.installedItemList;
+                displayedItems.value = datas;
             }
         }
         // 恢复保存的滚动位置
@@ -105,6 +103,34 @@ const commandResult = async (_event: any, res: any) => {
         loading.value = false; // 关闭loading加载动画
     }
 }
+watchEffect(() => {
+    const datas = installedItemsStore.installedItemList;
+    if (systemConfigStore.isShowMergeApp && datas.length > 0) {
+        const grouped = datas.reduce<Record<string, GroupedItem>>((acc, item) => {
+            const { appId, version } = item;
+            if (!acc[appId]) {
+                acc[appId] = { highestVersion: version, occurrenceNumber: 0 , record: item};
+            }
+            // 获取最高版本的记录
+            if (compareVersions(version, acc[appId].highestVersion) > 0) {
+                acc[appId].highestVersion = version;
+                acc[appId].record = item;
+            }
+            // appId计数
+            acc[appId].occurrenceNumber++;
+            return acc;
+        }, {});
+
+        const results: InstalledEntity[] = Object.keys(grouped).map(appid => ({
+            ...grouped[appid].record,
+            occurrenceNumber: grouped[appid].occurrenceNumber,
+        }));
+
+        displayedItems.value = results;
+    } else {
+        displayedItems.value = datas;
+    }
+})
 // 组件初始化时加载
 onMounted(() => {
     elertTip(); // 检测网络
@@ -115,7 +141,7 @@ onMounted(() => {
     } else if (compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") >= 0 && systemConfigStore.isShowBaseService) {
         getInstalledItemsCommand = "ll-cli list --json --type=all";
     }
-    ipcRenderer.send('command', { command: getInstalledItemsCommand});
+    ipcRenderer.send('command', { command: getInstalledItemsCommand, type: 'installedPage' });
     ipcRenderer.once('command-result', commandResult);
 });
 // 在router路由离开前执行

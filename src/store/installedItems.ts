@@ -37,32 +37,36 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
      */
     const initInstalledItems = async (data: string) => {
         clearItems(); // 清空已安装列表
-        const datas: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
+        const datas: any[] = data.trim() ? JSON.parse(data.trim()) : [];
         if (datas.length > 0) {
             datas.forEach(item => {
                 // 设定appId
                 item.appId = item.id ? item.id : item.appid ? item.appid : item.appId;
+                // 设定arch架构
+                item.arch = typeof item.arch === 'string' ? item.arch : Array.isArray(item.arch) ? item.arch[0] : '';
+                // 设定仓库源
+                item.repoName = systemConfigStore.defaultRepoName;
+                // 设定文件大小
+                item.size = item.size ? item.size.toString() : '0';
                 addItem(item);  // 添加到已安装列表
             });
             let response = await getAppDetails(installedItemList.value);
             if(response.code == 200) {
-                const datas: InstalledEntity[] = response.data as unknown as InstalledEntity[];
-                if(datas.length > 0) {
+                const datass: InstalledEntity[] = response.data as unknown as InstalledEntity[];
+                if(datass.length > 0) {
                     for(let i = 0; i < installedItemList.value.length; i++) {
                         const item = installedItemList.value[i];
-                        const findItem = datas.find(it => it.appId == item.appId && it.name == item.name && it.version == item.version);
+                        const findItem = datass.find(it => it.appId == item.appId && it.name == item.name && it.version == item.version);
                         if (findItem) {
                             // 设定arch架构
                             findItem.arch = typeof findItem.arch === 'string' ? findItem.arch : Array.isArray(findItem.arch) ? findItem.arch[0] : '';
                             // 设定仓库源
                             findItem.repoName = systemConfigStore.defaultRepoName;
+                            // 设定文件大小
+                            findItem.size = findItem.size ? findItem.size.toString() : '0';
                             installedItemList.value[i] = findItem;
                             continue;
                         }
-                        // 设定arch架构
-                        item.arch = typeof item.arch === 'string' ? item.arch : Array.isArray(item.arch) ? item.arch[0] : '';
-                        // 设定仓库源
-                        item.repoName = systemConfigStore.defaultRepoName;
                         installedItemList.value[i] = item;
                     }
                 }
