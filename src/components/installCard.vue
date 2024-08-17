@@ -61,40 +61,27 @@ const openDetails = () => {
 }
 // 按钮点击操作事件
 const changeStatus = (item: CardFace) => {
-    ElMessageBox.confirm('确定要卸载当前程序吗？', '提示', {
+    ElMessageBox.confirm('确定要卸载当前程序已安装的最新版本吗？<br> 如若卸载当前应用其他版本，请点击图标查看详情进行操作', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,  // 允许使用 HTML 标签
         type: 'warning',
         center: true,
     }).then(() => {
         // 启用加载框
-        const installedItem: InstalledEntity = {
+        const installedItem = {
             appId: item.appId,
             arch: item.arch,
             channel: item.channel ? item.channel : '',
             description: item.description ? item.description : '',
             icon: item.icon ? item.icon : '',
-            kind: "",
-            module: "",
             name: item.name,
-            repoName: "",
-            runtime: "",
-            size: "",
-            uabUrl: "",
-            user: "",
             version: item.version,
             isInstalled: false,
             loading: false
         }
-        installedItemsStore.updateItemLoadingStatus(installedItem, true);
-        difVersionItemsStore.updateItemLoadingStatus(installedItem, true);
-        // 弹出提示框
-        ElNotification({
-            title: '提示',
-            message: '正在卸载' + item.name + '(' + item.version + ')',
-            type: 'info',
-            duration: 500,
-        });
+        installedItemsStore.updateItemLoadingStatus(installedItem as InstalledEntity, true);
+        difVersionItemsStore.updateItemLoadingStatus(installedItem as InstalledEntity, true);
         // 发送操作命令
         let commandType = compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") < 0 ? 'command' : 'linglong';
         ipcRenderer.send(commandType, {

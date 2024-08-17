@@ -186,7 +186,7 @@ const commandResult = (_event: any, res: any) => {
         // 全部应用列表(判断当前应用安装版本个数小于两个，才进行状态更新)
         let installedItems = installedItemsStore.installedItemList;
         let filteredItems: InstalledEntity[] = installedItems.filter(item => item.appId === params.appId);
-        if (filteredItems.length < 2 && filteredItems.length > 0) {
+        if (filteredItems.length < 2) {
             allAppItemsStore.updateItemInstallStatus(item);
         }
         // 移除需要更新的应用
@@ -236,7 +236,7 @@ const linglongResult = (_event: any, res: any) => {
             // 全部应用列表(判断当前应用安装版本个数小于两个，才进行状态更新)
             let installedItems = installedItemsStore.installedItemList;
             let filteredItems: InstalledEntity[] = installedItems.filter(item => item.appId === params.appId);
-            if (filteredItems.length < 2 && filteredItems.length > 0) {
+            if (filteredItems.length < 2) {
                 allAppItemsStore.updateItemInstallStatus(installedEntity);
             }
             difVersionItemsStore.updateItemInstallStatus(installedEntity);

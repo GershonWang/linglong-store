@@ -110,14 +110,7 @@ function formatSize(row: any, _column: TableColumnCtx<any>, _cellValue: any, _in
 }
 function formatCount(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
     if (row.kind && row.kind != 'app') return '-';
-    let installCount = row.installCount;
-    if (!installCount) {
-        installCount = 0;
-    }
-    // let uninstallCount = row.uninstallCount;
-    // if (!uninstallCount) {
-    //     uninstallCount = 0;
-    // }
+    let installCount = row.installCount ? row.installCount : 0;
     return installCount + "次";
 }
 function formatUploadTime(row: any, _column: TableColumnCtx<any>, _cellValue: any, _index: number) {
@@ -163,19 +156,12 @@ const changeStatus = async (item: any, flag: string) => {
         message = '正在安装' + item.name + '(' + item.version + ')';
         let command= 'll-cli install ' + item.appId + '/' + item.version;
         // 发送操作命令
-        if (compareVersions(systemConfigStore.llVersion,'1.5.0') < 0 && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
-            ipcRenderer.send('command', {
+        let commandType = compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") < 0 ? 'command' : 'linglong';
+        ipcRenderer.send(commandType, {
                 ...item,
                 command: command,
                 loading: false,
             });
-        } else {
-            ipcRenderer.send('linglong', {
-                ...item,
-                command: command,
-                loading: false,
-            });
-        }
     } else {
         message = '正在卸载' + item.name + '(' + item.version + ')';
         ipcRenderer.send('command', {
