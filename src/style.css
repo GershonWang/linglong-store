@@ -178,24 +178,24 @@ html,body {
 .install-btn {
   height: 24px;
   width: 58px;
-  background-color: #7b7b7b;
-  color: #c7bdbd;
+  background-color: var(--base-background-color);
+  color: var(--menu-base-font-color);
   border: none;
 }
 .install-btn:hover {
   background-color: #999999;
-  color: #2D2F2F;
+  color: var(--menu-base-font-color);
 }
 .uninstall-btn {
   height: 24px;
   width: 58px;
-  background-color: #7b7b7b;
+  background-color: var(--base-background-color);
   color: var(--menu-base-font-color);
   border: none;
 }
 .uninstall-btn:hover {
   background-color: #999999;
-  color: #2D2F2F;
+  color: var(--menu-base-font-color);
 }
 
 @media (prefers-color-scheme: light) {
