@@ -8,24 +8,26 @@
         <div class="base-message">
             <el-row style="height: 100%;">
                 <el-col :span="4" class="image-icon">
-                    <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px" />
+                    <img v-lazy="query.icon" alt="程序图标" width="120px" height="120px"/>
                 </el-col>
-                <el-col :span="20" style="padding: 10px;">
-                    <el-row style="margin-bottom: 10px;">
-                        <el-col :span="3" class="base-message-key">应用名称：</el-col>
-                        <el-col :span="9" class="base-message-value" :title="query.name">{{ query.name }}</el-col>
+                <el-col :span="20" style="padding-left: 10px;height: 100%;">
+                    <el-row style="margin-bottom: 6px;">
                         <el-col :span="3" class="base-message-key">中文名称：</el-col>
-                        <el-col :span="9" class="base-message-value" :title="query.zhName">{{ query.zhName }}</el-col>
-                    </el-row>
-                    <el-row style="margin-bottom: 10px;">
-                        <el-col :span="3" class="base-message-key">appId：</el-col>
-                        <el-col :span="9" class="base-message-value" :title="query.appId">{{ query.appId }}</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.zhName">{{ query.zhName }}</el-col>
+                        <el-col :span="3" class="base-message-key">应用名称：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.name">{{ query.name }}</el-col>
                         <el-col :span="3" class="base-message-key">架构：</el-col>
-                        <el-col :span="9" class="base-message-value" :title="formatArch">{{ formatArch }}</el-col>
+                        <el-col :span="5" class="base-message-value" :title="formatArch">{{ formatArch }}</el-col>
                     </el-row>
-                    <el-row>
+                    <el-row style="margin-bottom: 6px;">
+                        <el-col :span="3" class="base-message-key">appId：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.appId">{{ query.appId }}</el-col>
+                        <el-col :span="3" class="base-message-key">应用分类：</el-col>
+                        <el-col :span="5" class="base-message-value" :title="query.appId">{{ query.categoryName }}</el-col>
+                    </el-row>
+                    <el-row style="height: calc(100% - 70px);">
                         <el-col :span="3" class="base-message-key">应用简述：</el-col>
-                        <el-col :span="21" style="height: 55px;overflow: scroll;color: #213547;">{{ query.description }}</el-col>
+                        <el-col :span="21" style="height: 100%;overflow: scroll;color: #213547;">{{ query.description }}</el-col>
                     </el-row>
                 </el-col>
             </el-row>
@@ -211,18 +213,11 @@ onMounted(async () => {
     difVersionItemsStore.clearItems(); // 清除表单数据
     elertTip(); // 检测网络
     // 发送命令到主线程获取版本列表结果
-    let itemsCommand = '';
+    let itemsCommand = "ll-cli search " + query.appId + " --json"
     if (compareVersions(systemConfigStore.llVersion, '1.3.99') < 0) {
         itemsCommand = "ll-cli query " + query.appId;
-    } else if (compareVersions(systemConfigStore.llVersion, '1.3.99') > 0 
-        && compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') < 0) {
-        itemsCommand = "ll-cli search " + query.appId + " --json";
-    } else {
-        if (systemConfigStore.isShowBaseService) {
-            itemsCommand = "ll-cli search " + query.appId + " --json --type=all";
-        } else {
-            itemsCommand = "ll-cli search " + query.appId + " --json";
-        }
+    } else if (compareVersions(systemConfigStore.linglongBinVersion,'1.5.0') >= 0 && systemConfigStore.isShowBaseService) {
+        itemsCommand = "ll-cli search " + query.appId + " --json --type=all";
     }
     ipcRenderer.send("command", { 'command': itemsCommand });
     ipcRenderer.once('command-result', (_event: any, res: any) => {
@@ -282,13 +277,14 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     backdrop-filter:blur(10px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     background-clip: padding-box;
+    height: 100%;
 }
 
 .choose-version {
     display: flex;
     flex-direction: column;
     border-radius: 5px;
-    height: calc(70% - 82px);
+    height: calc(70% - 70px);
     background-color: #6a6d7b;
     padding: 10px;
 }

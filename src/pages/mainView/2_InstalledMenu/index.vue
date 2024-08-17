@@ -6,7 +6,7 @@
                 <el-badge :value="item.occurrenceNumber" :max="99" class="item">
                     <InstalledCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                         :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" :zhName="item.zhName"
-                        :size="item.size"/>
+                        :size="item.size" :categoryName="item.categoryName"/>
                 </el-badge>
             </div>
         </div>

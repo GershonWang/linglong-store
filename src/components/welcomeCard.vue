@@ -16,8 +16,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { CardFace } from "@/interface";
-import { useRouter } from 'vue-router';
+import { CardFace, OpenDetailParams } from "@/interface";
+import { LocationQueryRaw, useRouter } from 'vue-router';
 
 const router = useRouter();
 
@@ -49,20 +49,11 @@ const defaultName = computed(() => {
 const svg = `<path class="path" d="M 30 15 L 28 17 M 25.61 25.61 A 15 15, 0, 0, 1, 15 30 A 15 15, 0, 1, 1, 27.99 7.5 L 15 15" style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>`
 // 打开不同版本页面
 const openDetails = () => {
-    router.push({
-        path: '/details', 
-        query: {
-            menuName: '珑珑推荐',
-            appId: props.appId,
-            name: props.name,
-            version: props.version,
-            description: props.description,
-            arch: props.arch,
-            icon: props.icon,
-            zhName: props.zhName,
-            size: props.size,
-        }
-    });
+    let queryParams: LocationQueryRaw = {
+        menuName: '珑珑推荐',
+        ...props,
+    } as OpenDetailParams as unknown as LocationQueryRaw;
+    router.push({ path: '/details', query: queryParams });
 }
 </script>
 

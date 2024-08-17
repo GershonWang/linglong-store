@@ -23,7 +23,7 @@
             <div class="card-items" v-for="(item, index) in allAppItemsStore.allAppItemList" :key="index">
                 <AllAppCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :zhName="item.zhName"
-                    :size="item.size"/>
+                    :size="item.size" :categoryName="item.categoryName"/>
             </div>
         </div>
         <div class="no-data-container" v-else>

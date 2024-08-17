@@ -64,6 +64,7 @@ export interface InstalledEntity {
     uninstallCount?: number, // 卸载次数
     uabUrl?: string, // 玲珑地址
     user?: string, // 用户名
+    categoryName?: string, // 分类名称
     /* ********** 非命令传递字段 ********* */
     isInstalled?: boolean, // 是否已安装
     loading?: boolean,  // 是否正在安装

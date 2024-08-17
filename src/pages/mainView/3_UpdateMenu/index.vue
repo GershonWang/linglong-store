@@ -4,7 +4,7 @@
         <div class="card-items-container" v-if="updateItemsStore.updateItemList && updateItemsStore.updateItemList.length > 0">
             <div class="card-items" v-for="(item, index) in updateItemsStore.updateItemList" :key="index">
                 <updateCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
-                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" />
+                    :isInstalled="true" :appId="item.appId" :icon="item.icon" :loading="item.loading" :categoryName="item.categoryName"/>
             </div>
         </div>
         <div class="no-data-container" v-else>

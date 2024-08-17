@@ -34,7 +34,7 @@ html,body {
 .el-breadcrumb {
   height: 25px;
   line-height: 25px;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   --el-text-color-placeholder: var(--menu-base-font-color);
 }
 .first-menu > .el-breadcrumb__inner {

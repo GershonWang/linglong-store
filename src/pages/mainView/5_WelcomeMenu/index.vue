@@ -23,7 +23,7 @@
             <div v-for="(item, itemIndex) in group" :key="itemIndex" class="card-items">
                 <WelcomeCard :name="item.name" :zhName="item.zhName" :version="item.version"
                     :description="item.description" :arch="item.arch" :isInstalled="item.isInstalled"
-                    :appId="item.appId" :icon="item.icon" :loading="item.loading" />
+                    :appId="item.appId" :icon="item.icon" :loading="item.loading" :categoryName="item.categoryName"/>
             </div>
         </div>
     </div>
