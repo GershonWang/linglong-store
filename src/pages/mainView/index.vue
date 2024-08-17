@@ -208,6 +208,14 @@ const commandResult = (_event: any, res: any) => {
             type: 'success',
             duration: 500,
         });
+        // 1.刷新一下已安装列表，根据版本环境获取安装程序列表发送命令
+        let getInstalledItemsCommand = "ll-cli list --json";
+        if (compareVersions(systemConfigStore.llVersion, "1.3.99") < 0) {
+            getInstalledItemsCommand = "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'";
+        } else if (compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") >= 0 && systemConfigStore.isShowBaseService) {
+            getInstalledItemsCommand = "ll-cli list --json --type=all";
+        }
+        ipcRenderer.send('command', { command: getInstalledItemsCommand, type: 'refreshInstalledApps' });
     }
 }
 const linglongResult = (_event: any, res: any) => {
@@ -257,6 +265,14 @@ const linglongResult = (_event: any, res: any) => {
                 type: 'success',
                 duration: 500,
             });
+            // 1.刷新一下已安装列表，根据版本环境获取安装程序列表发送命令
+            let getInstalledItemsCommand = "ll-cli list --json";
+            if (compareVersions(systemConfigStore.llVersion, "1.3.99") < 0) {
+                getInstalledItemsCommand = "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'";
+            } else if (compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") >= 0 && systemConfigStore.isShowBaseService) {
+                getInstalledItemsCommand = "ll-cli list --json --type=all";
+            }
+            ipcRenderer.send('command', { command: getInstalledItemsCommand, type: 'refreshInstalledApps' });
         } else {
             ElNotification({
                 title: '操作异常!',

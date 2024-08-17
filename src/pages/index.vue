@@ -19,7 +19,7 @@
     </div>
     <el-dialog v-model="centerDialogVisible" width="500" center destroy-on-close :close-on-click-modal="false" :show-close="false"
         :close-on-press-escape="false">
-        <template #title>
+        <template #header>
             <span style="user-select: none;color: black;font-weight: bold;">警告</span>
         </template>
         <span style="user-select: none;">

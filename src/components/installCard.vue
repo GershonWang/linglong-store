@@ -16,17 +16,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { ipcRenderer } from "electron";
-import { ElNotification, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { CardFace,InstalledEntity, OpenDetailParams } from "@/interface";
 import { LocationQueryRaw, useRouter } from 'vue-router';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
-import { useSystemConfigStore } from "@/store/systemConfig";
-import { compareVersions } from "@/util/checkVersion";
 
 const installedItemsStore = useInstalledItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
-const systemConfigStore = useSystemConfigStore();
 
 const router = useRouter();
 
@@ -69,22 +66,10 @@ const changeStatus = (item: CardFace) => {
         center: true,
     }).then(() => {
         // 启用加载框
-        const installedItem = {
-            appId: item.appId,
-            arch: item.arch,
-            channel: item.channel ? item.channel : '',
-            description: item.description ? item.description : '',
-            icon: item.icon ? item.icon : '',
-            name: item.name,
-            version: item.version,
-            isInstalled: false,
-            loading: false
-        }
-        installedItemsStore.updateItemLoadingStatus(installedItem as InstalledEntity, true);
-        difVersionItemsStore.updateItemLoadingStatus(installedItem as InstalledEntity, true);
+        installedItemsStore.updateItemLoadingStatus(item as InstalledEntity, true);
+        difVersionItemsStore.updateItemLoadingStatus(item as InstalledEntity, true);
         // 发送操作命令
-        let commandType = compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") < 0 ? 'command' : 'linglong';
-        ipcRenderer.send(commandType, {
+        ipcRenderer.send('command', {
             appId: item.appId,
             name: item.name,
             arch: item.arch,

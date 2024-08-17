@@ -26,7 +26,7 @@ import { ipcRenderer } from "electron";
 import { CardFace,InstalledEntity } from "@/interface";
 import updateCard from "@/components/updateCard.vue";
 import string2card from "@/util/string2card";
-import hasUpdateVersion from "@/util/checkVersion";
+import hasUpdateVersion, { compareVersions } from "@/util/checkVersion";
 import defaultImage from '@/assets/logo.svg';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
@@ -125,8 +125,16 @@ const updateAll = () => {
 onMounted(() => {
     // 清空页面列表数据
     updateItemsStore.clearItems();
-    // 检测网络
-    elertTip();
+    elertTip(); // 检测网络
+    // 1.刷新一下已安装列表，根据版本环境获取安装程序列表发送命令
+    // let getInstalledItemsCommand = "ll-cli list --json";
+    // if (compareVersions(systemConfigStore.llVersion, "1.3.99") < 0) {
+    //     getInstalledItemsCommand = "ll-cli list | sed 's/\x1b\[[0-9;]*m//g'";
+    // } else if (compareVersions(systemConfigStore.linglongBinVersion, "1.5.0") >= 0 && systemConfigStore.isShowBaseService) {
+    //     getInstalledItemsCommand = "ll-cli list --json --type=all";
+    // }
+    // ipcRenderer.send('command', { command: getInstalledItemsCommand});
+
     const installedItemList: InstalledEntity[] = installedItemsStore.installedItemList;
     // 初始化一个数组用于存储去重后当前已安装程序列表
     const uniqueInstalledSet: InstalledEntity[] = [];
