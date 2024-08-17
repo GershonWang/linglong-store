@@ -6,8 +6,9 @@
         <span class="card-name" :title="name">{{ name }}</span>
         <span class="card-zh-name">{{ defaultName }}</span>
         <span class="card-version">{{ version }}</span>
-        <div class="card-bottom" v-loading="loading" :element-loading-svg="svg"
-            element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(122, 122, 122, 0.8)">
+        <div class="card-bottom" v-loading="loading" :element-loading-svg="svg" 
+            element-loading-background="rgba(122, 122, 122, 0.8)"
+            element-loading-svg-view-box="-10, -10, 50, 50">
             <el-button class="uninstall-btn" v-if="isInstalled" @click="openDetails">已安装</el-button>
             <el-button class="install-btn" v-else @click="openDetails">安装</el-button>
         </div>
@@ -41,7 +42,23 @@ const defaultName = computed(() => {
     return props.zhName ? props.zhName : props.name;
 })
 // 加载的svg动画
-const svg = `<path class="path" d="M 30 15 L 28 17 M 25.61 25.61 A 15 15, 0, 0, 1, 15 30 A 15 15, 0, 1, 1, 27.99 7.5 L 15 15" style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>`
+const svg = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
+    <rect fill="#fff" width="3" height="100" transform="translate(0) rotate(180 3 50)">
+    <animate attributeName="height" attributeType="XML" dur="1s" values="30; 100; 30" repeatCount="indefinite"></animate>
+    </rect>
+    <rect x="17" fill="#fff" width="3" height="100" transform="translate(0) rotate(180 20 50)">
+    <animate attributeName="height" attributeType="XML" dur="1s" values="30; 100; 30" repeatCount="indefinite" begin="0.1s"></animate>
+    </rect>
+    <rect x="40" fill="#fff" width="3" height="100" transform="translate(0) rotate(180 40 50)">
+    <animate attributeName="height" attributeType="XML" dur="1s" values="30; 100; 30" repeatCount="indefinite" begin="0.3s"></animate>
+    </rect>
+    <rect x="60" fill="#fff" width="3" height="100" transform="translate(0) rotate(180 58 50)">
+    <animate attributeName="height" attributeType="XML" dur="1s" values="30; 100; 30" repeatCount="indefinite" begin="0.5s"></animate>
+    </rect>
+    <rect x="80" fill="#fff" width="3" height="100" transform="translate(0) rotate(180 76 50)">
+    <animate attributeName="height" attributeType="XML" dur="1s" values="30; 100; 30" repeatCount="indefinite" begin="0.1s"></animate>
+    </rect>
+</svg>`
 // 打开玲珑明细页面
 const openDetails = () => {
     let queryParams: LocationQueryRaw = {
@@ -56,6 +73,17 @@ const openDetails = () => {
 :deep(.el-card__body) {
     padding-top: 15px;
     padding-bottom: 5px;
+}
+
+/* 使用 ::v-deep 选择器覆盖深层样式 */
+:deep(.el-loading-spinner) {
+    top: 0;
+    animation: none !important;
+}
+
+/* 覆盖 spinner 组件的内部 circular 类的动画 */
+:deep(.el-loading-spinner .circular) {
+    animation: none !important;
 }
 
 .card-bottom {

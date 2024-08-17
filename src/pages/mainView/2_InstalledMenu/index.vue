@@ -1,5 +1,6 @@
 <template>
-    <div class="apps-container" v-loading="loading" element-loading-text="加载中...">
+    <div class="apps-container" v-loading="loading" element-loading-text="加载中..." 
+        element-loading-background="rgba(122, 122, 122, 0.8)">
         <div class="card-items-container" v-if="displayedItems.length > 0">
             <div class="card-items" v-for="(item, index) in displayedItems" :key="index">
                 <el-badge :value="item.occurrenceNumber" :max="99" class="item">

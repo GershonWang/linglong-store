@@ -1,5 +1,6 @@
 <template>
-    <div class="apps-container" v-loading="loading" element-loading-text="加载中...">
+    <div class="apps-container" v-loading="loading" element-loading-text="加载中..."
+        element-loading-background="rgba(122, 122, 122, 0.8)">
         <div class="card-items-container" v-if="updateItemsStore.updateItemList && updateItemsStore.updateItemList.length > 0">
             <div class="card-items" v-for="(item, index) in updateItemsStore.updateItemList" :key="index">
                 <updateCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
