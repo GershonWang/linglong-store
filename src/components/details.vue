@@ -33,7 +33,7 @@
     </div>
     <div class="choose-version">
         <div class="title">版本选择</div>
-        <el-table :data="difVersionItemsStore.difVersionItemList" style="width: 100%;border-radius: 5px;flex-grow: 1;">
+        <el-table :data="difVersionItemsStore.difVersionItemList" style="width: 100%;border-radius: 5px;flex-grow: 1;border: 1px solid #DCDCDC;">
             <el-table-column prop="version" label="版本号" width="120"/>
             <el-table-column prop="kind" label="应用类型" header-align="center" align="center" width="100"/>
             <el-table-column prop="channel" label="通道" header-align="center" align="center" width="100"/>
@@ -259,7 +259,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 }
 
 .title {
-    color: #DCDCDC;
+    color: var(--menu-base-font-color);
     border-radius: 5px;
     padding-bottom: 5px;
     font-weight: bold;
@@ -278,7 +278,7 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
     align-items: center;
     text-align: center;
     border-radius: 10px;
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
+    background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
     backdrop-filter:blur(10px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     background-clip: padding-box;
@@ -330,8 +330,11 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 }
 
 @media (prefers-color-scheme: light) {
-    .image-icon {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    .base-container {
+        background-color: var(--base-color);
+    }
+    .choose-version {
+        background-color: var(--base-color);
     }
 }
 </style>

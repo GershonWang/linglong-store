@@ -76,7 +76,7 @@ html,body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 5px;
   border-radius: 5px;
-  background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
+  background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
 }
 .header-left {
   display: flex;
@@ -120,7 +120,7 @@ html,body {
   width: 100%;
   border: none;
   position: relative;
-  background: radial-gradient(circle at 50% 20%, #6E6E6E, transparent);
+  background: radial-gradient(circle at 50% 20%, var(--base-color), transparent);
 }
 .card-icon {
   display: flex;
@@ -150,7 +150,7 @@ html,body {
   border-radius: 5px;
   font-size: 14px;
   font-weight: bold;
-  color: #E2E2E2;
+  color: var(--menu-base-font-color);
   padding: 3px;
 }
 .card-version {
@@ -167,7 +167,7 @@ html,body {
 }
 .card-arch {
   font-size: 14px;
-  color: white;
+  color: var(--menu-base-font-color);
 }
 .no-data-container {
   display: flex;
@@ -183,18 +183,18 @@ html,body {
   border: none;
 }
 .install-btn:hover {
-  background-color: #c9c9ef;
+  background-color: #999999;
   color: #2D2F2F;
 }
 .uninstall-btn {
   height: 24px;
   width: 58px;
-  background-color: #E33C2F;
-  color: white;
+  background-color: #7b7b7b;
+  color: var(--menu-base-font-color);
   border: none;
 }
 .uninstall-btn:hover {
-  background-color: #c9c9ef;
+  background-color: #999999;
   color: #2D2F2F;
 }
 
@@ -202,24 +202,25 @@ html,body {
   :root {
     color: #213547;
     background-color: #F4F4F4;
-    --base-color: #E2AB5F;
+    --base-color: #C1C1C1;
     --menu-base-color: #C1C1C1;
-    --menu-base-font-color: #000;
+    --menu-base-font-color: #2e2c2c;
     --base-background-color: #DCDCDC;
   }
   .first-menu > .el-breadcrumb__inner:hover {
-    color: #E2AB5F;
+    color: var(--base-color);
   }
   .el-table {
-    --el-table-header-bg-color: #E2AB5F;
-  }
-  .header {
-    background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
+    --el-table-header-bg-color: #C1C1C1;
   }
   .card-items {
     border: 1px solid #ccc;
   }
   .card-container {
     border: 1px solid #ccc;
+  }
+  .card-zh-name {
+    background-color: var(--base-background-color);
+    color: var(--menu-base-font-color);
   }
 }

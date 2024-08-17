@@ -88,4 +88,10 @@ onMounted(() => {
   text-align: center;
   font-family: monospace;
 }
+
+@media (prefers-color-scheme: light) {
+  .title {
+    color: #000;
+  }
+}
 </style>

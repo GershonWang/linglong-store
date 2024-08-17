@@ -56,7 +56,7 @@ onMounted(() => {
 }
 
 :deep(.el-tabs__item.is-active) {
-  color: #FFFFFF;
+  color: var(--base-color);
   font-weight: bold;
 }
 
@@ -64,11 +64,4 @@ onMounted(() => {
 /* ::-webkit-scrollbar {
     display: none;
 } */
-
-@media (prefers-color-scheme: light) {
-  :deep(.el-tabs__item.is-active) {
-    color: #DAAD71;
-    font-weight: bold;
-  }
-}
 </style>

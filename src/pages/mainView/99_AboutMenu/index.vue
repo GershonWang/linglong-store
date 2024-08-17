@@ -29,8 +29,8 @@
         target="_blank">https://gitee.com/Jokul2018/linglong_store</a>
     </div>
     <div class="item">
-      github地址：<a class="link" href="https://github.com/GershonWang/linglong_store"
-        target="_blank">https://github.com/GershonWang/linglong_store</a>
+      github地址：<a class="link" href="https://github.com/GershonWang/linglong-store"
+        target="_blank">https://github.com/GershonWang/linglong-store</a>
     </div>
     <br>
     <li>

@@ -17,7 +17,7 @@
             </el-button>
         </div>
         <el-divider />
-        <h3 style="text-align: center;margin: 10px;">珑珑推荐</h3>
+        <h3 style="text-align: center;margin: 10px;">玲珑推荐</h3>
         <div v-for="(group, groupIndex) in result" :key="groupIndex" class="items-container">
             <!-- 每五个一组的项目 -->
             <div v-for="(item, itemIndex) in group" :key="itemIndex" class="card-items">
@@ -89,7 +89,7 @@ const categoryClick = (item: any) => {
 // 打开明细界面
 const openDetail = (item: CardFace) => {
     let queryParams: LocationQueryRaw = {
-        menuName: '珑珑推荐',
+        menuName: '玲珑推荐',
         ...item,
     } as OpenDetailParams as unknown as LocationQueryRaw;
     router.push({ path: '/details', query: queryParams });
@@ -106,20 +106,20 @@ onMounted(async () => {
 </script>
 <style scoped>
 .el-carousel__item:nth-child(2n) {
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
+    background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
     backdrop-filter:blur(10px);
     text-align: center;
     border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); */
     background-clip: padding-box;
 }
 
 .el-carousel__item:nth-child(2n + 1) {
-    background: radial-gradient(circle at 50% 50%, transparent, #6E6E6E);
+    background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
     backdrop-filter:blur(10px);
     text-align: center;
     border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); */
     background-clip: padding-box;
 }
 
@@ -163,13 +163,4 @@ onMounted(async () => {
     display: none;
 }
 
-@media (prefers-color-scheme: light) {
-    .el-carousel__item:nth-child(2n) {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    }
-
-    .el-carousel__item:nth-child(2n + 1) {
-        background: radial-gradient(circle at 50% 50%, transparent, #E2AB5F);
-    }
-}
 </style>

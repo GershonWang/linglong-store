@@ -7,7 +7,7 @@
                         <el-icon color="#D3D3D3">
                             <Star />
                         </el-icon>
-                        <span>珑珑推荐</span>
+                        <span>玲珑推荐</span>
                     </el-menu-item>
                     <el-menu-item index="6" @click="toPage('/ranking_menu')">
                         <el-icon color="#D3D3D3">
@@ -389,7 +389,7 @@ onBeforeUnmount(() => {
 }
 
 .download-queue:hover {
-    background-color: #6418b9;
+    background-color: #999999;
     cursor: pointer;
 }
 
