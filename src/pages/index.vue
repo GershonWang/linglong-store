@@ -26,14 +26,14 @@
             <strong style="text-align: center; display: block; color: red">检测当前系统中不存在玲珑组件环境</strong>
             <div style="text-align: center; margin-top: 10px">
                 <p>请先安装玲珑组件环境，方可使用本玲珑商店。</p>
-                <p>目前自动安装支持Deepin 23/UOS 1070/OpenEuler 24.03/Ubuntu 22.04/Ubuntu 24.04/Debian 12/openKylin 2.0rc</p>
+                <!-- <p>目前自动安装支持Deepin 23/UOS 1070/OpenEuler 24.03/Ubuntu 22.04/Ubuntu 24.04/Debian 12/openKylin 2.0rc</p> -->
             </div>
         </span>
         <template #footer>
             <div class="dialog-footer">
                 <el-button @click="exitBtnClick">退出商店</el-button>
                 <el-button type="primary" @click="manualInstallBtnClick">手动安装</el-button>
-                <el-button type="primary" @click="autoInstallBtnClick">自动安装</el-button>
+                <!-- <el-button type="primary" @click="autoInstallBtnClick">自动安装</el-button> -->
             </div>
         </template>
     </el-dialog>
@@ -96,17 +96,6 @@ const commandResult = async (_event: any, res: any) => {
         } else {
             message.value = "检测玲珑环境不存在...";
             ipcRenderer.send('logger', 'error', "检测玲珑环境不存在...");
-            // ElMessageBox.confirm('当前系统未安装玲珑环境，无法使用当前商店！！请手动安装～', '警告', {
-            //     confirmButtonText: '前往',
-            //     cancelButtonText: '退出',
-            //     type: 'warning',
-            //     center: true,
-            // }).then(() => {
-            //     window.open('https://www.linglong.space/guide/start/install.html');
-            //     window.close();
-            // }).catch(() => {
-            //     window.close();
-            // })
             centerDialogVisible.value = true; // 显示弹窗
         }
     }
