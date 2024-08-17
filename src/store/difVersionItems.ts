@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import string2card from "@/util/string2card";
 import { LocationQuery } from "vue-router";
-import hasUpdateVersion from "@/util/checkVersion";
+import hasUpdateVersion, { compareVersions } from "@/util/checkVersion";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
@@ -54,50 +54,51 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
      */
     const initDifVersionItems = async (data: string, query: LocationQuery) => {
         clearItems(); // 清空原始对象
-        let searchVersionItemList: InstalledEntity[] = data.trim() ? JSON.parse(data.trim()) : [];
+        let searchVersionItemList: any[] = data.trim() ? JSON.parse(data.trim()) : [];
+        let tempList: InstalledEntity[] = [];
         if (searchVersionItemList.length > 0) {
             // 1.获取服务器端数据
             let result: InstalledEntity[] = [];
             let appId = query.appId as string;
-            await getSearchAppVersionList({ appId, repoName: 'stable'}).then((res: any) => {
-                if (res.code = 200) {
-                    result = res.data;
-                }
-            });
+            let response = await getSearchAppVersionList({ appId, repoName: systemConfigStore.defaultRepoName});
+            if (response.code == 200) {
+                result = response.data as unknown as InstalledEntity[];
+            }
             // 过滤不同appId和不是runtime的数据
-            searchVersionItemList = searchVersionItemList.filter(item => {
+            for (const item of searchVersionItemList) {
                 // 处理主键id标识
-                if (item.id) {
-                    item.appId = item.id;
-                } else if (item.appid) {
-                    item.appId = item.appid
+                item.appId = item.id ? item.id : item.appid ? item.appid : item.appId;
+                if (item.appId == query.appId && (item.module == 'runtime' || item.module == 'binary')) {
+                    // 处理arch架构
+                    item.arch = typeof item.arch === 'string' ? item.arch : Array.isArray(item.arch) ? item.arch[0] : '';
+                    // 来源仓库
+                    item.repoName = systemConfigStore.defaultRepoName
+                    // 安装卸载次数
+                    let app = result.find(it => it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
+                    item.installCount = app ? app.installCount : 0;
+                    item.uninstallCount = app ? app.uninstallCount : 0;
+                    item.createTime = app ? app.createTime : '';
+                    
+                    // 处理当前版本是否已安装状态
+                    item.isInstalled = installedItemsStore.installedItemList.some(it =>
+                        it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module 
+                        && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
+                    // 处理当前版本是否加载中状态
+                    item.loading = installingItemsStore.installingItemList.some(it => 
+                        it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module 
+                        && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
+                    // 去重
+                    if (tempList.some(it => it.appId === item.appId && it.name === item.name && it.version === item.version)) {
+                        const index = tempList.findIndex((it) => it.name === item.name && it.version === item.version && it.appId === item.appId);
+                        const aItem = tempList[index];
+                        aItem.module = compareVersions(systemConfigStore.linglongBinVersion,'1.5.5') >= 0 ? 'binary' : 'runtime';
+                        tempList.splice(index, 1, aItem);
+                        continue;
+                    }
+                    tempList.push(item);
                 }
-                // 处理架构
-                if (typeof item.arch === 'string') {
-                    item.arch = item.arch
-                } else if (Array.isArray(item.arch)) {
-                    item.arch = item.arch[0]
-                } else {
-                    console.log('架构arch字段传入错误',item.arch);
-                }
-                // 来源仓库
-                item.repoName = systemConfigStore.defaultRepoName
-                // 安装卸载次数
-                let app = result.find(it => it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName);
-                item.installCount = app?.installCount;
-                item.uninstallCount = app?.uninstallCount;
-                item.createTime = app?.createTime;
-                item.kind = app?.kind;
-                // 处理当前版本是否已安装状态
-                item.isInstalled = installedItemsStore.installedItemList.some(it =>
-                    it.appId === item.appId && it.name === item.name && it.version === item.version && it.module === item.module 
-                    && it.channel === item.channel && it.kind === item.kind && it.repoName === item.repoName
-                );
-                // 处理当前版本是否加载中状态
-                item.loading = installingItemsStore.installingItemList.some(it => it.appId === item.appId && it.name === item.name && it.version === item.version);
-                return item && item.appId == query.appId && (item.module == 'runtime' || item.module == 'binary');
-            });
-            difVersionItemList.value = searchVersionItemList.sort((a, b) => hasUpdateVersion(a.version, b.version));
+            }
+            difVersionItemList.value = tempList.sort((a, b) => compareVersions(b.version, a.version));
         }
         return difVersionItemList;
     }

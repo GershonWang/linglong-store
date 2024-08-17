@@ -208,12 +208,16 @@ onMounted(async () => {
     ipcRenderer.send("command", { 'command': itemsCommand });
     ipcRenderer.once('command-result', (_event: any, res: any) => {
         const command: string = res.param.command;
-        if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
-            if (command.startsWith("ll-cli query") && 'stdout' == res.code) {
-                difVersionItemsStore.initDifVersionItemsOld(res.result, query);
-            }
-            if (command.startsWith("ll-cli search") && 'stdout' == res.code) {
-                difVersionItemsStore.initDifVersionItems(res.result, query);
+        const code: string = res.code;
+        const result: any = res.result;
+        if (code == 'stdout') {
+            if (command.startsWith('ll-cli query') || command.startsWith('ll-cli search')) {
+                if (command.startsWith("ll-cli query")) {
+                    difVersionItemsStore.initDifVersionItemsOld(result, query);
+                }
+                if (command.startsWith("ll-cli search")) {
+                    difVersionItemsStore.initDifVersionItems(result, query);
+                }
             }
         }
     });
