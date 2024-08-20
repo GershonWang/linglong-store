@@ -18,13 +18,14 @@
             </div>
         </div>
     </div>
-    <div ref="appsContainer" class="apps-container" @scroll="handleScroll">
+    <div ref="appsContainer" class="apps-container" @scroll="onScroll">
         <div class="card-items-container" v-if="allAppItemsStore.allAppItemList && allAppItemsStore.allAppItemList.length > 0">
             <div class="card-items" v-for="(item, index) in allAppItemsStore.allAppItemList" :key="index">
                 <AllAppCard :name="item.name" :version="item.version" :description="item.description" :arch="item.arch"
                     :isInstalled="item.isInstalled" :appId="item.appId" :icon="item.icon" :loading="item.loading" :zhName="item.zhName"
                     :size="item.size" :categoryName="item.categoryName"/>
             </div>
+            <div v-if="isLoading" class="loading">加载中...</div>
         </div>
         <div class="no-data-container" v-else>
             <div style="width: 180px;height: 300px;">
@@ -42,7 +43,6 @@ import AllAppCard from "@/components/allAppCard.vue";
 import { getSearchAppList, getDisCategoryList } from '@/api/server';
 import router from '@/router';
 import { onBeforeRouteLeave } from 'vue-router';
-import elertTip from '@/util/NetErrorTips';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
@@ -53,53 +53,54 @@ const systemConfigStore = useSystemConfigStore();
 
 const appsContainer = ref<HTMLDivElement>()
 const categoryList = ref<any[]>([]);
-const params = ref({ 
-    name: '', 
-    categoryId: '',
-    repoName: systemConfigStore.defaultRepoName,
-    pageNo: 1, 
-    pageSize: 50
-})
+const isLoading = ref<boolean>(false);
 
-// 滚动条监听事件
-const handleScroll = async () => {
-    const container = document.getElementsByClassName('apps-container')[0] as HTMLDivElement;
-    // 判断滚动条位置是否接近底部，如果接近则加载更多数据(滚动位置 + 窗口高度 >= 内容高度)
-    if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
-        params.value.pageNo++;
-        // 获取显示的程序列表
-        let res = await getSearchAppList(params.value);
-        if (res.code == 200) {
-            (res.data as unknown as pageResult).records.forEach(item => {
-                item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
-                item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
-                allAppItemsStore.addItem(item);
-            })
-        }
-    }
-}
-// 搜索功能
-const handleSearch = async () => {
-    allAppItemsStore.clearItems();
-    // 获取显示的程序列表
-    params.value.pageNo = 1;
-    // 获取显示的程序列表
-    let res = await getSearchAppList(params.value);
+const params = ref({ name: '', categoryId: '', repoName: systemConfigStore.defaultRepoName, pageNo: 1, pageSize: 50 })
+
+// 方法：加载更多内容
+const loadMore = async () => {
+  if (isLoading.value) return; // 防止重复请求
+
+  isLoading.value = true;
+
+  try {
+    const res = await getSearchAppList(params.value);
     if (res.code == 200) {
         (res.data as unknown as pageResult).records.forEach(item => {
             item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
             item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
             allAppItemsStore.addItem(item);
         })
+        params.value.pageNo ++;
     }
+  } catch (error) {
+    console.error('Failed to load data', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 搜索功能
+const handleSearch = async () => {
+    allAppItemsStore.clearItems();
+    // 获取显示的程序列表
+    params.value.pageNo = 1;
+    loadMore();
 }
+
+// 滚动加载事件
+const onScroll = (event: Event) => {
+  const container = event.target as HTMLElement;
+  if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
+    loadMore(); // 滚动到底部，加载更多内容
+  }
+};
+
 // 页面初始化时加载
 onMounted(async () => {
-    elertTip(); // 检测网络
     // 获取分类列表
     let res = await getDisCategoryList();
     if (res.code == 200) {
-        // 获取分类列表
         let codes = res.data as unknown as Result;
         (codes as unknown as any[]).forEach(item => {
             categoryList.value.push({
@@ -117,19 +118,7 @@ onMounted(async () => {
         params.value.pageSize = meta.savedPageSize as number;
     } else {
         allAppItemsStore.clearItems();
-        // 获取显示的程序列表
-        params.value.name = '';
-        params.value.categoryId = '';
-        params.value.pageNo = 1;
-        params.value.pageSize = 50;
-        let res = await getSearchAppList(params.value);
-        if (res.code == 200) {
-            (res.data as unknown as pageResult).records.forEach(item => {
-                item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
-                item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
-                allAppItemsStore.addItem(item);
-            })
-        }
+        loadMore();
     }
     // 等待下一次 DOM 更新
     await nextTick();
@@ -152,5 +141,9 @@ onBeforeRouteLeave((to, _from, next) => {
 <style scoped>
 .apps-container {
     height: calc(100% - 70px);
+}
+.loading {
+  text-align: center;
+  padding: 20px;
 }
 </style>
