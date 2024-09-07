@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<CardFace>(), {
 })
 // 计算属性
 const desc = computed(() => {
-    return props.description.replace(/(.{20})/g, '$1\n');
+    return props.description ? props.description.replace(/(.{20})/g, '$1\n') : '';
 });
 const defaultName = computed(() => {
     return props.zhName ? props.zhName : props.name;
