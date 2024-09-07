@@ -51,6 +51,7 @@ import { ipcRenderer } from 'electron';
 import pkg from '../../../../package.json';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { ElNotification, ElMessageBox, ElMessage } from 'element-plus'
+import { getSearchAppList } from '@/api/server';
 import { useUpdateStatusStore } from "@/store/updateStatus";
 import { useSystemConfigStore } from "@/store/systemConfig";
 
@@ -162,6 +163,14 @@ const updateMessage = (_event: any, text: string) => {
     });
   }
 }
+async function getLinglongCount() {
+  const res = await getSearchAppList({repoName: systemConfigStore.defaultRepoName, pageNo: 1, pageSize: 100000 });
+  if (res.code == 200) {
+    let count = res.data.total;
+    systemConfigStore.changeLinglongCount(count);
+  }
+}
+
 onMounted(() => {
   updateBtnStatus.value = updateStatusStore.getUpdateBtnStatus;
   downloadModule.value = updateStatusStore.getUpdateWinStatus;
@@ -180,6 +189,7 @@ onMounted(() => {
       updateStatusStore.changeUpdateWinStatus(downloadModule.value);
     }
   })
+  getLinglongCount();
 })
 onBeforeUnmount(() => {
   // 取消监听更新事件

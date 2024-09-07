@@ -37,7 +37,7 @@
 </template>
 <script setup lang="ts">
 import defaultImage from '@/assets/logo.svg';
-import { Result, pageResult } from '@/interface';
+import { Result } from '@/interface';
 import { nextTick, onMounted, ref } from 'vue';
 import AllAppCard from "@/components/allAppCard.vue";
 import { getSearchAppList, getDisCategoryList } from '@/api/server';
@@ -66,7 +66,7 @@ const loadMore = async () => {
   try {
     const res = await getSearchAppList(params.value);
     if (res.code == 200) {
-        (res.data as unknown as pageResult).records.forEach(item => {
+        res.data.records.forEach(item => {
             item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
             item.icon = item.icon?.includes("application-x-executable.svg") ? defaultImage : item.icon;
             allAppItemsStore.addItem(item);
@@ -101,8 +101,7 @@ onMounted(async () => {
     // 获取分类列表
     let res = await getDisCategoryList();
     if (res.code == 200) {
-        let codes = res.data as unknown as Result;
-        (codes as unknown as any[]).forEach(item => {
+        res.data.forEach(item => {
             categoryList.value.push({
                 categoryId: item.categoryId,
                 categoryName: item.categoryName

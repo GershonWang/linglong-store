@@ -1,4 +1,4 @@
-import { AppListParams, CardFace, GetAppListByAppIdParam, Result } from '@/interface';
+import { AppListParams, CardFace, GetAppListByAppIdParam, pageResult, Result } from '@/interface';
 import request from '@/util/request';
 
 /**
@@ -67,7 +67,7 @@ export const getAppDetails = (data: CardFace[]) => {
  * @returns 
  */
 export const getSearchAppList = (data: AppListParams) => {
-    return request<Result>({
+    return request<pageResult>({
         method: 'POST',
         url: '/visit/getSearchAppList',
         data
@@ -78,7 +78,7 @@ export const getSearchAppList = (data: AppListParams) => {
  * 获取应用分类
  */
 export const getDisCategoryList = () => {
-    return request<Result>({
+    return request<any[]>({
         method: 'GET',
         url: '/visit/getDisCategoryList'
     })
