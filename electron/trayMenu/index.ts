@@ -7,12 +7,12 @@ const TrayMenu = () => {
  
     // 为托盘图标创建上下文菜单
     const contextMenu = Menu.buildFromTemplate([
-        { label: '选项1', type: 'radio' },
-        { label: '选项2', type: 'radio' },
+        { label: '显示商店', type: 'radio' },
+        { label: '基础设置', type: 'radio' },
         { label: '退出', click: () => app.quit() }
     ]);
     
-    // tray.setToolTip('This is my application')
+    tray.setToolTip('玲珑应用商店')
     // tray.setTitle('This is my title')
 
     // 为托盘图标设置上下文菜单

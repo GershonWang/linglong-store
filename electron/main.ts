@@ -56,43 +56,45 @@ function createWindow() {
     }
     return { action: "deny" };
   });
+}
+// Create the floating ball window
+function createFloatingBallWindow() {
+  floatingBallWindow = new BrowserWindow({
+    width: 50,
+    height: 50,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    resizable: false,
+    webPreferences: {
+      preload,
+      contextIsolation: false,
+      nodeIntegration: true
+    }
+  });
+  floatingBallWindow.webContents.openDevTools({ mode: "detach" });
 
-
-  // Create the floating ball window
-  // floatingBallWindow = new BrowserWindow({
-  //   width: 50,
-  //   height: 50,
-  //   frame: false,
-  //   transparent: true,
-  //   alwaysOnTop: true,
-  //   resizable: false,
-  //   webPreferences: {
-  //     preload,
-  //     contextIsolation: false,
-  //     nodeIntegration: true
-  //   }
-  // });
-  // floatingBallWindow.webContents.openDevTools({ mode: "detach" });
-
-  // floatingBallWindow.loadFile('floatingBall.html');
-  // floatingBallWindow.setBounds({ x: 100, y: 100, width: 50, height: 50 }); // 设置悬浮球初始位置
-  // floatingBallWindow.setIgnoreMouseEvents(false); // 使悬浮球窗口不接收鼠标事件
+  floatingBallWindow.loadFile('floatingBall.html');
+  floatingBallWindow.setBounds({ x: 100, y: 100, width: 50, height: 50 }); // 设置悬浮球初始位置
+  floatingBallWindow.setIgnoreMouseEvents(false); // 使悬浮球窗口不接收鼠标事件
 
   // 监听悬浮球位置更新
-  // ipcMain.on('update-floating-ball-position', (event, position) => {
-  //   mainLog.info("悬浮球位置更新", position);
-  //   floatingBallWindow.setBounds({
-  //     x: position.x,
-  //     y: position.y,
-  //     width: 50,
-  //     height: 50
-  //   });
-  // });
+  ipcMain.on('update-floating-ball-position', (event, position) => {
+    mainLog.info("悬浮球位置更新", position);
+    floatingBallWindow.setBounds({
+      x: position.x,
+      y: position.y,
+      width: 50,
+      height: 50
+    });
+  });
 }
+
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
-  createWindow();
-  // TrayMenu(); // 加载托盘
+  createWindow(); // 创建商店主窗口
+  createFloatingBallWindow();  // 创建悬浮按钮
+  TrayMenu(); // 加载托盘
   IPCHandler(win); // 加载IPC服务
   updateHandle(win); // 自动更新
 });
@@ -127,6 +129,7 @@ app.on('before-quit', () => {
   // 在这里进行必要的清理操作，如果有未完成的更新，取消它
   clearUpdateCache();
 });
+
 // 清理升级缓存
 function clearUpdateCache() {
   try {
