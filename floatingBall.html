@@ -7,7 +7,8 @@
     body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      background: rgba(0, 0, 0, 0.5);
+      cursor: pointer;
     }
     .floating-ball {
       position: absolute;
@@ -17,10 +18,13 @@
       border-radius: 50%;
       cursor: pointer;
     }
+    #tooltip {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div class="floating-ball" id="ball"></div>
+  <div id="tooltip">悬浮球弹出框内容</div>
   <script src="floatingBallRenderer.js"></script>
 </body>
 </html>

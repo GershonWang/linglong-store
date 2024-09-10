@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
+import { app, BrowserWindow, shell, screen, Menu, ipcMain } from "electron";
 import { join } from "node:path";
 import fs from "fs-extra";
 import { mainLog } from "./logger";
@@ -16,6 +16,8 @@ const indexHtml = join(process.env.DIST, "index.html");
 
 let win: BrowserWindow | null;
 let floatingBallWindow; // 悬浮球窗口
+let tooltipWindow;
+let floatingEnabled = false;
 
 // 创建窗口并初始化相关参数
 function createWindow() {
@@ -57,8 +59,10 @@ function createWindow() {
     return { action: "deny" };
   });
 }
-// Create the floating ball window
+
+// 创建悬浮球
 function createFloatingBallWindow() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   floatingBallWindow = new BrowserWindow({
     width: 50,
     height: 50,
@@ -66,37 +70,81 @@ function createFloatingBallWindow() {
     transparent: true,
     alwaysOnTop: true,
     resizable: false,
+    movable: true,
+    x: width - 100, // 默认定位在右上角
+    y: height - 100,
     webPreferences: {
       preload,
       contextIsolation: false,
       nodeIntegration: true
     }
   });
-  floatingBallWindow.webContents.openDevTools({ mode: "detach" });
 
   floatingBallWindow.loadFile('floatingBall.html');
-  floatingBallWindow.setBounds({ x: 100, y: 100, width: 50, height: 50 }); // 设置悬浮球初始位置
-  floatingBallWindow.setIgnoreMouseEvents(false); // 使悬浮球窗口不接收鼠标事件
 
-  // 监听悬浮球位置更新
-  ipcMain.on('update-floating-ball-position', (event, position) => {
-    mainLog.info("悬浮球位置更新", position);
-    floatingBallWindow.setBounds({
-      x: position.x,
-      y: position.y,
-      width: 50,
-      height: 50
-    });
+  floatingBallWindow.on('closed', () => {
+    floatingBallWindow = null;
+  });
+
+  // 创建弹出框窗口
+  tooltipWindow = new BrowserWindow({
+    width: 200,
+    height: 100,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    resizable: false,
+    show: false,
+    webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        preload,
+    }
+  });
+
+  tooltipWindow.loadFile('tooltip.html');
+
+  // 处理弹出框的位置和显示
+  floatingBallWindow.webContents.on('did-finish-load', () => {
+    floatingBallWindow.webContents.send('set-tooltip', tooltipWindow);
   });
 }
+
+function toggleFloatingWindow(enable) {
+  if (enable) {
+    if (!floatingBallWindow) {
+      createFloatingBallWindow();
+    }
+    floatingBallWindow.show();
+  } else {
+      if (floatingBallWindow) {
+        floatingBallWindow.hide();
+      }
+  }
+}
+
+ipcMain.on('toggle-floating', (event, enable) => {
+  floatingEnabled = enable;
+  toggleFloatingWindow(floatingEnabled);
+});
 
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
   createWindow(); // 创建商店主窗口
-  createFloatingBallWindow();  // 创建悬浮按钮
+  // createFloatingBallWindow();  // 创建悬浮按钮
   TrayMenu(win); // 加载托盘
   IPCHandler(win); // 加载IPC服务
   updateHandle(win); // 自动更新
+  // macOS事件(应用被激活时触发)
+  app.on('activate', () => {
+    const allWindows = BrowserWindow.getAllWindows();
+    mainLog.info('活跃窗口个数：', allWindows.length);
+    if (allWindows.length) {
+      allWindows[0].focus()
+    } else {
+      createWindow()
+    }
+  })
 });
 // 应用监听所有关闭事件，退出程序
 app.on("window-all-closed", () => {
@@ -114,16 +162,6 @@ app.on("window-all-closed", () => {
 //     win.focus()
 //   }
 // })
-// macOS事件(应用被激活时触发)
-app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows();
-  mainLog.info('活跃窗口个数：', allWindows.length);
-  if (allWindows.length) {
-    allWindows[0].focus()
-  } else {
-    createWindow()
-  }
-})
 // 处理应用程序关闭事件
 app.on('before-quit', () => {
   // 在这里进行必要的清理操作，如果有未完成的更新，取消它

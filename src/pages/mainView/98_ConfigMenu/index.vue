@@ -9,6 +9,10 @@
       @change="systemConfigStore.changeAutoCheckUpdate(autoCheckUpdate)">
       启动App自动检测商店版本
     </el-checkbox><br>
+    <el-checkbox size="large"
+      @change="isFloat">
+      启用悬浮球
+    </el-checkbox><br>
     <li>
       <a class="title">卸载程序</a>
     </li>
@@ -55,6 +59,10 @@ const changeDefaultRepo = () => {
   let repoCommond = 'll-cli repo modify --name=' + defaultRepo.value + ' https://mirror-repo-linglong.deepin.com';
   ipcRenderer.send('command', { command: repoCommond });
   router.push('/'); // 返回首页重新加载商店
+}
+// 显示悬浮球
+const isFloat = (event: any) => {
+  ipcRenderer.send('toggle-floating', event);
 }
 // 是否显示基础运行服务的变更事件
 const checkedBaseService = (checkStatus: boolean) => {
