@@ -94,7 +94,7 @@ function createFloatingBallWindow() {
 app.whenReady().then(() => {
   createWindow(); // 创建商店主窗口
   createFloatingBallWindow();  // 创建悬浮按钮
-  TrayMenu(); // 加载托盘
+  TrayMenu(win); // 加载托盘
   IPCHandler(win); // 加载IPC服务
   updateHandle(win); // 自动更新
 });

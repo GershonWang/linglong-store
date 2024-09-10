@@ -1,15 +1,30 @@
 const { app, Tray, Menu } = require('electron');
+import { BrowserWindow } from "electron";
 import { join } from "node:path";
 
-const TrayMenu = () => {
+const TrayMenu = (mainWindow: BrowserWindow) => {
     const iconPath = join(process.env.PUBLIC, "logo.png");
     const tray = new Tray(iconPath);
  
     // 为托盘图标创建上下文菜单
     const contextMenu = Menu.buildFromTemplate([
-        { label: '显示商店', type: 'radio' },
-        { label: '基础设置', type: 'radio' },
-        { label: '退出', click: () => app.quit() }
+        { 
+            label: '显示商店',
+            click: () => {
+                if (mainWindow.isMinimized()) {
+                    mainWindow.restore();
+                }
+                mainWindow.show();
+            } 
+        },
+        { 
+            label: '基础设置', 
+            type: 'radio' 
+        },
+        { 
+            label: '退出', 
+            click: () => app.quit() 
+        }
     ]);
     
     tray.setToolTip('玲珑应用商店')
