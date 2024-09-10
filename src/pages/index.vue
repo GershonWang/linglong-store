@@ -101,6 +101,16 @@ const commandResult = async (_event: any, res: any) => {
     }
     if (command == 'll-cli --version') {
         if(code == 'stdout' && result.trim()) {
+            // const lines = result.split('\n');
+            // let installedVersion = '';
+            // lines.forEach((line: string) => {
+            //     if (line.includes('已安装：')) {
+            //         installedVersion = line.split('已安装：')[1].trim();
+            //     } else if (line.trim().startsWith('Installed:')) {
+            //         installedVersion = line.split('Installed:')[1].trim();
+            //     }
+            // });
+            // console.log('已安装版本：', installedVersion);
             const items: RegExpMatchArray | null = result.trim().match(/'[^']+'|\S+/g);
             if (items && items.length == 3) {
                 systemConfigStore.changeLlVersion(items[2]);
