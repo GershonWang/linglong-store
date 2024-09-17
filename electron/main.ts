@@ -110,8 +110,10 @@ function createFloatingBallWindow() {
   });
 }
 
-function toggleFloatingWindow(enable) {
-  if (enable) {
+// 监听显示隐藏悬浮球
+ipcMain.on('toggle-floating', (_event, enable) => {
+  floatingEnabled = enable;
+  if (floatingEnabled) {
     if (!floatingBallWindow) {
       createFloatingBallWindow();
     }
@@ -121,18 +123,13 @@ function toggleFloatingWindow(enable) {
         floatingBallWindow.hide();
       }
   }
-}
-
-ipcMain.on('toggle-floating', (event, enable) => {
-  floatingEnabled = enable;
-  toggleFloatingWindow(floatingEnabled);
 });
 
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
   createWindow(); // 创建商店主窗口
   // createFloatingBallWindow();  // 创建悬浮按钮
-  TrayMenu(win); // 加载托盘
+  // TrayMenu(win); // 加载托盘
   IPCHandler(win); // 加载IPC服务
   updateHandle(win); // 自动更新
   // macOS事件(应用被激活时触发)

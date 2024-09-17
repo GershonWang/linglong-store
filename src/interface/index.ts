@@ -27,20 +27,6 @@ export interface CardFace {
 }
 
 /**
- * 运行中对象
- */
-export interface RunTime {
-    App: string,
-    ContainerID: string,
-    Pid: string,
-    Path: string,
-    version: string,
-    arch: string,
-    channel: string,
-    repo: string,
-}
-
-/**
  * 安装对象
  */
 export interface InstalledEntity {
