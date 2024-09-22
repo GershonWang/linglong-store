@@ -6,6 +6,7 @@ const path = require('path');
 
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
+
     /* ********** 执行自动化安装玲珑环境的脚本文件 ********** */
     ipcMain.on("to_install_linglong", (_event, code: string) => {
         ipcLog.info('to_install_linglong', code);
@@ -18,15 +19,17 @@ const IPCHandler = (win: BrowserWindow) => {
             win.reload(); 
         });  
     })
+
     /* ********** 执行脚本命令 ********** */
     ipcMain.on("command_only_stdout", (_event, code: string) => {
         ipcLog.info('command_only_stdout：', code);
         // 在主进程中执行命令，并将结果返回到渲染进程
         exec(code, (error, stdout, stderr) => {
             ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
-            win.webContents.send("command_only_stdout_result", stdout);
+            win.webContents.send("command_only_stdout_result", { stdout,stderr,error });
         })
     })
+
     /* ********** 执行脚本命令 ********** */
     ipcMain.on("command", (_event, data) => {
         ipcLog.info('ipc-command：', JSON.stringify(data));
@@ -44,6 +47,7 @@ const IPCHandler = (win: BrowserWindow) => {
             win.webContents.send("command-result", { code: 'stdout', param: data, result: stdout });
         });
     });
+
     /* ****************** 监听命令动态返回结果 ******************* */
     let isRunning = false;
     let commandQueue = [];
@@ -107,6 +111,7 @@ const IPCHandler = (win: BrowserWindow) => {
             executeNextCommand();
         });
     }
+
     /* ****************** 强制退出程序 ******************* */
     ipcMain.on('kill-app',(_event, params) => {
         ipcLog.info('kill-app：', JSON.stringify(params));
@@ -124,6 +129,7 @@ const IPCHandler = (win: BrowserWindow) => {
             win.webContents.send("kill-app-result", { code: 'close', param: params, result: code });
         })
     })
+
     /* ********** 执行网络请求 ********** */
     ipcMain.on("network", (_event, data) => {
         ipcLog.info('ipc-network：', JSON.stringify(data));
@@ -151,6 +157,7 @@ const IPCHandler = (win: BrowserWindow) => {
             win.webContents.send("network-result", result);
         });
     });
+
     /* ********** 执行安装卸载操作时的记录请求 ********** */
     ipcMain.on("visit", (_event, data) => {
         ipcLog.info('ipc-visit：', JSON.stringify(data));
@@ -162,6 +169,7 @@ const IPCHandler = (win: BrowserWindow) => {
             ipcLog.info('ipc-visit-error：',error)
         });
     });
+
     /* ********** 执行APP登陆时的记录请求 ********** */
     ipcMain.on("appLogin", (_event, data) => {
         ipcLog.info('ipc-appLogin：', JSON.stringify(data));
@@ -173,6 +181,7 @@ const IPCHandler = (win: BrowserWindow) => {
             ipcLog.info('ipc-appLogin-error：',error);
         });
     });
+
     /* ********** 发送意见反馈记录请求 ********** */
     ipcMain.on("suggest", (_event, data) => {
         ipcLog.info('ipc-suggest：', JSON.stringify(data));
@@ -184,6 +193,7 @@ const IPCHandler = (win: BrowserWindow) => {
             ipcLog.info('ipc-suggest-error：',error);
         });
     });
+
     /* ********** 执行渲染进程的操作日志记录请求 ********** */
     ipcMain.on('logger', (_event, level, arg) => {
         if (level === "info") {

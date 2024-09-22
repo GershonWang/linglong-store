@@ -1,21 +1,20 @@
 <template>
   <div style="height: calc(100vh - 88px);">
-    <h1>基础设置</h1>
-    <!-- <em style="font-size: 14px;">更换玲珑仓库：</em>
-    <el-select v-model="defaultRepo" style="width: 120px" @change="changeDefaultRepo">
-      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
-    </el-select><br> -->
-    <el-checkbox v-model="autoCheckUpdate" size="large"
-      @change="systemConfigStore.changeAutoCheckUpdate(autoCheckUpdate)">
-      启动App自动检测商店版本
-    </el-checkbox><br>
-    <el-checkbox size="large"
-      @change="isFloat">
-      启用悬浮球
-    </el-checkbox><br>
-    <li>
-      <a class="title">卸载程序</a>
-    </li>
+    <li><a class="title">基础设置</a></li>
+    <div style="margin-left: 30px;">
+      <el-checkbox v-model="autoCheckUpdate" size="large" @change="systemConfigStore.changeAutoCheckUpdate(autoCheckUpdate)">
+        启动App自动检测商店版本
+      </el-checkbox>
+      <el-checkbox size="large" @change="isFloat">
+        启用悬浮球
+      </el-checkbox>
+      <em style="font-size: 14px;margin-left: 30px;">更换玲珑仓库：</em>
+      <el-select v-model="defaultRepo" style="width: 120px;" @change="changeDefaultRepo" disabled>
+        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
+      </el-select>
+    </div>
+    <hr>
+    <li><a class="title">卸载程序</a></li>
     <div style="margin-left: 30px;">
       <el-checkbox v-model="isShowBaseService" size="large" @change="checkedBaseService(isShowBaseService)">
         显示基础运行服务
@@ -24,11 +23,14 @@
         同appId程序合并
       </el-checkbox>
     </div>
+    <hr>
+    <li><a class="title">测试环节</a></li>
+    <div style="margin-left: 30px;">
+      <label style="font-size: 14px;">测试命令行：</label>
+      <el-input v-model="msg" style="width: 300px;" @keyup.enter="reback"></el-input>
+    </div>
+    <div>{{ result }}</div>
   </div>
-  <!-- <div class="visitorId" v-if="systemConfigStore.visitorId">
-    指纹码：
-    <el-text size="small">{{ systemConfigStore.visitorId }}</el-text>
-  </div> -->
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
@@ -40,6 +42,9 @@ import { useRouter } from "vue-router";
 const systemConfigStore = useSystemConfigStore();
 // 路由对象
 const router = useRouter();
+
+let msg = ref('')
+let result = ref('')
 
 // 默认玲珑仓库对象
 let defaultRepo = ref('');
@@ -54,16 +59,19 @@ const options = [
   { label: "stable", value: "stable" },
   { label: "repo", value: "repo" }
 ]
+
 // 切换仓库源的change事件
 const changeDefaultRepo = () => {
   let repoCommond = 'll-cli repo modify --name=' + defaultRepo.value + ' https://mirror-repo-linglong.deepin.com';
   ipcRenderer.send('command', { command: repoCommond });
   router.push('/'); // 返回首页重新加载商店
 }
+
 // 显示悬浮球
 const isFloat = (event: any) => {
   ipcRenderer.send('toggle-floating', event);
 }
+
 // 是否显示基础运行服务的变更事件
 const checkedBaseService = (checkStatus: boolean) => {
   // 修改系统配置文件，记录状态
@@ -76,6 +84,14 @@ const checkedBaseService = (checkStatus: boolean) => {
   }
   ipcRenderer.send('command', { command: getInstalledItemsCommand, type: "refreshInstalledApps" });
 }
+
+const reback = () => {
+  ipcRenderer.send('command_only_stdout',msg.value);
+  ipcRenderer.once('command_only_stdout_result',(_event,res) => {
+    result.value = res;
+  })
+}
+
 // 页面启动时加载
 onMounted(() => {
   defaultRepo.value = systemConfigStore.defaultRepoName;  // 默认仓库
@@ -84,17 +100,13 @@ onMounted(() => {
   isMergeApp.value = systemConfigStore.isShowMergeApp;  // 卸载程序页面同程序合并
 })
 </script>
+
 <style scoped>
 .title {
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   color: #D3D3D3;
   text-decoration: inherit;
-}
-
-.visitorId {
-  text-align: center;
-  font-family: monospace;
 }
 
 @media (prefers-color-scheme: light) {
