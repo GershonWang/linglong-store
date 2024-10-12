@@ -50,7 +50,7 @@ const svg = `<path class="path" d="M 30 15 L 28 17 M 25.61 25.61 A 15 15, 0, 0, 
 // 打开不同版本页面
 const openDetails = () => {
     let queryParams: LocationQueryRaw = {
-        menuName: '珑珑推荐',
+        menuName: '玲珑推荐',
         ...props,
     } as OpenDetailParams as unknown as LocationQueryRaw;
     router.push({ path: '/details', query: queryParams });
