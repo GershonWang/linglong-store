@@ -26,6 +26,12 @@ export default defineConfig((command) => {
             options.reload()
           },
         },
+        {
+          entry: 'electron/preloadBall.ts',
+          onstart(options) {
+            options.reload()
+          },
+        },
       ]),
       renderer(),
     ],

@@ -1,10 +1,11 @@
 import { app, BrowserWindow, shell, screen, Menu, ipcMain } from "electron";
 import { join } from "node:path";
-import fs from "fs-extra";
 import { mainLog } from "./logger";
 import TrayMenu from "./trayMenu";
 import IPCHandler from "./ipcHandler";
 import { updateHandle } from "./update";
+import { clearUpdateCache } from "./utils";
+import installList from "./utils/installList";
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron');
 process.env.DIST = join(__dirname, "../dist");
@@ -13,10 +14,10 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELE
 const preload = join(__dirname, 'preload.js')
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
+const floatingBallHtml = join(process.env.DIST, "floatingBall/index.html");
 
 let win: BrowserWindow | null;
 let floatingBallWindow; // 悬浮球窗口
-let tooltipWindow;
 let floatingEnabled = false;
 
 // 创建窗口并初始化相关参数
@@ -40,12 +41,11 @@ function createWindow() {
   Menu.setApplicationMenu(null);
   // 根据是否存在开发服务地址判断加载模式
   if (process.env.VITE_DEV_SERVER_URL) {
-    win.webContents.openDevTools({ mode: "detach" });
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
     win.loadFile(indexHtml);
   }
-  // Test active push message to Renderer-process.
+  // 测试程序加载完毕，打印当前时间
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
@@ -64,49 +64,34 @@ function createWindow() {
 function createFloatingBallWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   floatingBallWindow = new BrowserWindow({
-    width: 50,
-    height: 50,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    resizable: false,
-    movable: true,
-    x: width - 100, // 默认定位在右上角
-    y: height - 100,
+    width: 50,                // 宽度
+    height: 80,               // 高度
+    frame: false,             // 无边框窗口
+    transparent: true,        // 背景透明
+    alwaysOnTop: true,        // 窗口始终在最上面
+    resizable: false,         // 禁止改变窗口大小
+    hasShadow: false,         // 不需要窗口阴影
+    x: width - 100,           // 默认定位-宽度减100 在右边
+    y: height - 150,          // 默认定位-高度减100 在下边
     webPreferences: {
-      preload,
-      contextIsolation: false,
-      nodeIntegration: true
+      preload: join(__dirname, 'preloadBall.js'),
+      contextIsolation: true,
+      nodeIntegration: true   // 允许使用Node.js
     }
   });
-
-  floatingBallWindow.loadFile('floatingBall.html');
+  // 禁用菜单，一般情况下，不需要禁用
+  Menu.setApplicationMenu(null);
+  // 根据是否存在开发服务地址判断加载模式
+  if (process.env.VITE_DEV_SERVER_URL) {
+    floatingBallWindow.loadFile(join(process.env.PUBLIC, '../floatingBall/index.html'));
+  } else {
+    floatingBallWindow.loadFile(floatingBallHtml);
+  }
 
   floatingBallWindow.on('closed', () => {
+    console.log('closed');
+    
     floatingBallWindow = null;
-  });
-
-  // 创建弹出框窗口
-  tooltipWindow = new BrowserWindow({
-    width: 200,
-    height: 100,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    resizable: false,
-    show: false,
-    webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        preload,
-    }
-  });
-
-  tooltipWindow.loadFile('tooltip.html');
-
-  // 处理弹出框的位置和显示
-  floatingBallWindow.webContents.on('did-finish-load', () => {
-    floatingBallWindow.webContents.send('set-tooltip', tooltipWindow);
   });
 }
 
@@ -121,6 +106,7 @@ ipcMain.on('toggle-floating', (_event, enable) => {
   } else {
       if (floatingBallWindow) {
         floatingBallWindow.hide();
+        floatingBallWindow = null;
       }
   }
 });
@@ -128,10 +114,11 @@ ipcMain.on('toggle-floating', (_event, enable) => {
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
   createWindow(); // 创建商店主窗口
-  // createFloatingBallWindow();  // 创建悬浮按钮
-  // TrayMenu(win); // 加载托盘
+  createFloatingBallWindow();  // 创建悬浮按钮
+  TrayMenu(win); // 加载托盘
   IPCHandler(win); // 加载IPC服务
   updateHandle(win); // 自动更新
+  installList();      // 加载弹出层
   // macOS事件(应用被激活时触发)
   app.on('activate', () => {
     const allWindows = BrowserWindow.getAllWindows();
@@ -143,6 +130,7 @@ app.whenReady().then(() => {
     }
   })
 });
+
 // 应用监听所有关闭事件，退出程序
 app.on("window-all-closed", () => {
   win = null;
@@ -164,24 +152,3 @@ app.on('before-quit', () => {
   // 在这里进行必要的清理操作，如果有未完成的更新，取消它
   clearUpdateCache();
 });
-
-// 清理升级缓存
-function clearUpdateCache() {
-  try {
-    const updateCachePath = join(app.getPath('home'), '/.cache/linglong_store-updater');
-    mainLog.log('清除更新缓存目录:', updateCachePath);
-    // 检测更新日志目录是否存在
-    fs.pathExists(updateCachePath, (err, exists) => {
-      if (err) {
-        mainLog.error('检测文件是否存在时出现错误:', err);
-      } else {
-        mainLog.log('文件是否存在:', exists);
-        if (exists) {
-          fs.rmSync(updateCachePath, { recursive: true });
-        }
-      }
-    });
-  } catch (error) {
-    mainLog.error('清除文件出现异常:', error);
-  }
-}

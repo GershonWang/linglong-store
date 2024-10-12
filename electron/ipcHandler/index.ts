@@ -6,6 +6,17 @@ const path = require('path');
 
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
+    /* ****** 托盘 ***** */
+    ipcMain.on('message-from-renderer', (event, arg) => {
+        console.log('Message from Renderer:', arg);
+        exec(arg, (error, stdout, stderr) => {
+            ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
+            if (stdout) {
+                // 发送响应消息回渲染进程
+                event.reply('message-from-main', stdout);
+            }
+        })
+    });
 
     /* ********** 执行自动化安装玲珑环境的脚本文件 ********** */
     ipcMain.on("to_install_linglong", (_event, code: string) => {

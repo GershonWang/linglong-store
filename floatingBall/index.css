@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+#pet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#pet:hover {
+  cursor: pointer;
+}
+
+#pet-image {
+  width: 100%;
+  height: auto;
+  user-select: none;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}

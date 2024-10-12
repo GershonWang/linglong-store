@@ -1,0 +1,18 @@
+body {
+  margin: 0;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 10px;
+  width: 200px;
+  text-align: center;
+}
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+}
