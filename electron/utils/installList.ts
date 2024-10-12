@@ -25,7 +25,7 @@ function installList() {
         Menu.setApplicationMenu(null);
         // 根据是否存在开发服务地址判断加载模式
         if (process.env.VITE_DEV_SERVER_URL) {
-            listDialog.webContents.openDevTools({ mode: "detach" });
+            // listDialog.webContents.openDevTools({ mode: "detach" });
             listDialog.loadFile(join(process.env.PUBLIC, '../listDialog/index.html'));
         } else {
             listDialog.loadFile(listDialogHtml);

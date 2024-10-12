@@ -6,6 +6,14 @@ const path = require('path');
 
 const IPCHandler = (win: BrowserWindow) => {
     /* ************************************************* ipcMain ********************************************** */
+    /* **** 启动程序 **** */
+    ipcMain.on('run-app', (event, arg) => {
+        console.log('Message from run-app:', arg);
+        exec(arg, (error, stdout, stderr) => {
+            ipcLog.info('error:',error,' | stdout:',stdout,' | stderr:',stderr);
+        })
+    });
+
     /* ****** 托盘 ***** */
     ipcMain.on('message-from-renderer', (event, arg) => {
         console.log('Message from Renderer:', arg);

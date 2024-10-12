@@ -9,9 +9,16 @@ function start(){
             const cardDiv = document.createElement('div');
             cardDiv.className = 'card';
             cardDiv.innerHTML = `
-                <h3>${item.id}</h3>
-                <p>${item.name}</p>
+                <h3>${item.name}</h3>
+                <p>${item.id}</p>
+                <button class="run-button">启动</button>
             `;
+            // 添加按钮点击事件
+            const button = cardDiv.querySelector('.run-button');
+            button.addEventListener('click', () => {
+                window.electron.send("run-app", "ll-cli run " + item.id);
+                window.electron.send("open-list-dialog", false);
+            });
             cardContainer.appendChild(cardDiv);
         }
     })
