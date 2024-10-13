@@ -1,18 +1,78 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: #f9f9f9;
+  color-scheme: light dark;
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+
+  --base-color: #6E6E6E;
+  --menu-base-color: #6E6E6E;
+  --menu-base-font-color: #ffffff;
+  --base-background-color: #2D2F2F;
+}
+
 body {
   margin: 0;
-  background-color: transparent;
-  overflow: hidden;
+  overflow-y: scroll; /* 使元素可以滚动 */
+  scrollbar-width: none; /* 对于 Firefox 隐藏滚动条 */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* 对于 Chrome, Safari 和 Opera 隐藏滚动条 */
+}
+
+.card-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
 }
 
 .card {
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
   padding: 16px;
   margin: 10px;
   width: 200px;
+  height: 180px;
   text-align: center;
+  background: radial-gradient(circle at 50% 50%, transparent, var(--base-color));
+  backdrop-filter:blur(10px);
+  background-clip: padding-box;
 }
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
+
+.card:hover {
+  box-shadow: 2px -5px 16px yellow;
+  transition: all ease-in 0.5s;
+}
+
+.run-button {
+  background-color: green;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #F4F4F4;
+    --base-color: #C1C1C1;
+    --menu-base-color: #C1C1C1;
+    --menu-base-font-color: #2e2c2c;
+    --base-background-color: #DCDCDC;
+  }
+  .card-container {
+    border: 1px solid #ccc;
+  }
+  .card-zh-name {
+    background-color: var(--base-background-color);
+    color: var(--menu-base-font-color);
+  }
 }
