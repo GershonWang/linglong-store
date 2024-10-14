@@ -28,7 +28,7 @@ function start(){
 start();
 
 async function postData(data) {
-    await fetch('http://120.26.202.221:8687/visit/getAppDetails', {
+    await fetch('http://localhost/visit/getAppDetails', {
         method: 'POST', // 指定请求方法
         headers: {
             'Content-Type': 'application/json' // 设置请求的Content-Type
