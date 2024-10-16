@@ -30,6 +30,7 @@ function createFloatingBallWindow() {
         Menu.setApplicationMenu(null);
         // 根据是否存在开发服务地址判断加载模式
         if (process.env.VITE_DEV_SERVER_URL) {
+            // floatingBallWindow.webContents.openDevTools({ mode: "detach" });
             floatingBallWindow.loadFile(join(process.env.PUBLIC, '../floatingBall/index.html'));
         } else {
             floatingBallWindow.loadFile(floatingBallHtml);
