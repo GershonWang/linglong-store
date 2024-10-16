@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, screen, Menu, ipcMain } from "electron";
+import { app, BrowserWindow, shell, Menu, ipcMain } from "electron";
 import { join } from "node:path";
 import { mainLog } from "./logger";
 import TrayMenu from "./trayMenu";
@@ -6,6 +6,7 @@ import IPCHandler from "./ipcHandler";
 import { updateHandle } from "./update";
 import { clearUpdateCache } from "./utils";
 import installList from "./utils/installList";
+import createFloatingBallWindow from "./utils/createFloatingBallWindow";
 
 process.env.DIST_ELECTRON = join(__dirname, '../dist-electron');
 process.env.DIST = join(__dirname, "../dist");
@@ -14,11 +15,8 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELE
 const preload = join(__dirname, 'preload.js')
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
-const floatingBallHtml = join(process.env.DIST, "floatingBall/index.html");
 
 let win: BrowserWindow | null;
-let floatingBallWindow; // 悬浮球窗口
-let floatingEnabled = false;
 
 // 创建窗口并初始化相关参数
 function createWindow() {
@@ -41,6 +39,7 @@ function createWindow() {
   Menu.setApplicationMenu(null);
   // 根据是否存在开发服务地址判断加载模式
   if (process.env.VITE_DEV_SERVER_URL) {
+    win.webContents.openDevTools({ mode: "detach" });
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
     win.loadFile(indexHtml);
@@ -60,65 +59,15 @@ function createWindow() {
   });
 }
 
-// 创建悬浮球
-function createFloatingBallWindow() {
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-  floatingBallWindow = new BrowserWindow({
-    width: 50,                // 宽度
-    height: 80,               // 高度
-    frame: false,             // 无边框窗口
-    transparent: true,        // 背景透明
-    alwaysOnTop: true,        // 窗口始终在最上面
-    resizable: false,         // 禁止改变窗口大小
-    hasShadow: false,         // 不需要窗口阴影
-    x: width - 100,           // 默认定位-宽度减100 在右边
-    y: height - 150,          // 默认定位-高度减100 在下边
-    webPreferences: {
-      preload: join(__dirname, 'preloadBall.js'),
-      contextIsolation: true,
-      nodeIntegration: true   // 允许使用Node.js
-    }
-  });
-  // 禁用菜单，一般情况下，不需要禁用
-  Menu.setApplicationMenu(null);
-  // 根据是否存在开发服务地址判断加载模式
-  if (process.env.VITE_DEV_SERVER_URL) {
-    floatingBallWindow.loadFile(join(process.env.PUBLIC, '../floatingBall/index.html'));
-  } else {
-    floatingBallWindow.loadFile(floatingBallHtml);
-  }
-
-  floatingBallWindow.on('closed', () => {
-    console.log('closed');
-    
-    floatingBallWindow = null;
-  });
-}
-
-// 监听显示隐藏悬浮球
-ipcMain.on('toggle-floating', (_event, enable) => {
-  floatingEnabled = enable;
-  if (floatingEnabled) {
-    if (!floatingBallWindow) {
-      createFloatingBallWindow();
-    }
-    floatingBallWindow.show();
-  } else {
-      if (floatingBallWindow) {
-        floatingBallWindow.hide();
-        floatingBallWindow = null;
-      }
-  }
-});
-
 // 应用准备就绪创建窗口
 app.whenReady().then(() => {
   createWindow(); // 创建商店主窗口
   createFloatingBallWindow();  // 创建悬浮按钮
+  installList();      // 加载弹出层
   TrayMenu(win); // 加载托盘
   IPCHandler(win); // 加载IPC服务
   updateHandle(win); // 自动更新
-  installList();      // 加载弹出层
+  
   // macOS事件(应用被激活时触发)
   app.on('activate', () => {
     const allWindows = BrowserWindow.getAllWindows();
