@@ -22,7 +22,6 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "@fingerprintjs/fingerprintjs": "^4.4.1",
-    "ansi-to-html": "^0.7.2",
     "axios": "^1.4.0",
     "electron-log": "^5.0.3",
     "electron-updater": "^6.1.7",

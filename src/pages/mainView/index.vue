@@ -97,7 +97,6 @@ const menuItems = [
   { index: "5", label: "玲珑进程", icon: "Odometer", action: () => router.push({ path: '/runtime_menu' }) },
   { index: "98", label: "基础设置", icon: "setting", action: () => router.push({ path: '/config_menu' }) },
   { index: "99", label: "关于程序", icon: "InfoFilled", action: () => router.push({ path: '/about_menu' }) },
-//   { index: "998", label: "终端页面", icon: "InfoFilled", action: () => router.push({ path: '/terminalOutput' }) },
   { index: "999", label: "返回首页", icon: "Loading", action: () => router.push({ path: '/' }), style: "display: none;" }
 ];
 
