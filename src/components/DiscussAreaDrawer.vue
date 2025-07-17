@@ -23,7 +23,7 @@
                 <textarea style="width: 100%;" v-model="form.content" placeholder="请输入评论内容"></textarea>
                 <el-button @click="cancelForm">取消</el-button>
                 <el-button type="primary" :loading="loading" @click="onClick">
-                {{ loading ? 'Submitting ...' : 'Submit' }}
+                {{ loading ? '提交中 ...' : '提交' }}
                 </el-button>
             </div>
         </div>
