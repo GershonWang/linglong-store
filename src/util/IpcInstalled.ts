@@ -29,7 +29,6 @@ const handleLinyapsInstallResult = (_event: any, res: any) => {
         if (compareVersions(systemConfigStore.llVersion,'1.7.0') < 0) {
             schedule = result.split(' ')[0];
         }
-        console.log(`安装进度: ${schedule}`);
         const index = installingItems.findIndex(it => it.appId === params.appId && it.version === params.version);
         if (index !== -1) {
             const aItem = installingItems[index];
@@ -50,7 +49,7 @@ const handleLinyapsInstallResult = (_event: any, res: any) => {
             // 安装或卸载成功后，弹出通知
             ElNotification({ title: '安装成功!', type: 'success', duration: 500, message: `${params.name}(${params.version})被成功安装'!` });
         } else {
-            ElNotification({ title: '操作异常!', message: downloadLogMsg, type: 'error', duration: 5000, dangerouslyUseHTMLString: true });
+            ElNotification({ title: '操作异常!', message: `<span style="color: red;">${result}</span><br>`, type: 'error', duration: 5000, dangerouslyUseHTMLString: true });
         }
         downloadLogMsg = ""; // 清除当前程序安装的日志记录
     }
