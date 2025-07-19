@@ -24,7 +24,6 @@ function clearPathFile(logPath: string, logFile: string) {
                 mainLog.error('检测目录是否存在时出现错误:', err);
                 return;
             }
-            mainLog.log('文件目录是否存在:', exists);
             if (exists) {
                 try {
                     // recursive: true 递归删除的参数
