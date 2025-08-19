@@ -89,7 +89,7 @@ const displayName = computed(() => props.zhName ? props.zhName : props.name);
 // 打开玲珑明细页面
 const openDetails = () => {
     // 如果程序处于加载中状态，则不允许点击
-    if (props.loading || props.tabName === '卸载程序' || props.tabName === '我的应用') return;
+    if (props.loading || props.tabName === '我的应用') return;
     // 跳转到明细页面
     router.push({ path: '/details', query: { 
         menuName: props.tabName,
