@@ -70,7 +70,7 @@ const updateMessage = async (_event: any, text: string) => {
         } else {
             message.value = "取消更新，商店版本检测完成...";
             ipcRenderer.send('logger', 'warn', "取消更新，商店版本检测完成...");
-            startEnvCheck();
+            await startEnvCheck();
         }
     } else if (text == '下载完毕，是否立刻更新？') {
         const confirmed = await showConfirmDialog(text, '确认', '取消');
@@ -81,77 +81,107 @@ const updateMessage = async (_event: any, text: string) => {
         } else {
             message.value = "取消更新，商店版本检测完成...";
             ipcRenderer.send('logger', 'warn', "取消更新，商店版本检测完成...");
-            startEnvCheck();
+            await startEnvCheck();
         }
     } else if (text == '现在使用的就是最新版本，不用更新' || text == '检查更新出错') {
         message.value = `${text}, 商店版本检测完成...`;
         ipcRenderer.send('logger', 'info', `${text}, 商店版本检测完成...`);
-        startEnvCheck();
+        await startEnvCheck();
     }
 }
 // 环境检测开始阶段
-const startEnvCheck = () => {
+const startEnvCheck = async () => {
     // 获取系统信息
     message.value = "准备开始环境检测...";
     ipcRenderer.send('logger', 'info', "准备开始环境检测...");
-    ipcRenderer.once('uname-a-result', (_event: any, res: execEntity) => systemConfigStore.changeOsVersion(res.stdout));
-    ipcRenderer.send('uname-a');
+    await new Promise((resolve) => {
+        ipcRenderer.once('uname-a-result', (_event: any, res: execEntity) => {
+            systemConfigStore.changeOsVersion(res.stdout);
+            resolve(res);
+        });
+        ipcRenderer.send('uname-a');
+    });
+    
     // 获取系统架构
     message.value = "检测当前系统架构...";
     ipcRenderer.send('logger', 'info', "检测当前系统架构...");
-    ipcRenderer.once('uname-m-result', (_event: any, res: execEntity) => {
-        const { stdout } = res;
-        if (stdout) {
+    await new Promise((resolve, reject) => {
+        ipcRenderer.once('uname-m-result', (_event: any, res: execEntity) => {
+            const { stdout, stderr, error } = res;
+            if (error || stderr) {
+                message.value = "系统架构检测异常,当前非Linux环境...";
+                ipcRenderer.send('logger', 'error', "系统架构检测异常,当前非Linux环境...");
+                reject(new Error(error || stderr));
+                return;
+            }
             systemConfigStore.changeArch(stdout.trim());
             message.value = "系统架构检测完成...";
             ipcRenderer.send('logger', 'info', "系统架构检测完成...");
-            return;
-        }
-        message.value = "系统架构检测异常,当前非Linux环境...";
-        ipcRenderer.send('logger', 'error', "系统架构检测异常,当前非Linux环境...");
+            resolve(res);
+        });
+        ipcRenderer.send('uname-m');
     });
-    ipcRenderer.send('uname-m');
+    
     // 获取组件基本信息
-    ipcRenderer.once('dpkg-linyaps-result', (_event: any, res: execEntity) => systemConfigStore.changeDetailMsg(res.stdout));
-    ipcRenderer.send('dpkg-linyaps');
-    // 获取玲珑包核心程序(linglong-bin)的版本号
-    ipcRenderer.once('apt-linyaps-bin-result', (_event: any, res: execEntity) => {
-        const { stdout } = res;
-        if (stdout) {
-            const lines = stdout.split('\n');
-            let installedVersion = '';
-            lines.forEach((line: string) => {
-                if (line.includes('已安装：')) {
-                    installedVersion = line.split('已安装：')[1].trim();
-                } else if (line.trim().startsWith('Installed:')) {
-                    installedVersion = line.split('Installed:')[1].trim();
-                }
-            });
-            ipcRenderer.send('logger', 'info', '已安装版本：' + installedVersion);
-            systemConfigStore.changeLlBinVersion(installedVersion);
-        }
+    await new Promise((resolve) => {
+        ipcRenderer.once('dpkg-linyaps-result', (_event: any, res: execEntity) => {
+            systemConfigStore.changeDetailMsg(res.stdout);
+            resolve(res);
+        });
+        ipcRenderer.send('dpkg-linyaps');
     });
-    ipcRenderer.send('apt-linyaps-bin');
+    
+    // 获取玲珑包核心程序(linglong-bin)的版本号
+    await new Promise((resolve) => {
+        ipcRenderer.once('apt-linyaps-bin-result', (_event: any, res: execEntity) => {
+            const { stdout } = res;
+            if (stdout) {
+                const lines = stdout.split('\n');
+                let installedVersion = '';
+                lines.forEach((line: string) => {
+                    if (line.includes('已安装：')) {
+                        installedVersion = line.split('已安装：')[1].trim();
+                    } else if (line.trim().startsWith('Installed:')) {
+                        installedVersion = line.split('Installed:')[1].trim();
+                    }
+                });
+                ipcRenderer.send('logger', 'info', '已安装版本：' + installedVersion);
+                systemConfigStore.changeLlBinVersion(installedVersion);
+            }
+            resolve(res);
+        });
+        ipcRenderer.send('apt-linyaps-bin');
+    });
+    
     // 检查是否存在玲珑环境
     message.value = "检测玲珑基础环境是否存在...";
     ipcRenderer.send('logger', 'info', "检测玲珑基础环境是否存在...");
-    ipcRenderer.once('linyaps-exist-result', (_event: any, res: execEntity) => {
-        const { stdout, stderr, error } = res;
-        if ( error || stderr) {
-            message.value = "检测玲珑基础环境不存在...";
-            ipcRenderer.send('logger', 'error', `检测玲珑基础环境不存在...${error || stderr}`);
-            centerDialogVisible.value = true; // 显示弹窗
-            return;
-        }
-        message.value = "玲珑基础环境已存在...";
-        ipcRenderer.send('logger', 'info', `玲珑基础环境已存在...${stdout}`);
-        // 获取玲珑包当前使用的仓库名
+    await new Promise((resolve, reject) => {
+        ipcRenderer.once('linyaps-exist-result', (_event: any, res: execEntity) => {
+            const { stdout, stderr, error } = res;
+            if ( error || stderr) {
+                message.value = "检测玲珑基础环境不存在...";
+                ipcRenderer.send('logger', 'error', `检测玲珑基础环境不存在...${error || stderr}`);
+                centerDialogVisible.value = true; // 显示弹窗
+                reject(new Error(error || stderr));
+                return;
+            }
+            message.value = "玲珑基础环境已存在...";
+            ipcRenderer.send('logger', 'info', `玲珑基础环境已存在...${stdout}`);
+            resolve(res);
+        });
+        ipcRenderer.send('linyaps-exist');
+    });
+    
+    // 获取玲珑包当前使用的仓库名
+    await new Promise((resolve, reject) => {
         ipcRenderer.once('linyaps-repo-result', (_event: any, res: execEntity) => {
             const { stdout, stderr, error } = res;
             if ( error || stderr) {
                 message.value = "检测玲珑仓库信息异常...";
                 ipcRenderer.send('logger', 'error', `检测玲珑仓库信息异常...${error || stderr}`);
                 centerDialogVisible.value = true; // 显示弹窗
+                reject(new Error(error || stderr));
                 return;
             }
             ipcRenderer.send('logger', 'info', `当前玲珑基础环境使用的仓库源...${JSON.stringify(stdout)}`);
@@ -162,17 +192,22 @@ const startEnvCheck = () => {
             const repos = json.repos;
             ipcRenderer.send('logger', 'info', `当前玲珑基础环境使用的仓库源列表为：${JSON.stringify(repos)}`);
             systemConfigStore.changeSourceUrl(repos);
+            resolve(res);
         });
         ipcRenderer.send('linyaps-repo');
-        // 检测玲珑基础环境版本号    
-        message.value = "检测玲珑基础环境版本号...";
-        ipcRenderer.send('logger', 'info', "检测玲珑基础环境版本号...");
+    });
+        
+    // 检测玲珑基础环境版本号    
+    message.value = "检测玲珑基础环境版本号...";
+    ipcRenderer.send('logger', 'info', "检测玲珑基础环境版本号...");
+    await new Promise((resolve, reject) => {
         ipcRenderer.once('linyaps-version-result', async (_event: any, res: execEntity) => {
             const { stdout, stderr, error } = res;
             if (error || stderr) {
                 message.value = "检测玲珑基础环境版本号异常...";
                 ipcRenderer.send('logger', 'error', `检测玲珑基础环境版本号异常...${error || stderr}`);
                 centerDialogVisible.value = true; // 显示弹窗
+                reject(new Error(error || stderr));
                 return;
             }
             ipcRenderer.send('logger', 'info', `检测玲珑基础环境版本号...${stdout}`);
@@ -181,6 +216,7 @@ const startEnvCheck = () => {
                 message.value = "当前玲珑基础环境版本号过低(<1.5.0)或不存在，请安装最新版本的玲珑环境！";
                 ipcRenderer.send('logger', 'error', "当前玲珑基础环境版本号过低(<1.5.0)或不存在，请安装最新版本的玲珑环境！");
                 centerDialogVisible.value = true; // 显示弹窗
+                reject(new Error('版本过低'));
                 return;
             }
             message.value = "玲珑基础环境版本号检测完毕...";
@@ -200,11 +236,12 @@ const startEnvCheck = () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             // 跳转到主界面
             router.push('/main_view');
+            resolve(res);
         });
         // 执行命令获取版本号
         ipcRenderer.send('linyaps-version');
     });
-    ipcRenderer.send('linyaps-exist');
+    
 }
 
 
@@ -213,32 +250,44 @@ onMounted(async () => {
     // 设置ipc监听器
     ipcRenderer.on('update-message', updateMessage);
     // 获取客户端版本号
-    ipcRenderer.once('app-version-result', (_event: any, version: string) => {
-        ipcRenderer.send('logger', 'info', '客户端版本号：' + version);
-        systemConfigStore.changeAppVersion(version);
-    })
-    ipcRenderer.send('app-version');
+    await new Promise((resolve) => {
+        ipcRenderer.once('app-version-result', (_event: any, version: string) => {
+            ipcRenderer.send('logger', 'info', '客户端版本号：' + version);
+            systemConfigStore.changeAppVersion(version);
+            resolve(version);
+        })
+        ipcRenderer.send('app-version');
+    });
+    
     // 获取指纹码
     const result = await (await FingerprintJS.load()).get();
-    let visitorId = result.visitorId
-    systemConfigStore.changeVisitorId(visitorId);
+    systemConfigStore.changeVisitorId(result.visitorId);
+
     // 获取客户端ip
-    ipcRenderer.once('fetchClientIP-result', (_event: any, res: any) => {
-        systemConfigStore.changeClientIp(res.data.query || '');
+    await new Promise((resolve) => {
+        ipcRenderer.once('fetchClientIP-result', (_event: any, res: any) => {
+            systemConfigStore.changeClientIp(res.data.query || '');
+            resolve(res);
+        });
+        ipcRenderer.send('fetchClientIP');
     });
-    ipcRenderer.send('fetchClientIP');
+    
     // 获取分类列表
-    ipcRenderer.once('categories-result', (_event: any, res: any) => {
-        const categories = [{ "categoryId": "", "categoryName": "全部程序" }] as categoryItem[];
-        if (res.code == 200) {
-            const categoriesByIpc = (res.data as categoryItem[]).map(({ categoryId, categoryName }) => ({ categoryId, categoryName }));
-            categories.push(...categoriesByIpc);
-        } else {
-            ipcRenderer.send('logger', 'error', "获取分类列表的接口状态异常...");
-        }
-        localStorage.setItem('categories', JSON.stringify(categories));
-    })
-    ipcRenderer.send('ipc-categories', { url: import.meta.env.VITE_SERVER_URL });
+    await new Promise((resolve) => {
+        ipcRenderer.once('categories-result', (_event: any, res: any) => {
+            const categories = [{ "categoryId": "", "categoryName": "全部程序" }] as categoryItem[];
+            if (res.code == 200) {
+                const categoriesByIpc = (res.data as categoryItem[]).map(({ categoryId, categoryName }) => ({ categoryId, categoryName }));
+                categories.push(...categoriesByIpc);
+            } else {
+                ipcRenderer.send('logger', 'error', "获取分类列表的接口状态异常...");
+            }
+            localStorage.setItem('categories', JSON.stringify(categories));
+            resolve(res);
+        });
+        ipcRenderer.send('ipc-categories', { url: import.meta.env.VITE_SERVER_URL });
+    });
+    
     // 判断是否是开发模式，跳出版本检测
     if (process.env.NODE_ENV != "development" && systemConfigStore.autoCheckUpdate) {
         message.value = "正在检测商店版本号...";
@@ -252,7 +301,7 @@ onMounted(async () => {
         message.value = "跳过商店版本号检测...";
         ipcRenderer.send('logger', 'info', "跳过商店版本号检测...");
     }
-    startEnvCheck();
+    await startEnvCheck();
 });
 // 销毁前执行
 onBeforeUnmount(() => {
