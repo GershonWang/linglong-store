@@ -52,10 +52,11 @@ export function createMainWindow() {
   mainWin.on('close', (event) => {
     if (!isForceQuit) {
       event.preventDefault()
-      // mainWin?.hide()
       if (mainWin) {
         mainWin.webContents.send('show-close-confirm');
       }
+    } else {
+      mainWin.webContents.send('close-action', 'quit');
     }
   })
 }

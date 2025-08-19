@@ -522,8 +522,10 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
         if (action === 'minimize') {
             // mainWin?.minimize();
             mainWin?.hide();
+            otherWin?.hide();
         } else if (action === 'quit') {
             mainWin?.destroy();
+            otherWin?.destroy();
             app.quit();
         }
     });

@@ -7,9 +7,6 @@ import { otherWin, createOtherWindow } from "./main-myapps-win";
 import { updateHandle } from "./electron-update";
 import { clearCacheFiles, handleCustomProtocol } from "./main-utils";
 
-// 关闭硬件加速
-// app.disableHardwareAcceleration();
-
 // 确保单实例
 if (app.requestSingleInstanceLock()) {
   // 应用监听开启第二个窗口事件
