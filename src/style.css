@@ -249,15 +249,22 @@ html, body {
   color: var(--menu-base-font-color);
 }
 
+.card-arch {
+  font-size: 14px;
+  color: var(--menu-base-font-color);
+}
+
 .card-bottom {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.card-arch {
-  font-size: 14px;
-  color: var(--menu-base-font-color);
+.t-card-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
 }
 
 .p-card-bottom {

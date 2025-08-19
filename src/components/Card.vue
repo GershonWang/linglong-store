@@ -9,8 +9,13 @@
             <span ref="textRef" class="text-content">{{ displayName }}</span>
         </div>
         <span v-if="tabName == '更新程序'" class="card-version">{{ newVersion }}</span>
+        <span v-else-if="tabName == '玲珑推荐'" class="card-version"></span>
         <span v-else class="card-version">{{ version }}</span>
-        <div class="card-bottom" v-if="tabName == '玲珑推荐' || tabName == '分类推荐' || tabName == '全部程序'" v-loading="loading">
+        <div class="t-card-bottom" v-if="tabName == '玲珑推荐'" v-loading="loading">
+            <el-button class="card-btn" v-if="isInstalled" @click="openDetails">已安装</el-button>
+            <el-button class="card-btn" v-else @click="openDetails">安装</el-button>
+        </div>
+        <div class="card-bottom" v-if="tabName == '分类推荐' || tabName == '全部程序'" v-loading="loading">
             <el-button class="card-btn" v-if="isInstalled" @click="openDetails">已安装</el-button>
             <el-button class="card-btn" v-else @click="openDetails">安装</el-button>
         </div>
