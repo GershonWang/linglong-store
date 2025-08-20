@@ -74,7 +74,7 @@
         </el-table>
         <el-button type="primary" @click="drawer = true;">评论</el-button>
     </div>
-    <DiscussAreaDrawer :drawer="drawer" :defaultName="defaultName" @update:drawer="drawer = $event" />
+    <DiscussAreaDrawer :drawer="drawer" :defaultName="defaultName" :appId="appId as string" @update:drawer="drawer = $event" />
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
@@ -105,7 +105,7 @@ const router = useRouter();
 const route = useRoute();
 const { menuName, name, zhName, icon, arch, appId, categoryName, description, devName } = route.query;
 
-let drawer = ref(false)
+const drawer = ref(false);
 
 // 格式化程序名称
 const defaultName = computed(() => {
