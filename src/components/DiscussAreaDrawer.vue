@@ -21,15 +21,14 @@
           </div> 
           <!-- 评论输入区域 -->
           <div class="demo-drawer__footer">
+            <div class="comment-input-container">
               <textarea  v-model="form.content" placeholder="请输入评论内容" :disabled="!isInstalled || hasCommented"
                   :rows="4" style="width: 100%;"></textarea>
-              <div class="button-group">
-                  <el-button @click="cancelForm">取消</el-button>
-                  <el-button type="primary" :loading="loading" @click="submitComment"
-                      :disabled="!isInstalled || hasCommented || !form.content.trim()">
-                      {{ hasCommented ? '已评论' : (loading ? '提交中 ...' : '提交') }}
-                  </el-button>
-              </div>
+              <el-button type="primary" class="submit-btn" :loading="loading" @click="submitComment"
+                  :disabled="!isInstalled || hasCommented || !form.content.trim()">
+                  {{ hasCommented ? '已评论' : (loading ? '提交中 ...' : '提交') }}
+              </el-button>
+            </div>
           </div>
         </div>
     </el-drawer>
@@ -47,9 +46,6 @@ const props = defineProps({
 
 const emit = defineEmits<{(e: 'update:drawer', val: boolean): void}>()
 
-let timer: string | number | NodeJS.Timeout | undefined
-
-const dialog = ref(false);
 const loading = ref(false);
 const comments = ref<{
   id: number
@@ -124,12 +120,6 @@ const form = reactive({
   content: '',
 })
 
-const cancelForm = () => {
-  loading.value = false
-  dialog.value = false
-  clearTimeout(timer)
-}
-
 onMounted(async () => {
   await checkAppInstallation()
   if (isInstalled.value) {
@@ -184,26 +174,30 @@ onMounted(async () => {
   color: #666;
 }
 
+.comment-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.comment-input-container textarea {
+  resize: none; /* 禁用垂直调整 */
+  height: 120px; /* 固定高度 */
+  padding: 10px 10px 40px; /* 底部留出按钮空间 */
+  box-sizing: border-box;
+}
+
+.submit-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 80px;
+}
+
 .demo-drawer__footer {
   padding: 16px;
   border-top: 1px solid #eee;
   background: #fff;
   width: 100%;
   box-sizing: border-box;
-}
-
-.textarea {
-  width: 100%;
-  resize: vertical;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.button-group {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
 }
 </style>
