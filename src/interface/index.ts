@@ -96,3 +96,15 @@ export interface execEntity {
     stderr: string,
     error: string,
 }
+
+/**
+ * 评论对象
+ */
+export interface commentItem {
+    id: string,
+    appId: string,
+    remark: string,
+    version: string,
+    cip: string,
+    createTime: string,
+}

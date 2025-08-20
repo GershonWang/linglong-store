@@ -11,10 +11,10 @@
                 <div v-else class="comments-list">
                     <div v-for="comment in comments" :key="comment.id" class="comment-item">
                         <div class="comment-header">
-                            <span class="comment-author">{{ comment.author }}</span>
+                            <span class="comment-author">{{ comment.cip }}</span>
                             <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
                         </div>
-                        <div class="comment-content">{{ comment.content }}</div>
+                        <div class="comment-content">{{ comment.remark }}</div>
                     </div>
                 </div>
             </div>
@@ -22,10 +22,10 @@
           <!-- 评论输入区域 -->
           <div class="demo-drawer__footer">
             <div class="comment-input-container">
-              <textarea  v-model="form.content" placeholder="请输入评论内容" :disabled="!isInstalled || hasCommented"
+              <textarea  v-model="form.remark" placeholder="请输入评论内容" :disabled="!isInstalled || hasCommented"
                   :rows="4" style="width: 100%;"></textarea>
               <el-button type="primary" class="submit-btn" :loading="loading" @click="submitComment"
-                  :disabled="!isInstalled || hasCommented || !form.content.trim()">
+                  :disabled="!isInstalled || hasCommented || !form.remark.trim()">
                   {{ hasCommented ? '已评论' : (loading ? '提交中 ...' : '提交') }}
               </el-button>
             </div>
@@ -35,8 +35,9 @@
 </template>
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { ipcRenderer } from 'electron'
 import { ElMessage} from 'element-plus'
+import { getAppCommentList, saveAppComment } from '@/api';
+import { commentItem } from '@/interface';
 
 const props = defineProps({
     drawer: { type: Boolean, default: false },
@@ -47,12 +48,7 @@ const props = defineProps({
 const emit = defineEmits<{(e: 'update:drawer', val: boolean): void}>()
 
 const loading = ref(false);
-const comments = ref<{
-  id: number
-  author: string
-  content: string
-  createTime: string
-}[]>([]);
+const comments = ref<commentItem[]>([]);
 const isInstalled = ref(false);
 const hasCommented = ref(false);
 const loadingComments = ref(false);
@@ -82,11 +78,9 @@ const fetchComments = async () => {
   // 加载状态中
   loadingComments.value = true
   try {
-    // const result = await ipcRenderer.invoke('get-comments', { appId: props.appId })
-    // comments.value = result.comments || []
-    // hasCommented.value = result.hasCommented || false
-    comments.value = []
-    hasCommented.value = false
+    const result = await getAppCommentList({ appId: props.appId });
+    comments.value = result.data || [];
+    hasCommented.value = comments.value.length > 0 || false
   } catch (error) {
     ElMessage.error('获取评论失败')
     console.error(error)
@@ -97,16 +91,26 @@ const fetchComments = async () => {
 
 // 提交评论
 const submitComment = async () => {
-  if (!form.content.trim()) {
+  if (!form.remark.trim()) {
     ElMessage.warning('请输入评论内容')
     return
   }
 
   loading.value = true
   try {
-    await ipcRenderer.invoke('submit-comment', { appId: props.appId, content: form.content })
+    let version = '';
+    const installedItems = localStorage.getItem('installedItems');
+    if (installedItems) {
+      const installedApps = JSON.parse(installedItems);
+      installedApps['installedItemList'].forEach((item: any) => {
+        if (item.appId === props.appId) {
+          version = item.version;
+        }
+      })
+    }
+    await saveAppComment({ appId: props.appId, remark: form.remark, version: version });
     ElMessage.success('评论发布成功')
-    form.content = ''
+    form.remark = ''
     hasCommented.value = true
     await fetchComments() // 重新获取评论列表
   } catch (error) {
@@ -117,7 +121,7 @@ const submitComment = async () => {
 }
 
 const form = reactive({
-  content: '',
+  remark: '',
 })
 
 onMounted(async () => {

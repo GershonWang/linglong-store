@@ -64,3 +64,21 @@ export const getDisCategoryList = () => {
 export const getSearchAppVersionList = (data: any) => {
     return request<Result>({ method: 'POST', url: '/visit/getSearchAppVersionList', data })
 }
+
+/**
+ * 获取应用评论列表
+ * @param data 入参条件
+ * @returns 应用评论列表
+ */
+export const getAppCommentList = (data: any) => {
+    return request<Result>({ method: 'POST', url: '/app/getAppCommentList', data })
+}
+
+/**
+ * 提交应用评论
+ * @param data 入参条件
+ * @returns 
+ */
+export const saveAppComment = (data: any) => {
+    return request<Result>({ method: 'POST', url: '/app/saveAppComment', data })
+}
