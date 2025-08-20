@@ -121,25 +121,8 @@ const submitComment = async () => {
 }
 
 const form = reactive({
-  name: '',
-  region: '',
-  date1: '',
-  date2: '',
-  delivery: false,
-  type: [],
-  resource: '',
-  desc: '',
   content: '',
 })
-
-const onClick = () => {
-  loading.value = true
-  setTimeout(() => {
-    loading.value = false
-    dialog.value = false
-  }, 400)
-}
-
 
 const cancelForm = () => {
   loading.value = false
