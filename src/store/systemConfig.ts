@@ -57,6 +57,10 @@ export const useSystemConfigStore = defineStore('systemConfig', {
             + ',rememberCloseDialog:' + state.rememberCloseDialog
             + ',rememberLastAction:' + state.rememberLastAction
         },
+        // 获取客户端ip地址
+        getClientIp: (state) => {
+            return state.clientIp;
+        },
     },
     actions: {
         // 修改客户端版本号
