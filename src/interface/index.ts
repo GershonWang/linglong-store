@@ -105,6 +105,7 @@ export interface commentItem {
     appId: string,
     remark: string,
     version: string,
-    cip: string,
+    visit: string,
+    clientIp: string,
     createTime: string,
 }
