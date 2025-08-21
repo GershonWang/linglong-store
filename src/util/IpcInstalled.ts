@@ -10,11 +10,13 @@ import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
+import { useUpdateItemsStore } from "@/store/updateItems";
 
 const allAppItemsStore = useAllAppItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const installingItemsStore = useInstallingItemsStore();
 const systemConfigStore = useSystemConfigStore();
+const updateItemsStore = useUpdateItemsStore();
 
 export let installingItems = installingItemsStore.installingItemList; // 安装队列
 
@@ -43,6 +45,7 @@ const handleLinyapsInstallResult = (_event: any, res: any) => {
             difVersionItemsStore.updateItemInstallStatus(params, true);
             reflushInstalledItems(); // 刷新已安装的应用列表
             reflushUpdateItems(); // 刷新更新列表
+            updateItemsStore.removeItem(params); // 2.从更新列表中移除
             searchLinyapsByAppId(params.appId); // 刷新版本列表
             // 安装或卸载成功后，弹出通知
             ElNotification({ title: '安装成功!', type: 'success', duration: 500, message: `${params.name}(${params.version})被成功安装'!` });
