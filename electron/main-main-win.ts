@@ -10,7 +10,17 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL ? join(process.env.DIST_ELE
 const preload = join(__dirname, 'preload.js')
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
+interface ProtocolState {
+  isMainWindowReady: boolean;
+  pendingProtocolMessage: string | null;
+}
+
 export let mainWin: BrowserWindow | null;
+// 修改：使用对象封装可修改状态
+export const protocolState: ProtocolState = {
+  isMainWindowReady: false,
+  pendingProtocolMessage: null
+};
 
 // 创建窗口并初始化相关参数
 export function createMainWindow() {
@@ -46,6 +56,17 @@ export function createMainWindow() {
       shell.openExternal(url);
     }
     return { action: "deny" };
+  });
+
+  // 修改：更新状态访问方式
+  mainWin.webContents.on('did-finish-load', () => {
+    protocolState.isMainWindowReady = true;
+    mainLog.info('主窗口渲染进程加载完成');
+    // 检查是否有待发送的协议消息
+    if (protocolState.pendingProtocolMessage && mainWin) {
+      mainWin.webContents.send('custom-protocol', protocolState.pendingProtocolMessage);
+      protocolState.pendingProtocolMessage = null;
+    }
   });
 
   // 拦截窗口关闭操作，改为隐藏

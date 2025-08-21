@@ -1,4 +1,4 @@
-import { InstalledEntity, pageResult, Result } from '@/interface';
+import { commentItem, InstalledEntity, pageResult, Result } from '@/interface';
 import request from '@/api/request';
 
 /**
@@ -70,9 +70,9 @@ export const getSearchAppVersionList = (data: any) => {
  * @param data 入参条件
  * @returns 应用评论列表
  */
-export const getAppCommentList = (data: any) => {
-    return request<Result>({ method: 'POST', url: '/app/getAppCommentList', data })
-}
+export const getAppCommentList = (params: { appId: string }): Promise<Result<commentItem[]>> => {
+  return request({ url: '/app/getAppCommentList', method: 'POST', data: params });
+};
 
 /**
  * 提交应用评论

@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import { app } from "electron";
 import { join } from "node:path";
 import { mainLog } from "./main-logger";
+import { protocolState } from "./main-main-win";
 
 export function clearCacheFiles() {
     // 清理升级缓存
@@ -26,8 +27,7 @@ function clearPathFile(logPath: string, logFile: string) {
             }
             if (exists) {
                 try {
-                    // recursive: true 递归删除的参数
-                    fs.rmSync(logFilePath, { recursive: true });
+                    fs.rmSync(logFilePath, { recursive: true }); // recursive: true 递归删除的参数
                 } catch (rmError) {
                     mainLog.error('删除文件目录时出现错误:', rmError);
                 }
@@ -47,13 +47,15 @@ function clearPathFile(logPath: string, logFile: string) {
  */
 export function handleCustomProtocol(args, mainWindow) {
     mainLog.log('自定义协议传入的参数:', args);
-    // 处理结尾是layer、uab的文件安装
     const layerFile = args.find(arg => arg.endsWith('.layer') || arg.endsWith('.uab') || arg.startsWith('linyapsss://'));
     if (layerFile) {
         mainLog.log('处理自定义协议请求:', layerFile);
-        // 等待5秒钟，再发送ipc到渲染线程
-        setTimeout(() => {
+        // 修改：通过对象属性访问状态
+        if (mainWindow && protocolState.isMainWindowReady) {
             mainWindow.webContents.send('custom-protocol', layerFile);
-        }, 5000);
+        } else if (mainWindow) {
+            protocolState.pendingProtocolMessage = layerFile;
+            mainLog.log('窗口未就绪，消息已存入队列:', layerFile);
+        }
     }
 }

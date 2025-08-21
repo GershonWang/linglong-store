@@ -60,10 +60,10 @@ export interface updateEntity {
  * @param message 提示信息
  * @param data 返回的数据
  */
-export interface Result {
-    code: number,
-    message: string,
-    data: any
+export interface Result<T = any> {
+    code: number;
+    data: T;
+    msg: string;
 }
 
 /**
