@@ -1,5 +1,6 @@
 <template>
-    <el-drawer v-model="props.drawer" :title="`${props.defaultName}的评论区`" size="60%" @close="emit('update:drawer', false)">
+    <el-drawer v-model="props.drawer" :title="`${props.defaultName}的评论区`" size="60%" @close="emit('update:drawer', false)"
+    :show-close="false" :close-on-click-modal="true">
         <div class="demo-drawer__content">
           <!-- 使用flex容器实现固定底部效果 -->
           <div class="drawer-container">
@@ -10,7 +11,7 @@
               <div v-else class="comments-list">
                 <div v-for="comment in comments" :key="comment.id" class="comment-item">
                   <div class="comment-header">
-                    <span class="comment-author">{{ comment.clientIp }}</span>
+                    <span class="comment-author">{{ maskIp(comment.clientIp) }}</span>
                     <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
                   </div>
                   <div class="comment-content">{{ comment.remark }}</div>
@@ -39,6 +40,16 @@ import { ElMessage} from 'element-plus'
 import { getAppCommentList, saveAppComment } from '@/api';
 import { commentItem } from '@/interface';
 import { useSystemConfigStore } from '@/store/systemConfig';
+
+// 添加IP地址打码函数
+const maskIp = (ip: string): string => {
+  const parts = ip.split('.');
+  // 只处理标准IPv4地址格式
+  if (parts.length === 4) {
+    return `${parts[0]}.**.${parts[3]}`;
+  }
+  return ip;
+};
 
 const props = defineProps({
     drawer: { type: Boolean, default: false },
@@ -160,6 +171,19 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
+/* 添加标题背景条样式 */
+:deep(.el-drawer__header) {
+  background-color: #211261 !important; /* 增加优先级确保生效 */
+  padding: 16px 20px; /* 增加内边距让背景更明显 */
+  margin: -20px -20px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+/* 单独设置标题文本样式 */
+:deep(.el-drawer__title) {
+  font-size: 32px !important; /* 放大标题字号 */
+  font-weight: 600; /* 加粗标题 */
+}
 .demo-drawer__content {
   height: 100%;
   display: flex;
@@ -185,6 +209,27 @@ onMounted(async () => {
   min-height: 0;
   margin-bottom: 20px;
   padding: 20px;
+  /* 添加滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.comments-container:hover {
+  scrollbar-color: #ccc transparent;
+}
+
+/* WebKit浏览器滚动条样式 */
+.comments-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comments-container::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 3px;
+}
+
+.comments-container:hover::-webkit-scrollbar-thumb {
+  background-color: #ccc;
 }
 
 .comment-item {
@@ -205,8 +250,24 @@ onMounted(async () => {
 .comment-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 4px; /* 减小底部间距 */
   color: #666;
+  font-size: 12px; /* 减小字号 */
+}
+
+.comment-item {
+  padding: 12px 15px; /* 减小内边距 */
+  border-bottom: 1px solid #eee;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  transition: all 0.2s ease;
+}
+
+.comment-item:hover {
+  background-color: #f0f0f0; /* 评论项悬停效果 */
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .comment-content {
