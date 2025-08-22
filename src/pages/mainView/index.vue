@@ -34,7 +34,7 @@
 import { ipcRenderer } from 'electron';
 import { onUnmounted, onMounted, ref, watch } from 'vue';
 import NetworkSpeed from '@/components/NetworkSpeed.vue';
-import DownloadQueue from '@/components/DownloadQueue.vue'
+import DownloadQueue from '@/components/DownloadQueue.vue';
 import { reflushUpdateItems, cancelUpdateTimer } from "@/util/WorkerUpdate";
 import { reflushInstalledItems, cancelInstalledTimer } from '@/util/WorkerInstalled';
 import { installingItems, setupIpcListeners, cleanupIpcListeners } from "@/util/IpcInstalled";
@@ -83,8 +83,7 @@ const showQueue = () => {
 };
 
 // 监听安装队列
-watch(() => installingItemsStore.installingItemList,
-    async (newQueue) => {
+watch(() => installingItemsStore.installingItemList, async (newQueue) => {
         ipcRenderer.send('logger', 'info', `安装队列变化>>${JSON.stringify(newQueue)}`);
         if (updateStatusStore.downloadQueueStatus) return; // 如果正在处理，则不再处理新的队列变化
         if (newQueue.length > 0) {
@@ -93,8 +92,7 @@ watch(() => installingItemsStore.installingItemList,
             let password = localStorage.getItem('linyaps-password'); // 获取密码
             ipcRenderer.send('linyaps-install', JSON.parse(JSON.stringify({ password, ...item })));
         }
-    },
-    { deep: true, immediate: true }
+    }, { deep: true, immediate: true }
 );
 
 // 页面初始化时执行

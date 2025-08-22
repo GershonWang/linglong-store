@@ -28,14 +28,16 @@ export const searchLinyapsByAppId = (appId: string) => {
         // 版本小于1.9.0时
         if (compareVersions(llVersion, '1.9.0') < 0) {
             searchVersionItemList = stdout.trim() ? JSON.parse(stdout.trim()) : [];
-        } else {
-            // 版本大于等于1.9.0时,取stable版本 TODO
+        } else { // 版本大于等于1.9.0时,取stable版本
+            const repoName = systemConfigStore.defaultRepoName || "stable";
             const items = stdout ? JSON.parse(stdout) : null;
-            searchVersionItemList = Object.keys(items).length > 0 ? items.stable : [];
+            searchVersionItemList = Object.keys(items).length > 0 ? items[repoName] : [];
         }
         difVersionItemsStore.initDifVersionItems(searchVersionItemList, appId as string);
         loading.value = false;
     });
+
+    // 执行查询命令
     let command = `ll-cli --json search ${appId}`;
     if (compareVersions(llVersion, '1.5.0') >= 0 && compareVersions(llVersion, '1.7.7') < 0) {
         if (systemConfigStore.isShowBaseService) {

@@ -11,8 +11,10 @@ const systemConfigStore = useSystemConfigStore();
  * 已安装的全部应用
  */
 export const useInstalledItemsStore = defineStore("installedItems", () => {
-
     let installedItemList = ref<InstalledEntity[]>([]);
+    // 添加全局重试计数器和上次请求标识
+    const retryCount = ref(0);
+    const lastRequestHash = ref('');
 
     /**
      * 初始化已安装程序数组(1.4以后的版本)
@@ -20,8 +22,9 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
      * @returns 将数据放入后的对象数组
      */
     const initInstalledItems = async (data: string) => {
-        // 记录旧列表
+        // 记录新增的列表
         let addedItems: InstalledEntity[] = [];
+        // 记录移除的列表
         let removedItems: InstalledEntity[] = [];
         // 字符串转对象数组
         const datas: any[] = data.trim() ? JSON.parse(data.trim()) : [];
@@ -60,46 +63,71 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
         }
 
         // 只在有新增时才获取新增应用详情
+        const detailItems: InstalledEntity[] = [];
         if (addedItems.length > 0) {
-            const response = await getAppDetails(addedItems);
-            if (response.code == 200) {
-                const details: InstalledEntity[] = response.data as unknown as InstalledEntity[];
-                details.forEach((item: InstalledEntity) => {
-                    const idx = installedItemList.value.findIndex(it => it.appId == item.appId && it.version == item.version);
-                    // 查看元素类型字段kind是否存在，不存在代表没查到数据，不更新，查到才更新installedItemList中的对应项
-                    if (idx !== -1 && item.kind) {
-                        const it = installedItemList.value[idx];
-                        for (const key in item) {
-                            (it as any)[key] = (item as any)[key];  // 有则覆盖，无则新增
-                        }
-                        installedItemList.value[idx] = it;
-                    }
-                });
-            } else {
-                ipcRenderer.send('logger', 'error', `获取应用详情失败: ${response.msg}`);
-            }
+            detailItems.push(...addedItems);
         }
-
         // 获取已安装列表中元素的categoryName为“其他”的项，如果集合不为空则调用后台接口查询详情填充
-        const otherItems = installedItemList.value.filter(item => item.categoryName === '其他');
+        const otherItems = installedItemList.value.filter(item => item.categoryName === '其他' || !item.devName);
         if (otherItems.length > 0) {
-            const response = await getAppDetails(otherItems);
-            if (response.code == 200) {
-                const details: InstalledEntity[] = response.data as unknown as InstalledEntity[];
-                details.forEach((item: InstalledEntity) => {
-                    const idx = installedItemList.value.findIndex(it => it.appId == item.appId && it.version == item.version);
-                    // 查看元素类型字段kind是否存在，不存在代表没查到数据，不更新，查到才更新installedItemList中的对应项
-                    if (idx !== -1 && item.kind) {
-                        const it = installedItemList.value[idx];
-                        for (const key in item) {
-                            (it as any)[key] = (item as any)[key];  // 有则覆盖，无则新增
+            detailItems.push(...otherItems);
+        }
+        
+        if (detailItems.length > 0) {
+            // 生成请求内容哈希值，用于检测内容变化
+            const currentHash = JSON.stringify(detailItems.map(item => `${item.appId}-${item.version}`));
+            // 如果内容变化则重置计数器
+            if (currentHash !== lastRequestHash.value) {
+                retryCount.value = 0;
+                lastRequestHash.value = currentHash;
+            }
+            // 超过最大重试次数则停止请求
+            if (retryCount.value <= 3) {
+                try {
+                    const response = await getAppDetails(detailItems);
+                    if (response.code == 200) {
+                        const details: InstalledEntity[] = response.data as unknown as InstalledEntity[];
+                        let hasUpdates = false;
+                
+                        details.forEach((item: InstalledEntity) => {
+                            const idx = installedItemList.value.findIndex(it => it.appId == item.appId && it.version == item.version);
+                            if (idx !== -1 && item.kind) {
+                                const oldItem = installedItemList.value[idx];
+                                // 检查是否有实际更新
+                                if (!oldItem.devName || oldItem.categoryName === '其他') {
+                                    hasUpdates = true;
+                                }
+                                // 更新数据
+                                const updatedItem = { ...oldItem, ...item };
+                                installedItemList.value.splice(idx, 1, updatedItem);
+                            }
+                        });
+                
+                        // 筛选仍需要更新的项
+                        const stillNeedUpdate = detailItems.filter(item => {
+                            const updatedItem = installedItemList.value.find(it => it.appId === item.appId && it.version === item.version);
+                            return !updatedItem || !updatedItem.devName || updatedItem.categoryName === '其他';
+                        });
+                
+                        // 如果有更新则重置重试计数，否则增加计数
+                        if (hasUpdates) {
+                            retryCount.value++;
+                        } else {
+                            retryCount.value = 0;
                         }
+                    } else {
+                        retryCount.value++;
+                        ipcRenderer.send('logger', 'error', `获取应用详情失败: ${response.msg}, 重试次数: ${retryCount.value}`);
                     }
-                });
+                } catch (error) {
+                    retryCount.value++;
+                    ipcRenderer.send('logger', 'error', `获取应用详情异常: ${error}, 重试次数: ${retryCount.value}`);
+                }
             } else {
-                ipcRenderer.send('logger', 'error', `获取应用详情失败: ${response.msg}`);
+                ipcRenderer.send('logger', 'warn', `已连续3次请求应用详情失败`);
             }
         }
+        
         // 返回结果
         return { installedItemList, addedItems, removedItems };
     }

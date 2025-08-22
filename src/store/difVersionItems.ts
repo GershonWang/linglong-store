@@ -27,6 +27,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
     const initDifVersionItems = async (data: any[], appId: string) => {
         // 清空原始对象
         difVersionItemList.value.splice(0, difVersionItemList.value.length);
+        // 传入的data为空直接返回
         if (data.length < 1) {
             return difVersionItemList;
         }
