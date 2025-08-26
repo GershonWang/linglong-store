@@ -171,19 +171,26 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
-/* 添加标题背景条样式 */
-:deep(.el-drawer__header) {
-  background-color: #211261 !important; /* 增加优先级确保生效 */
-  padding: 16px 20px; /* 增加内边距让背景更明显 */
-  margin: -20px -20px 20px;
-  border-bottom: 1px solid #e8e8e8;
+/* 添加标题背景条样式 - 增强选择器特异性并修正布局 */
+:deep(.el-drawer .el-drawer__header) {
+  background-color: #211261 !important;
+ padding: 16px 20px; /* 调整内边距避免溢出 */
+ margin: 0 -20px 20px !important; /* 修改外边距仅水平方向负边距 */
+ border-bottom: 1px solid #e8e8e8;
+ display: flex;
+ justify-content: center;
+ align-items: center;
 }
 
-/* 单独设置标题文本样式 */
-:deep(.el-drawer__title) {
-  font-size: 32px !important; /* 放大标题字号 */
-  font-weight: 600; /* 加粗标题 */
+/* 单独设置标题文本样式 - 增加选择器特异性 */
+:deep(.el-drawer .el-drawer__title) {
+ font-size: 36px !important;
+ font-weight: 600;
+ text-align: center;
+ width: 100%;
+ margin: 0;
 }
+
 .demo-drawer__content {
   height: 100%;
   display: flex;
