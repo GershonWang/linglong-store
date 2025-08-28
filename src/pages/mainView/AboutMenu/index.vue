@@ -5,10 +5,8 @@
       <a class="title"
         :title="`Node版本：${versions.node}&#10;Electron版本：${versions.electron}&#10;Chrome版本：${versions.chrome}`">玲珑信息</a>
     </li>
-    <div class="item">玲珑官网：<a class="link" href="https://linglong.space/" target="_blank">https://linglong.space/</a>
+    <div class="item">如意玲珑官网：<a class="link" href="https://linyaps.org.cn/" target="_blank">https://linyaps.org.cn/</a>
     </div>
-    <!-- <div class="item">玲珑网页版商店：<a class="link" href="https://store.linglong.space/"
-        target="_blank">https://store.linglong.space/</a></div> -->
     <div class="item">玲珑网页版商店：<a class="link" href="https://store.linyaps.org.cn/"
         target="_blank">https://store.linyaps.org.cn/</a></div>
     <div class="item">当前共收录玲珑程序数: {{ systemConfigStore.linglongCount }} 个</div>

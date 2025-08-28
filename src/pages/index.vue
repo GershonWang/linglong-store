@@ -266,7 +266,7 @@ onMounted(async () => {
     // 获取客户端ip
     await new Promise((resolve) => {
         ipcRenderer.once('fetchClientIP-result', (_event: any, res: any) => {
-            systemConfigStore.changeClientIp(res.data.query || '');
+            systemConfigStore.changeClientIp(res.data?.query || '');
             resolve(res);
         });
         ipcRenderer.send('fetchClientIP');

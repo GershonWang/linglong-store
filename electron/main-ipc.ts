@@ -427,7 +427,7 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
     // const response = await axios.get('https://api64.ipify.org?format=json');
     // const response = await axios.get('http://ip-api.com/json');
     ipcMain.on("fetchClientIP", () => {
-        axios.defaults.timeout = 30000;
+        axios.defaults.timeout = 1000;
         axios.get('http://ip-api.com/json').then(response => {
             const code = response.data.code;
             const dataList = response.data;
@@ -435,14 +435,18 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
             mainWin.webContents.send("fetchClientIP-result", result);
         }).catch(error => {
             const response = error.response;
-            const result = { code: response.status, msg: response.data };
+            // 添加响应存在性检查
+            const result = { 
+                code: response ? response.status : 500, 
+                msg: response ? response.data : 'Network error or no response received'
+            };
             mainWin.webContents.send("fetchClientIP-result", result);
         });
     });
 
     /* ********** 调用接口获取分类列表 ********** */
     ipcMain.on("ipc-categories", (_event, data) => {
-        axios.defaults.timeout = 30000;
+        axios.defaults.timeout = 3000;
         axios.get(`${data.url}/visit/getDisCategoryList`).then(response => {
             const code = response.data.code;
             const dataList = response.data.data;
@@ -450,7 +454,11 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
             mainWin.webContents.send("categories-result", result);
         }).catch(error => {
             const response = error.response;
-            const result = { code: response.status, msg: response.data };
+            // 添加响应存在性检查
+            const result = { 
+                code: response ? response.status : 500, 
+                msg: response ? response.data : 'Network error or no response received'
+            };
             mainWin.webContents.send("categories-result", result);
         });
     });
