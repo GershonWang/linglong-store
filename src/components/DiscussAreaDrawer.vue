@@ -1,42 +1,42 @@
 <template>
-    <el-drawer v-model="props.drawer" :title="`${props.defaultName}的评论区`" size="60%" @close="emit('update:drawer', false)"
+  <el-drawer v-model="props.drawer" :title="`${props.defaultName}的评论区`" size="60%" @close="emit('update:drawer', false)"
     :show-close="false" :close-on-click-modal="true">
-        <div class="demo-drawer__content">
-          <!-- 使用flex容器实现固定底部效果 -->
-          <div class="drawer-container">
-            <!-- 评论列表区域(可滚动) -->
-            <div class="comments-container">
-              <div v-if="loadingComments" class="loading-state">加载评论中...</div>
-              <div v-else-if="comments.length === 0" class="no-comments">暂无评论</div>
-              <div v-else class="comments-list">
-                <div v-for="comment in comments" :key="comment.id" class="comment-item">
-                  <div class="comment-header">
-                    <span class="comment-author">{{ maskIp(comment.clientIp) }}</span>
-                    <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
-                  </div>
-                  <div class="comment-content">{{ comment.remark }}</div>
-                </div>
+    <div class="demo-drawer__content">
+      <!-- 使用flex容器实现固定底部效果 -->
+      <div class="drawer-container">
+        <!-- 评论列表区域(可滚动) -->
+        <div class="comments-container">
+          <div v-if="loadingComments" class="loading-state">加载评论中...</div>
+          <div v-else-if="comments.length === 0" class="no-comments">暂无评论</div>
+          <div v-else class="comments-list">
+            <div v-for="comment in comments" :key="comment.id" class="comment-item">
+              <div class="comment-header">
+                <span class="comment-author">{{ maskIp(comment.clientIp) }}</span>
+                <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
               </div>
-            </div>
-          </div> 
-          <!-- 评论输入区域 -->
-          <div class="demo-drawer__footer">
-            <div class="comment-input-container">
-              <textarea  v-model="form.remark" :placeholder="isInstalled ? '请输入评论内容' : '请先安装才能评论'" :disabled="!isInstalled || hasCommented"
-                  :rows="4" style="width: 100%;" @input="handleInput"></textarea>
-              <div class="word-count" :class="{ 'text-red': currentWordCount >= 300 }">{{ currentWordCount }}/300</div>
-              <el-button type="primary" class="submit-btn" :loading="loading" @click="submitComment"
-                  :disabled="!isInstalled || hasCommented || !form.remark.trim() || currentWordCount > 300">
-                  {{ hasCommented ? '已评论' : (loading ? '提交中 ...' : '提交') }}
-              </el-button>
+              <div class="comment-content">{{ comment.remark }}</div>
             </div>
           </div>
         </div>
-    </el-drawer>
+      </div>
+      <!-- 评论输入区域 -->
+      <div class="demo-drawer__footer">
+        <div class="comment-input-container">
+          <textarea v-model="form.remark" :placeholder="isInstalled ? '请输入评论内容' : '请先安装才能评论'"
+            :disabled="!isInstalled || hasCommented" :rows="4" style="width: 100%;" @input="handleInput"></textarea>
+          <div class="word-count" :class="{ 'text-red': currentWordCount >= 300 }">{{ currentWordCount }}/300</div>
+          <el-button type="primary" class="submit-btn" :loading="loading" @click="submitComment"
+            :disabled="!isInstalled || hasCommented || !form.remark.trim() || currentWordCount > 300">
+            {{ hasCommented ? '已评论' : (loading ? '提交中 ...' : '提交') }}
+          </el-button>
+        </div>
+      </div>
+    </div>
+  </el-drawer>
 </template>
 <script setup lang="ts">
-import { reactive, ref, onMounted, computed } from 'vue'
-import { ElMessage} from 'element-plus'
+import { reactive, ref, onMounted, computed, watch, onUnmounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { getAppCommentList, saveAppComment } from '@/api';
 import { commentItem } from '@/interface';
 import { useSystemConfigStore } from '@/store/systemConfig';
@@ -51,24 +51,6 @@ const maskIp = (ip: string): string => {
   return ip;
 };
 
-const props = defineProps({
-    drawer: { type: Boolean, default: false },
-    defaultName: { type: String, default: '评论' },
-    appId: { type: String, default: '' },
-})
-
-const emit = defineEmits<{(e: 'update:drawer', val: boolean): void}>()
-
-const loading = ref(false);
-const comments = ref<commentItem[]>([]);
-const isInstalled = ref(false);
-const hasCommented = ref(false);
-const loadingComments = ref(false);
-const form = reactive({
-  remark: '',
-});
-const systemConfigStore = useSystemConfigStore();
-
 // 格式化时间
 const formatTime = (time: string) => {
   return new Date(time).toLocaleString();
@@ -80,13 +62,41 @@ const currentWordCount = computed(() => {
   return form.remark.length
 })
 
+const props = defineProps({
+  drawer: { type: Boolean, default: false },
+  defaultName: { type: String, default: '评论' },
+  appId: { type: String, default: '' },
+})
+
+const emit = defineEmits<{ (e: 'update:drawer', val: boolean): void }>()
+
+const loading = ref(false);
+const comments = ref<commentItem[]>([]);
+const isInstalled = ref(false);
+const hasCommented = ref(false);
+const loadingComments = ref(false);
+const form = reactive({ remark: '' });
+const systemConfigStore = useSystemConfigStore();
+const installedItems = ref<any>(null);
+
+const updateInstalledItems = () => {
+  try {
+    installedItems.value = JSON.parse(localStorage.getItem('installedItems') || '{}');
+  } catch (error) {
+    console.error('解析安装列表失败：', error);
+    installedItems.value = {}
+  }
+}
+
 // 检查应用安装状态
 const checkAppInstallation = async () => {
   try {
-    const installedItems = localStorage.getItem('installedItems');
-    if (installedItems) {
-      const installedApps = JSON.parse(installedItems);
-      isInstalled.value = installedApps['installedItemList'].some((item: { appId: string }) => item.appId === props.appId);
+    if (installedItems.value?.installedItemList) {
+      isInstalled.value = installedItems.value.installedItemList.some(
+        (item: { appId: string }) => item.appId === props.appId
+      );
+    } else {
+      isInstalled.value = false;
     }
   } catch (error) {
     ElMessage.error('检查安装状态失败')
@@ -146,11 +156,11 @@ const submitComment = async () => {
         }
       })
     }
-    await saveAppComment({ 
-      appId: props.appId, 
-      visit: systemConfigStore.getClientIp, 
-      remark: form.remark, 
-      version: version 
+    await saveAppComment({
+      appId: props.appId,
+      visit: systemConfigStore.getClientIp,
+      remark: form.remark,
+      version: version
     });
     ElMessage.success('评论发布成功')
     form.remark = ''
@@ -164,31 +174,43 @@ const submitComment = async () => {
 }
 
 onMounted(async () => {
-  await checkAppInstallation()
-  if (isInstalled.value) {
-    await fetchComments()
-  }
+  updateInstalledItems();
+  await fetchComments();
+  // 保持定时器更新机制
+  const checkInterval = setInterval(() => updateInstalledItems(), 1000);
+  onUnmounted(() => {
+    clearInterval(checkInterval);
+  });
 })
+// Then define the watcher
+watch(() => installedItems, () => {
+  if (installedItems.value) {
+    checkAppInstallation();
+  }
+}, { immediate: true }
+)
 </script>
 <style scoped>
 /* 添加标题背景条样式 - 增强选择器特异性并修正布局 */
 :deep(.el-drawer .el-drawer__header) {
   background-color: #211261 !important;
- padding: 16px 20px; /* 调整内边距避免溢出 */
- margin: 0 -20px 20px !important; /* 修改外边距仅水平方向负边距 */
- border-bottom: 1px solid #e8e8e8;
- display: flex;
- justify-content: center;
- align-items: center;
+  padding: 16px 20px;
+  /* 调整内边距避免溢出 */
+  margin: 0 -20px 20px !important;
+  /* 修改外边距仅水平方向负边距 */
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 单独设置标题文本样式 - 增加选择器特异性 */
 :deep(.el-drawer .el-drawer__title) {
- font-size: 36px !important;
- font-weight: 600;
- text-align: center;
- width: 100%;
- margin: 0;
+  font-size: 36px !important;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+  margin: 0;
 }
 
 .demo-drawer__content {
@@ -196,7 +218,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   padding: 16px;
-  background-color: #f5f7fa; /* 整个评论区背景色 */
+  background-color: #f5f7fa;
+  /* 整个评论区背景色 */
 }
 
 .drawer-container {
@@ -204,7 +227,8 @@ onMounted(async () => {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  background-color: #ffffff; /* 评论列表容器背景 */
+  background-color: #ffffff;
+  /* 评论列表容器背景 */
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -242,14 +266,16 @@ onMounted(async () => {
 .comment-item {
   padding: 15px;
   border-bottom: 1px solid #eee;
-  background-color: #f9f9f9; /* 评论项背景色 */
+  background-color: #f9f9f9;
+  /* 评论项背景色 */
   border-radius: 8px;
   margin-bottom: 15px;
   transition: all 0.2s ease;
 }
 
 .comment-item:hover {
-  background-color: #f0f0f0; /* 评论项悬停效果 */
+  background-color: #f0f0f0;
+  /* 评论项悬停效果 */
   transform: translateY(-2px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
@@ -257,13 +283,16 @@ onMounted(async () => {
 .comment-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px; /* 减小底部间距 */
+  margin-bottom: 4px;
+  /* 减小底部间距 */
   color: #666;
-  font-size: 12px; /* 减小字号 */
+  font-size: 12px;
+  /* 减小字号 */
 }
 
 .comment-item {
-  padding: 12px 15px; /* 减小内边距 */
+  padding: 12px 15px;
+  /* 减小内边距 */
   border-bottom: 1px solid #eee;
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -272,7 +301,8 @@ onMounted(async () => {
 }
 
 .comment-item:hover {
-  background-color: #f0f0f0; /* 评论项悬停效果 */
+  background-color: #f0f0f0;
+  /* 评论项悬停效果 */
   transform: translateY(-2px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
@@ -280,10 +310,12 @@ onMounted(async () => {
 .comment-content {
   color: #333;
   line-height: 1.5;
-  overflow-wrap: break-word; /* 添加这行解决长文本换行问题 */
+  overflow-wrap: break-word;
+  /* 添加这行解决长文本换行问题 */
 }
 
-.no-comments,.loading-state {
+.no-comments,
+.loading-state {
   text-align: center;
   padding: 20px;
   color: #666;
@@ -292,16 +324,20 @@ onMounted(async () => {
 .comment-input-container {
   position: relative;
   width: 100%;
-  background-color: #ffffff; /* 输入框背景 */
+  background-color: #ffffff;
+  /* 输入框背景 */
   border-radius: 8px;
   padding: 10px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
 }
 
 .comment-input-container textarea {
-  resize: none; /* 禁用垂直调整 */
-  height: 120px; /* 固定高度 */
-  padding: 10px 10px 40px; /* 底部留出按钮空间 */
+  resize: none;
+  /* 禁用垂直调整 */
+  height: 120px;
+  /* 固定高度 */
+  padding: 10px 10px 40px;
+  /* 底部留出按钮空间 */
   box-sizing: border-box;
 }
 
