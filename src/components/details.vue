@@ -1,8 +1,13 @@
 <template>
-    <el-breadcrumb :separator-icon="ArrowRight">
-        <el-breadcrumb-item class="first-menu" @click="router.back">{{ menuName }}</el-breadcrumb-item>
-        <el-breadcrumb-item class="second-menu">{{ defaultName }}</el-breadcrumb-item>
-    </el-breadcrumb>
+    <div class="details-header">
+        <el-breadcrumb :separator-icon="ArrowRight">
+            <el-breadcrumb-item class="first-menu" @click="router.back">{{ menuName }}</el-breadcrumb-item>
+            <el-breadcrumb-item class="second-menu">{{ defaultName }}</el-breadcrumb-item>
+        </el-breadcrumb>
+        <el-button type="primary" class="back-button" @click="router.back" :icon="ArrowLeft">
+            返回
+        </el-button>
+    </div>
     <div class="base-container">
         <div class="title">参数信息</div>
         <div class="base-message">
@@ -84,7 +89,7 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { useRoute, useRouter } from 'vue-router';
 import { InstalledEntity } from '@/interface';
 import { ElNotification } from 'element-plus'
-import { ArrowRight } from '@element-plus/icons-vue'
+import { ArrowRight, ArrowLeft } from '@element-plus/icons-vue'
 import { compareVersions } from "@/util/checkVersion";
 import { ParseRef } from "@/util/refParam";
 import { loading, searchLinyapsByAppId } from '@/util/WorkerSearch';
@@ -207,6 +212,28 @@ onBeforeRouteLeave((to: any, from: any, next: any) => {
 })
 </script>
 <style scoped>
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 0 5px;
+}
+
+.back-button {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+}
+
 .base-container {
     display: flex;
     flex-direction: column;
