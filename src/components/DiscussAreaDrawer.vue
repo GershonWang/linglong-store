@@ -1,6 +1,11 @@
 <template>
-  <el-drawer v-model="props.drawer" :title="`${props.defaultName}的评论区`" size="60%" @close="emit('update:drawer', false)"
-    :show-close="false" :close-on-click-modal="true">
+  <el-drawer v-model="drawerVisible" size="60%" @close="handleClose"
+    :show-close="false" :close-on-click-modal="true" class="custom-drawer">
+    <template #header>
+      <div class="custom-header">
+        <h2 class="custom-title">{{ props.defaultName }}的评论区</h2>
+      </div>
+    </template>
     <div class="demo-drawer__content">
       <!-- 使用flex容器实现固定底部效果 -->
       <div class="drawer-container">
@@ -22,13 +27,35 @@
       <!-- 评论输入区域 -->
       <div class="demo-drawer__footer">
         <div class="comment-input-container">
-          <textarea v-model="form.remark" :placeholder="isInstalled ? '请输入评论内容' : '请先安装才能评论'"
-            :disabled="!isInstalled || hasCommented" :rows="4" style="width: 100%;" @input="handleInput"></textarea>
-          <div class="word-count" :class="{ 'text-red': currentWordCount >= 300 }">{{ currentWordCount }}/300</div>
-          <el-button type="primary" class="submit-btn" :loading="loading" @click="submitComment"
-            :disabled="!isInstalled || hasCommented || !form.remark.trim() || currentWordCount > 300">
-            {{ hasCommented ? '已评论' : (loading ? '提交中 ...' : '提交') }}
-          </el-button>
+          <!-- 图片预览区域 -->
+          <div v-if="form.images && form.images.length > 0" class="image-preview-container">
+            <div v-for="(image, index) in form.images" :key="index" class="image-preview-item">
+              <img :src="image.url" :alt="`预览图片${index + 1}`" class="preview-image" />
+              <button class="remove-image-btn" @click="removeImage(index)">×</button>
+            </div>
+          </div>
+          
+          <div class="textarea-container">
+            <textarea v-model="form.remark" :placeholder="isInstalled ? '请输入评论内容' : '请先安装才能评论'"
+              :disabled="!isInstalled || hasCommented" :rows="4" style="width: 100%;" @input="handleInput"></textarea>
+            <div class="word-count" :class="{ 'text-red': currentWordCount >= 300 }">{{ currentWordCount }}/300</div>
+          </div>
+          
+          <!-- 工具栏 -->
+          <div class="input-toolbar">
+            <div class="toolbar-left">
+              <input ref="imageInput" type="file" accept="image/*" multiple style="display: none;" @change="handleImageUpload" />
+              <!-- 暂时隐藏添加图片按钮 -->
+              <!-- <el-button size="small" type="info" :icon="Picture" @click="triggerImageUpload" 
+                :disabled="!isInstalled || hasCommented">
+                添加图片
+              </el-button> -->
+            </div>
+            <el-button type="primary" class="submit-btn" :loading="loading" @click="submitComment"
+              :disabled="!isInstalled || hasCommented || (!form.remark.trim() && (!form.images || form.images.length === 0)) || currentWordCount > 300 || (form.images && form.images.length > 3)">
+              {{ hasCommented ? '已评论' : (loading ? '提交中 ...' : '提交') }}
+            </el-button>
+          </div>
         </div>
       </div>
     </div>
@@ -37,9 +64,11 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Picture } from '@element-plus/icons-vue'
 import { getAppCommentList, saveAppComment } from '@/api';
 import { commentItem } from '@/interface';
 import { useSystemConfigStore } from '@/store/systemConfig';
+import { useInstalledItemsStore } from '@/store/installedItems';
 
 // 添加IP地址打码函数
 const maskIp = (ip: string): string => {
@@ -75,24 +104,28 @@ const comments = ref<commentItem[]>([]);
 const isInstalled = ref(false);
 const hasCommented = ref(false);
 const loadingComments = ref(false);
-const form = reactive({ remark: '' });
+const form = reactive({ 
+  remark: '',
+  images: [] as Array<{ url: string; file: File; base64: string }>
+});
 const systemConfigStore = useSystemConfigStore();
-const installedItems = ref<any>(null);
+const installedItemsStore = useInstalledItemsStore();
+const imageInput = ref<HTMLInputElement>();
 
-const updateInstalledItems = () => {
-  try {
-    installedItems.value = JSON.parse(localStorage.getItem('installedItems') || '{}');
-  } catch (error) {
-    console.error('解析安装列表失败：', error);
-    installedItems.value = {}
-  }
-}
+// 创建本地的响应式变量来处理drawer状态
+const drawerVisible = ref(false);
 
-// 检查应用安装状态
-const checkAppInstallation = async () => {
+// 处理drawer关闭事件
+const handleClose = () => {
+  drawerVisible.value = false;
+  emit('update:drawer', false);
+};
+
+// 检查应用安装状态 - 直接从store获取
+const checkAppInstallation = () => {
   try {
-    if (installedItems.value?.installedItemList) {
-      isInstalled.value = installedItems.value.installedItemList.some(
+    if (installedItemsStore.installedItemList && installedItemsStore.installedItemList.length > 0) {
+      isInstalled.value = installedItemsStore.installedItemList.some(
         (item: { appId: string }) => item.appId === props.appId
       );
     } else {
@@ -133,10 +166,81 @@ const handleInput = () => {
   }
 }
 
+// 触发图片上传
+const triggerImageUpload = () => {
+  imageInput.value?.click();
+};
+
+// 将文件转换为base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+// 处理图片上传
+const handleImageUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const files = target.files;
+  
+  if (!files || files.length === 0) return;
+  
+  // 限制图片数量为3张
+  if (form.images.length + files.length > 3) {
+    ElMessage.warning('最多只能上传3张图片');
+    return;
+  }
+  
+  // 处理每个文件
+  for (const file of Array.from(files)) {
+    // 检查文件类型
+    if (!file.type.startsWith('image/')) {
+      ElMessage.warning('只能上传图片文件');
+      continue;
+    }
+    
+    // 检查文件大小 (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      ElMessage.warning('图片大小不能超过2MB');
+      continue;
+    }
+    
+    try {
+      // 转换为base64
+      const base64 = await fileToBase64(file);
+      
+      // 创建预览URL
+      const url = URL.createObjectURL(file);
+      
+      // 添加到图片列表
+      form.images.push({ url, file, base64 });
+    } catch (error) {
+      ElMessage.error('图片转换失败');
+      console.error('Base64转换错误:', error);
+    }
+  }
+  
+  // 清空input
+  target.value = '';
+};
+
+// 移除图片
+const removeImage = (index: number) => {
+  const image = form.images[index];
+  URL.revokeObjectURL(image.url); // 释放内存
+  form.images.splice(index, 1);
+};
+
 // 提交评论
 const submitComment = async () => {
-  if (!form.remark.trim()) {
-    ElMessage.warning('请输入评论内容')
+  if (!form.remark.trim() && (!form.images || form.images.length === 0)) {
+    ElMessage.warning('请输入评论内容或添加图片')
     return
   }
   // 字数限制检查
@@ -146,24 +250,42 @@ const submitComment = async () => {
   }
   loading.value = true
   try {
+    // 从store中获取版本信息，而不是从localStorage
     let version = '';
-    const installedItems = localStorage.getItem('installedItems');
-    if (installedItems) {
-      const installedApps = JSON.parse(installedItems);
-      installedApps['installedItemList'].forEach((item: any) => {
-        if (item.appId === props.appId) {
-          version = item.version;
-        }
-      })
+    if (installedItemsStore.installedItemList && installedItemsStore.installedItemList.length > 0) {
+      const installedApp = installedItemsStore.installedItemList.find(
+        (item: any) => item.appId === props.appId
+      );
+      if (installedApp) {
+        version = installedApp.version;
+      }
     }
-    await saveAppComment({
+    
+    // 准备提交数据
+    const submitData: any = {
       appId: props.appId,
       visit: systemConfigStore.getClientIp,
       remark: form.remark,
       version: version
-    });
+    };
+    
+    // 如果有图片，添加base64图片数据
+    if (form.images && form.images.length > 0) {
+      submitData.images = form.images.map(img => ({
+        name: img.file.name,
+        size: img.file.size,
+        type: img.file.type,
+        base64: img.base64
+      }));
+    }
+    
+    await saveAppComment(submitData);
     ElMessage.success('评论发布成功')
+    
+    // 清理表单
     form.remark = ''
+    form.images.forEach(img => URL.revokeObjectURL(img.url));
+    form.images = []
     hasCommented.value = true
     await fetchComments() // 重新获取评论列表
   } catch (error) {
@@ -174,50 +296,83 @@ const submitComment = async () => {
 }
 
 onMounted(async () => {
-  updateInstalledItems();
+  // 初始化时检查安装状态
+  checkAppInstallation();
   await fetchComments();
-  // 保持定时器更新机制
-  const checkInterval = setInterval(() => updateInstalledItems(), 1000);
-  onUnmounted(() => {
-    clearInterval(checkInterval);
-  });
+  
+  // 动态设置 drawer header 的样式
+  setTimeout(() => {
+    const header = document.querySelector('.el-drawer__header') as HTMLElement;
+    if (header) {
+      header.style.setProperty('margin-bottom', '0px', 'important');
+    }
+  }, 100);
 })
-// Then define the watcher
-watch(() => installedItems, () => {
-  if (installedItems.value) {
+
+// 监听props.drawer的变化，同步到本地状态
+watch(
+  () => props.drawer,
+  (newValue) => {
+    drawerVisible.value = newValue;
+    
+    // 当 drawer 打开时，设置 header 样式
+    if (newValue) {
+      setTimeout(() => {
+        const header = document.querySelector('.el-drawer__header') as HTMLElement;
+        if (header) {
+          header.style.setProperty('margin-bottom', '0px', 'important');
+        }
+      }, 50);
+    }
+  },
+  { immediate: true }
+)
+
+// 监听已安装应用列表的变化，实时更新安装状态
+watch(
+  () => installedItemsStore.installedItemList,
+  () => {
     checkAppInstallation();
-  }
-}, { immediate: true }
+  },
+  { deep: true, immediate: true }
 )
 </script>
 <style scoped>
-/* 添加标题背景条样式 - 增强选择器特异性并修正布局 */
-:deep(.el-drawer .el-drawer__header) {
-  background-color: #211261 !important;
-  padding: 16px 20px;
-  /* 调整内边距避免溢出 */
-  margin: 0 -20px 20px !important;
-  /* 修改外边距仅水平方向负边距 */
-  border-bottom: 1px solid #e8e8e8;
+/* 保留 CSS 样式作为备用方案 */
+.el-drawer .el-drawer__header {
+  margin-bottom: 0 !important;
+}
+
+/* 自定义标题样式 */
+.custom-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 10px 20px;
+  margin: -20px -20px 0px -20px;
+  border-bottom: 2px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 30px;
 }
 
-/* 单独设置标题文本样式 - 增加选择器特异性 */
-:deep(.el-drawer .el-drawer__title) {
-  font-size: 36px !important;
-  font-weight: 600;
+.custom-title {
+  font-size: 20px;
+  font-weight: 700;
   text-align: center;
-  width: 100%;
   margin: 0;
+  padding: 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  width: 100%;
 }
 
 .demo-drawer__content {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 8px;
   background-color: #f5f7fa;
   /* 整个评论区背景色 */
 }
@@ -238,11 +393,10 @@ watch(() => installedItems, () => {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  margin-bottom: 20px;
-  padding: 20px;
   /* 添加滚动条样式 */
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
+  max-height: calc(100vh - 200px);
 }
 
 .comments-container:hover {
@@ -324,27 +478,101 @@ watch(() => installedItems, () => {
 .comment-input-container {
   position: relative;
   width: 100%;
+  max-width: 100%;
   background-color: #ffffff;
   /* 输入框背景 */
   border-radius: 8px;
   padding: 10px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+}
+
+/* 图片预览容器 */
+.image-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px dashed #d9d9d9;
+}
+
+.image-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e8e8e8;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.remove-image-btn:hover {
+  background-color: #ff7875;
+}
+
+/* 文本输入容器 */
+.textarea-container {
+  position: relative;
+  width: 100%;
 }
 
 .comment-input-container textarea {
   resize: none;
   /* 禁用垂直调整 */
-  height: 120px;
+  height: 100px;
   /* 固定高度 */
-  padding: 10px 10px 40px;
-  /* 底部留出按钮空间 */
+  padding: 10px 10px 30px;
+  /* 底部留出字数统计空间 */
   box-sizing: border-box;
+}
+
+/* 工具栏样式 */
+.input-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .word-count {
   position: absolute;
   left: 10px;
-  bottom: -2px;
+  bottom: 5px;
   color: #666;
   font-size: 12px;
 }
@@ -356,17 +584,19 @@ watch(() => installedItems, () => {
 }
 
 .submit-btn {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
   width: 80px;
 }
 
 .demo-drawer__footer {
   padding: 16px;
+  margin-top: 8px;
   border-top: 1px solid #eee;
   background: #fff;
   width: 100%;
   box-sizing: border-box;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
