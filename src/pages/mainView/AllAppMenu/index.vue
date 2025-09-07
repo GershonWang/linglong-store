@@ -13,6 +13,7 @@
             <div class="header-right-search">
                 <el-input v-model="params.name" placeholder="请输入软件名称" @keyup.enter="handleSearch" />
                 <el-button type="primary" @click="handleSearch">搜索</el-button>
+                <el-button type="default" @click="handleReset">重置</el-button>
             </div>
         </div>
     </div>
@@ -94,6 +95,23 @@ const handleSearch = async () => {
     params.value.pageNo = 1;
     isFirstLoad.value = true;
     loadMore();
+}
+
+// 重置功能
+const handleReset = async () => {
+    // 重置搜索参数
+    params.value.name = '';
+    params.value.categoryId = '';
+    params.value.pageNo = 1;
+    
+    // 清空应用列表
+    allAppItemsStore.clearItems();
+    
+    // 重置为第一次加载状态
+    isFirstLoad.value = true;
+    
+    // 重新加载数据
+    await loadMore();
 }
 
 // 滚动加载事件
