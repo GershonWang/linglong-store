@@ -11,9 +11,11 @@ const systemConfigStore = useSystemConfigStore();
  * 已安装的全部应用
  */
 export const useInstalledItemsStore = defineStore("installedItems", () => {
+
     let installedItemList = ref<InstalledEntity[]>([]);
-    // 添加全局重试计数器和上次请求标识
+    // 添加全局重试计数器
     const retryCount = ref(0);
+    // 添加上次请求标识
     const lastRequestHash = ref('');
 
     /**
@@ -62,17 +64,10 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
             addedItems = [...installedItemList.value];
         }
 
-        // 只在有新增时才获取新增应用详情
-        const detailItems: InstalledEntity[] = [];
-        if (addedItems.length > 0) {
-            detailItems.push(...addedItems);
-        }
+        // 过滤已经获取了分类的玲珑组件
+        const filterItems = installedItemList.value.filter(item => item.kind == 'app' || (item.kind != 'app' && item.categoryName !== '玲珑组件'));
         // 获取已安装列表中元素的categoryName为“其他”的项，如果集合不为空则调用后台接口查询详情填充
-        const otherItems = installedItemList.value.filter(item => item.categoryName === '其他' || !item.devName);
-        if (otherItems.length > 0) {
-            detailItems.push(...otherItems);
-        }
-        
+        const detailItems = filterItems.filter(item => item.categoryName === '其他' || !item.devName);
         if (detailItems.length > 0) {
             // 生成请求内容哈希值，用于检测内容变化
             const currentHash = JSON.stringify(detailItems.map(item => `${item.appId}-${item.version}`));
@@ -86,9 +81,8 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                 try {
                     const response = await getAppDetails(detailItems);
                     if (response.code == 200) {
-                        const details: InstalledEntity[] = response.data as unknown as InstalledEntity[];
                         let hasUpdates = false;
-                
+                        const details: InstalledEntity[] = response.data as unknown as InstalledEntity[];
                         details.forEach((item: InstalledEntity) => {
                             const idx = installedItemList.value.findIndex(it => it.appId == item.appId && it.version == item.version);
                             if (idx !== -1 && item.kind) {
@@ -102,13 +96,6 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                                 installedItemList.value.splice(idx, 1, updatedItem);
                             }
                         });
-                
-                        // 筛选仍需要更新的项
-                        const stillNeedUpdate = detailItems.filter(item => {
-                            const updatedItem = installedItemList.value.find(it => it.appId === item.appId && it.version === item.version);
-                            return !updatedItem || !updatedItem.devName || updatedItem.categoryName === '其他';
-                        });
-                
                         // 如果有更新则重置重试计数，否则增加计数
                         if (hasUpdates) {
                             retryCount.value++;
@@ -123,8 +110,6 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                     retryCount.value++;
                     ipcRenderer.send('logger', 'error', `获取应用详情异常: ${error}, 重试次数: ${retryCount.value}`);
                 }
-            } else {
-                ipcRenderer.send('logger', 'warn', `已连续3次请求应用详情失败`);
             }
         }
         
