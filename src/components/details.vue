@@ -60,7 +60,8 @@
                 :formatter="formatRuntime" show-overflow-tooltip />
             <el-table-column fixed="right" label="操作" header-align="center" align="center" width="130">
                 <template #default="scope">
-                    <el-button class="detail-btn uninstall-btn" v-if="scope.row.isInstalled && !scope.row.loading"
+                    <el-button class="detail-btn uninstall-btn"
+                        v-if="scope.row.isInstalled && !scope.row.loading && scope.row.kind == 'app'"
                         @click="removeApp(scope.row)">卸载</el-button>
                     <el-button class="detail-btn" v-if="scope.row.isInstalled && scope.row.loading"
                         loading>卸载中</el-button>
