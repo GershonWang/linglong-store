@@ -67,10 +67,8 @@ const handleLinyapsInstallResult = (_event: IpcRendererEvent, res: LinyapsInstal
             
             // 立即刷新已安装列表，等待完成后再刷新版本列表
             reflushInstalledItemsImmediate().then(() => {
-                // 刷新更新列表
+                // 刷新更新列表（会自动过滤掉已更新的应用）
                 reflushUpdateItems();
-                // 从更新列表中移除
-                updateItemsStore.removeItem(params as InstalledEntity);
                 // 刷新版本列表（此时已安装列表已更新）
                 searchLinyapsByAppId(params.appId);
             });

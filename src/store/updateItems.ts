@@ -4,6 +4,7 @@ import { InstalledEntity } from "@/interface";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { getAppDetails } from "@/api";
 import { handleError, ErrorLevel } from '@/util/errorHandler';
+import { compareVersions } from '@/util/checkVersion';
 import { createBaseStoreActions } from "./baseStore";
 
 const installedItemsStore = useInstalledItemsStore();
@@ -31,6 +32,12 @@ export const useUpdateItemsStore = defineStore("updateItems", () => {
             const { id, old_version, new_version } = item;
             const thisItem = installedItemsStore.installedItemList.find(installedItem => installedItem.appId == id);
             if (thisItem) {
+                // 检查已安装的版本是否已经是新版本或更高版本
+                // 如果已安装版本 >= new_version，说明已经更新完成，不需要添加到更新列表
+                if (compareVersions(thisItem.version, new_version) >= 0) {
+                    return; // 跳过，不添加到更新列表
+                }
+                
                 // 复制对象，避免修改原始数据
                 const updateItem = { ...thisItem };
                 updateItem.oldVersion = old_version; // 设置旧版本号
@@ -77,8 +84,13 @@ export const useUpdateItemsStore = defineStore("updateItems", () => {
             updateItemList.value = addedItems as InstalledEntity[]; 
         } else {
             // 更新列表和新增列表获取交集数据
-            const newList = updateItemList.value.filter(aItem => addedItems.some(bItem => bItem.appId === aItem.appId));
+            // 只保留在 addedItems 中存在的应用（即真正需要更新的应用）
+            const newList = updateItemList.value.filter(aItem => 
+                addedItems.some(bItem => bItem.appId === aItem.appId)
+            );
             updateItemList.value = newList; // 交集赋值给更新列表，这样更新列表只有本次继续更新的应用
+            
+            // 添加新增的需要更新的应用（不在当前更新列表中的）
             addedItems.forEach(bItem => {
                 if (!newList.some(aItem => bItem.appId === aItem.appId)) {
                     updateItemList.value.push(bItem);
