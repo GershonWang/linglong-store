@@ -2,6 +2,7 @@ import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useUpdateItemsStore } from '@/store/updateItems';
+import { logger } from '@/util/logger';
 
 
 const allAppItemsStore = useAllAppItemsStore();
@@ -24,7 +25,7 @@ export const StartLoading = (data: any) => {
         updateItemsStore.updateItemLoadingStatus(data, true);
     } else {
         // ❌ 不是对象也不是数组
-        console.warn('data 不是有效的 JSON 对象或数组');
+        logger.warn('data 不是有效的 JSON 对象或数组');
     }
 }
 
@@ -43,6 +44,6 @@ export const StopLoading = (data: any) => {
         updateItemsStore.updateItemLoadingStatus(data, false);
     } else {
         // ❌ 不是对象也不是数组
-        console.warn('data 不是有效的 JSON 对象或数组');
+        logger.warn('data 不是有效的 JSON 对象或数组');
     }
 }

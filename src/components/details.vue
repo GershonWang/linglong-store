@@ -95,6 +95,7 @@ import { VERSION_THRESHOLDS } from '@/constants';
 import { ParseRef } from "@/util/refParam";
 import { loading, searchLinyapsByAppId } from '@/util/WorkerSearch';
 import { StartLoading } from '@/util/ReflushLoading';
+import { deepClone } from '@/util/clone';
 import DiscussAreaDrawer from '@/components/DiscussAreaDrawer.vue'
 
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -172,7 +173,7 @@ function formatRuntime(row: any) {
 const removeApp = (item: InstalledEntity) => {
     StartLoading(item); // 启动按钮的加载状态
     item.command = `ll-cli uninstall ${item.appId}/${item.version}`;
-    ipcRenderer.send('linyaps-uninstall', JSON.parse(JSON.stringify(item)));
+    ipcRenderer.send('linyaps-uninstall', deepClone(item));
 }
 // 安装点击事件
 const installApp = async (item: any) => {

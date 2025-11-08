@@ -40,6 +40,7 @@ import { reflushInstalledItems, cancelInstalledTimer } from '@/util/WorkerInstal
 import { installingItems, setupIpcListeners, cleanupIpcListeners } from "@/util/IpcInstalled";
 import { removeCustomProtocol, setupCustomProtocol } from '@/util/customProtocol';
 import { StopLoading } from '@/util/ReflushLoading';
+import { deepClone } from '@/util/clone';
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useInstalledItemsStore } from '@/store/installedItems';
 import { useUpdateItemsStore } from '@/store/updateItems';
@@ -90,7 +91,7 @@ watch(() => installingItemsStore.installingItemList, async (newQueue) => {
             const item = newQueue[0];
             updateStatusStore.downloadQueueStatus = true; // 设置为正在处理状态
             let password = localStorage.getItem('linyaps-password'); // 获取密码
-            ipcRenderer.send('linyaps-install', JSON.parse(JSON.stringify({ password, ...item })));
+            ipcRenderer.send('linyaps-install', deepClone({ password, ...item }));
         }
     }, { deep: true, immediate: true }
 );

@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron';
 import { compareVersions } from '@/util/checkVersion';
 import { debounce } from './debounce';
 import { handleError, ErrorLevel } from './errorHandler';
+import { logger } from './logger';
 import { VERSION_THRESHOLDS, TIMER_INTERVALS } from '@/constants';
 import { InstalledEntity } from '@/interface';
 import { useInstalledItemsStore } from "@/store/installedItems";
@@ -71,7 +72,7 @@ const _reflushUpdateItems = () => {
             const NOTIFICATION_BODY = '您有' + list.length + '个应用需要更新'
             const CLICK_MESSAGE = '消息点击'
             new window.Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY })
-            .onclick = () => { console.log(CLICK_MESSAGE);}
+            .onclick = () => { logger.debug(CLICK_MESSAGE);}
             onlyShowOnce = false;
         } else {
             onlyShowOnce = true;

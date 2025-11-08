@@ -2,6 +2,8 @@ import { ipcRenderer } from 'electron';
 import { compareVersions } from './checkVersion';
 import { debounce } from './debounce';
 import { handleError, ErrorLevel } from './errorHandler';
+import { logger } from './logger';
+import { deepClone } from './clone';
 import { VERSION_THRESHOLDS, TIMER_INTERVALS } from '@/constants';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
@@ -27,7 +29,7 @@ const _reflushInstalledItems = () => {
                             addedItems,
                             removedItems
                         };
-                        ipcRenderer.send('visit', JSON.parse(JSON.stringify(params)));
+                        ipcRenderer.send('visit', deepClone(params));
                     }
                 } catch (err) {
                     handleError(err, {
@@ -45,7 +47,7 @@ const _reflushInstalledItems = () => {
         });
         ipcRenderer.send('linyaps-list', { command: 'll-cli --json list --type=all' });
     } else {
-        console.log('当前版本不支持获取应用列表，请使用最新版本的玲珑！');
+        logger.warn('当前版本不支持获取应用列表，请使用最新版本的玲珑！');
     }
 }
 
@@ -81,7 +83,7 @@ export const reflushInstalledItemsImmediate = (): Promise<void> => {
                                 addedItems,
                                 removedItems
                             };
-                            ipcRenderer.send('visit', JSON.parse(JSON.stringify(params)));
+                            ipcRenderer.send('visit', deepClone(params));
                         }
                         resolve();
                     } catch (err) {

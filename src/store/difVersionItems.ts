@@ -5,6 +5,8 @@ import { useInstalledItemsStore } from "@/store/installedItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { InstalledEntity } from "@/interface";
 import { getSearchAppVersionList } from "@/api";
+import { logger } from "@/util/logger";
+import { createBaseStoreActions } from "./baseStore";
 
 const installedItemsStore = useInstalledItemsStore();
 const systemConfigStore = useSystemConfigStore();
@@ -89,72 +91,19 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
                 });
             }
         } catch (error) {
-            console.error("获取不同版本应用列表失败:", error);
+            logger.error("获取不同版本应用列表失败:", error);
         }
         // 对数据进行排序，按照版本号降序排列
         difVersionItemList.value = data.sort((a, b) => compareVersions(b.version, a.version));
         return difVersionItemList;
     }
 
-    /**
-     * 新增对象
-     * @param item 要新增的对象
-     */
-    const addItem = (item: InstalledEntity) => {
-        difVersionItemList.value.push(item);
-    };
-
-    /**
-     * 从对象数组中移除对象
-     * @param item 要移除的对象
-     */
-    const removeItem = (item: InstalledEntity) => {
-        const index = difVersionItemList.value.findIndex((i) => i.appId === item.appId && i.version === item.version && i.module === item.module);
-        if (index !== -1) {
-            difVersionItemList.value.splice(index, 1);
-        }
-    };
-
-    /**
-     * 清空所有应用对象列表
-     */
-    const clearItems = () => {
-        difVersionItemList.value.splice(0, difVersionItemList.value.length);
-    };
-
-    /**
-     * 更新对象的安装状态
-     * @param item 要更新的对象
-     */
-    const updateItemInstallStatus = (item: InstalledEntity, flag: boolean) => {
-        const index = difVersionItemList.value.findIndex((it) => it.appId === item.appId && it.module === item.module && it.version === item.version);
-        if (index !== -1) {
-            const aItem = difVersionItemList.value[index];
-            aItem.isInstalled = flag;
-            difVersionItemList.value.splice(index, 1, aItem);
-        }
-    }
-
-    /**
-     * 更新对象的加载状态
-     * @param item 要更新的对象
-     */
-    const updateItemLoadingStatus = (item: InstalledEntity, flag: boolean) => {
-        const index = difVersionItemList.value.findIndex((it) => it.appId === item.appId && it.module === item.module && it.version === item.version);
-        if (index !== -1) {
-            const aItem = difVersionItemList.value[index];
-            aItem.loading = flag;
-            difVersionItemList.value.splice(index, 1, aItem);
-        }
-    }
+    // 使用公共 Store 逻辑
+    const baseActions = createBaseStoreActions(difVersionItemList);
 
     return {
         difVersionItemList,
         initDifVersionItems,
-        addItem,
-        removeItem,
-        clearItems,
-        updateItemInstallStatus,
-        updateItemLoadingStatus,
+        ...baseActions,
     };
 });

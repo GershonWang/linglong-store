@@ -69,6 +69,7 @@ import { getAppCommentList, saveAppComment } from '@/api';
 import { commentItem } from '@/interface';
 import { useSystemConfigStore } from '@/store/systemConfig';
 import { useInstalledItemsStore } from '@/store/installedItems';
+import { logger } from '@/util/logger';
 
 // 添加IP地址打码函数
 const maskIp = (ip: string): string => {
@@ -133,7 +134,7 @@ const checkAppInstallation = () => {
     }
   } catch (error) {
     ElMessage.error('检查安装状态失败')
-    console.error(error)
+    logger.error('检查安装状态失败', error)
   }
 }
 
@@ -149,7 +150,7 @@ const fetchComments = async () => {
     hasCommented.value = comments.value.some((item: commentItem) => systemConfigStore.getClientIp === item.clientIp) || false
   } catch (error) {
     ElMessage.error('获取评论失败')
-    console.error(error)
+    logger.error('获取评论失败', error)
   } finally {
     loadingComments.value = false
   }
@@ -222,7 +223,7 @@ const handleImageUpload = async (event: Event) => {
       form.images.push({ url, file, base64 });
     } catch (error) {
       ElMessage.error('图片转换失败');
-      console.error('Base64转换错误:', error);
+      logger.error('Base64转换错误:', error);
     }
   }
   

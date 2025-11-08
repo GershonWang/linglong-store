@@ -45,6 +45,8 @@ import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
 import { computed, onMounted, ref } from 'vue'
 import { InstalledEntity } from '@/interface';
 import { StartLoading } from '@/util/ReflushLoading';
+import { deepClone } from '@/util/clone';
+import { logger } from '@/util/logger';
 
 const containerRef = ref<HTMLElement | null>(null);
 const textRef = ref<HTMLElement | null>(null);
@@ -108,12 +110,12 @@ const removeApp = (item: InstalledEntity) => {
     }).then(() => {
         StartLoading(item);  // 启动按钮的加载状态
         // 发送操作命令
-        const plainItem = JSON.parse(JSON.stringify(item));
+        const plainItem = deepClone(item);
         plainItem.command = `ll-cli uninstall ${item.appId}/${item.version}`;
         ipcRenderer.send('linyaps-uninstall', plainItem);
     }).catch(() => {
         // 取消卸载
-        ipcRenderer.send('logger', 'info', `取消卸载${item.appId}/${item.version}`);
+        logger.info(`取消卸载${item.appId}/${item.version}`);
     });
 };
 // 运行按钮(发送操作命令,并弹出提示框)

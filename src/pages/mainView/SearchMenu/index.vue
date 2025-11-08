@@ -28,6 +28,7 @@ import { useSystemConfigStore } from '@/store/systemConfig';
 import { useAllAppItemsStore } from '@/store/allAppItems';
 import { useInstalledItemsStore } from '@/store/installedItems';
 import { getSearchAppList } from '@/api';
+import { logger } from '@/util/logger';
 import loadingGIF from "@/assets/loading.gif";
 
 // 通过路由router对象获取相关数据
@@ -63,7 +64,7 @@ const loadMore = async () => {
             params.value.pageNo++;
         }
     } catch (error) {
-        console.error('Failed to load data', error);
+        logger.error('Failed to load data', error);
     } finally {
         isLoading.value = false;
     }

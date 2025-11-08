@@ -32,6 +32,7 @@ import { categoryItem, execEntity } from '@/interface';
 import { compareVersions } from '@/util/checkVersion';
 import { VERSION_THRESHOLDS } from '@/constants';
 import { handleError, ErrorLevel } from '@/util/errorHandler';
+import { deepClone } from '@/util/clone';
 
 const systemConfigStore = useSystemConfigStore();
 
@@ -199,7 +200,7 @@ const startEnvCheck = async () => {
                 return;
             }
             ipcRenderer.send('logger', 'info', `当前玲珑基础环境使用的仓库源...${JSON.stringify(stdout)}`);
-            const json = JSON.parse(JSON.stringify(stdout));
+            const json = typeof stdout === 'string' ? JSON.parse(stdout) : deepClone(stdout);
             const defaultRepo = json.defaultRepoName;
             ipcRenderer.send('logger', 'info', `当前玲珑基础环境使用的默认仓库为：${defaultRepo}`);
             systemConfigStore.changeDefaultRepoName(defaultRepo);
