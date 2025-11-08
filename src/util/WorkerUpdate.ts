@@ -1,10 +1,13 @@
 import { ipcRenderer } from 'electron';
 import { compareVersions } from '@/util/checkVersion';
+import { debounce } from './debounce';
+import { handleError, ErrorLevel } from './errorHandler';
+import { VERSION_THRESHOLDS, TIMER_INTERVALS } from '@/constants';
 import { InstalledEntity } from '@/interface';
-
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useUpdateItemsStore } from "@/store/updateItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
+import type { LinyapsUpdateResult } from '@/types/ipc';
 
 const installedItemsStore = useInstalledItemsStore();
 const updateItemsStore = useUpdateItemsStore();
@@ -16,16 +19,18 @@ let onlyShowOnce = true;
 // 记录循环次数的标记值
 let currentIndex = 0;
 
-// 定时器每10秒检查一次当前系统有哪些需要更新的应用
-let updateTimer = setInterval(() => reflushUpdateItems(), 3000);
-// 启动定时器函数
-updateTimer;
+// 定时器变量
+let updateTimer: NodeJS.Timeout | null = null;
+
 // 检查当前系统有哪些需要更新的应用
-export const reflushUpdateItems = () => {
-    if (compareVersions(llVersion, '1.5.0') < 0) {
-        ipcRenderer.send('logger', 'error', `当前玲珑版本(${llVersion})不支持获取更新列表，请使用最新版本的玲珑！`);
+const _reflushUpdateItems = () => {
+    if (compareVersions(llVersion, VERSION_THRESHOLDS.MIN_SUPPORTED) < 0) {
+        handleError(`当前玲珑版本(${llVersion})不支持获取更新列表，请使用最新版本的玲珑！`, {
+            level: ErrorLevel.ERROR,
+            logToMain: true,
+        });
         return;
-    } else if (compareVersions(llVersion, '1.7.0') < 0) {
+    } else if (compareVersions(llVersion, VERSION_THRESHOLDS.UPDATE_LIST_SUPPORT) < 0) {
         // 1.7.0版本之前要根据已安装的应用列表来查询更新
         const installedItems = installedItemsStore.installedItemList.filter(item => item.kind != 'app');
         const uniqueInstalledSet: InstalledEntity[] = [];
@@ -47,12 +52,15 @@ export const reflushUpdateItems = () => {
         searchLingLongHasUpdate(uniqueInstalledSet);
     } else {
         ipcRenderer.send('linyaps-update', { command: 'll-cli --json list --upgradable --type=app' });
-        ipcRenderer.once('linyaps-update-result', async (_event: any, res: any) => {
+        ipcRenderer.once('linyaps-update-result', async (_event: unknown, res: LinyapsUpdateResult) => {
             const { error, stdout, stderr } = res;
             if (error || stderr) {
-                ipcRenderer.send('logger', 'error', `ll-cli --json list --upgradable --type=app命令执行异常::${error || stderr}`);
+                handleError(`ll-cli --json list --upgradable --type=app命令执行异常::${error || stderr}`, {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                });
             }
-            updateItemsStore.initUpdateItems(stdout); // 初始化更新列表
+            await updateItemsStore.initUpdateItems(stdout); // 初始化更新列表
         });
     }
     // 更新应用系统通知
@@ -108,7 +116,10 @@ const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
                 return;
             }
             // 如果没有查询到结果，则记录错误日志
-            ipcRenderer.send('logger', 'error', `"${command}"命令执行异常::${error || stderr}`);
+            handleError(`"${command}"命令执行异常::${error || stderr}`, {
+                level: ErrorLevel.ERROR,
+                logToMain: true,
+            });
             // 执行下一个循环
             currentIndex++;
             searchLingLongHasUpdate(uniqueInstalledSet);
@@ -116,9 +127,9 @@ const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
         });
         // 执行查询命令
         let command = `ll-cli --json search ${appId}`;
-        if (compareVersions(llVersion, '1.7.7') >= 0 && compareVersions(llVersion, '1.8.3') < 0) {
+        if (compareVersions(llVersion, VERSION_THRESHOLDS.SEARCH_ALL_SUPPORT) >= 0 && compareVersions(llVersion, VERSION_THRESHOLDS.SHOW_ALL_VERSION) < 0) {
             command += ` --all`;
-        } else if (compareVersions(llVersion, '1.8.3') >= 0) {
+        } else if (compareVersions(llVersion, VERSION_THRESHOLDS.SHOW_ALL_VERSION) >= 0) {
             command += ` --show-all-version`;
         }
         ipcRenderer.send("linyaps-search", { command });
@@ -128,8 +139,26 @@ const searchLingLongHasUpdate = (uniqueInstalledSet: InstalledEntity[]) => {
     }
 }
 
+// 使用防抖优化，避免频繁查询
+const debouncedReflushUpdateItems = debounce(_reflushUpdateItems, 1000);
+
+// 启动定时器
+export const startUpdateTimer = () => {
+    if (updateTimer) {
+        clearInterval(updateTimer);
+    }
+    updateTimer = setInterval(() => debouncedReflushUpdateItems(), TIMER_INTERVALS.UPDATE_ITEMS);
+};
+
+// 导出刷新函数（用于手动调用）
+export const reflushUpdateItems = debouncedReflushUpdateItems;
+
+// 启动定时器
+startUpdateTimer();
+
 export const cancelUpdateTimer = () => {
     if (updateTimer) {
         clearInterval(updateTimer);
+        updateTimer = null;
     }
 }

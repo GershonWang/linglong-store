@@ -24,6 +24,7 @@ import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { ParseRef } from "@/util/refParam";
 import { compareVersions } from '@/util/checkVersion';
+import { VERSION_THRESHOLDS } from '@/constants';
 import { useSystemConfigStore } from "@/store/systemConfig";
 
 const systemConfigStore = useSystemConfigStore();
@@ -46,7 +47,7 @@ let removeIndex = ref<number>(-1);
 const stopPross = (item: RunTime) => {
     const { containerId, app } = item;
     let command = `ll-cli kill `;
-    if (compareVersions(systemConfigStore.llVersion,'1.7.0') >= 0) {
+    if (compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.UPDATE_LIST_SUPPORT) >= 0) {
         removeIndex.value = runtimeList.value.findIndex(r => r.app === app);
         command += `${app}`;
     } else {
@@ -77,7 +78,7 @@ const intoDom = (item: RunTime) => {
     const { containerId, app } = item;
     // ll-cli exec com.tencent.wechat.linyaps /bin/bash
     let code = `ll-cli exec `;
-    if (compareVersions(systemConfigStore.llVersion,'1.7.0') >= 0) {
+    if (compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.UPDATE_LIST_SUPPORT) >= 0) {
         code += app;
     } else {
         code += containerId;

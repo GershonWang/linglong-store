@@ -1,33 +1,45 @@
 import { ipcRenderer } from 'electron';
-import { compareVersions } from '@/util/checkVersion';
-
+import { compareVersions } from './checkVersion';
+import { debounce } from './debounce';
+import { handleError, ErrorLevel } from './errorHandler';
+import { VERSION_THRESHOLDS, TIMER_INTERVALS } from '@/constants';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
+import type { LinyapsListResult } from '@/types/ipc';
 
 const installedItemsStore = useInstalledItemsStore();
 const systemConfigStore = useSystemConfigStore();
 
-// 定时器每5秒检查一次当前系统有哪些应用
-let installedTimer = setInterval(() => reflushInstalledItems(), 3000);
-// 启动定时器函数
-installedTimer;
 // 刷新当前系统有哪些已安装的应用
-export const reflushInstalledItems = () => {
-    if (compareVersions(systemConfigStore.llVersion, '1.5.0') >= 0) {
-        ipcRenderer.once('linyaps-list-result', async (_event: any, res: any) => {
+const _reflushInstalledItems = () => {
+    if (compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.MIN_SUPPORTED) >= 0) {
+        ipcRenderer.once('linyaps-list-result', async (_event: unknown, res: LinyapsListResult) => {
             const { error, stdout, stderr } = res;
             if (stdout) {
-                let { addedItems, removedItems} = await installedItemsStore.initInstalledItems(stdout);
-                if (addedItems.length > 0 || removedItems.length > 0) {
-                    const {visitorId, clientIp} = systemConfigStore;
-                    let params = {
-                        url: `${import.meta.env.VITE_SERVER_URL}/app/saveInstalledRecord`,
-                        visitorId, clientIp, addedItems, removedItems
-                    };
-                    ipcRenderer.send('visit', JSON.parse(JSON.stringify(params)));
+                try {
+                    const { addedItems, removedItems } = await installedItemsStore.initInstalledItems(stdout);
+                    if (addedItems.length > 0 || removedItems.length > 0) {
+                        const { visitorId, clientIp } = systemConfigStore;
+                        const params = {
+                            url: `${import.meta.env.VITE_SERVER_URL}/app/saveInstalledRecord`,
+                            visitorId,
+                            clientIp,
+                            addedItems,
+                            removedItems
+                        };
+                        ipcRenderer.send('visit', JSON.parse(JSON.stringify(params)));
+                    }
+                } catch (err) {
+                    handleError(err, {
+                        level: ErrorLevel.ERROR,
+                        logToMain: true,
+                    });
                 }
             } else {
-                ipcRenderer.send('logger', 'error', `"ll-cli --json list --type=all"命令执行异常::${error || stderr}`);
+                handleError(`"ll-cli --json list --type=all"命令执行异常::${error || stderr}`, {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                });
                 return;
             }
         });
@@ -37,8 +49,72 @@ export const reflushInstalledItems = () => {
     }
 }
 
+// 使用防抖优化，避免频繁查询
+const debouncedReflushInstalledItems = debounce(_reflushInstalledItems, 1000);
+
+// 定时器变量
+let installedTimer: NodeJS.Timeout | null = null;
+
+// 启动定时器
+export const startInstalledTimer = () => {
+    if (installedTimer) {
+        clearInterval(installedTimer);
+    }
+    installedTimer = setInterval(() => debouncedReflushInstalledItems(), TIMER_INTERVALS.INSTALLED_ITEMS);
+};
+
+// 立即刷新已安装列表（不使用防抖，用于安装/卸载后立即刷新）
+export const reflushInstalledItemsImmediate = (): Promise<void> => {
+    return new Promise((resolve) => {
+        if (compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.MIN_SUPPORTED) >= 0) {
+            ipcRenderer.once('linyaps-list-result', async (_event: unknown, res: LinyapsListResult) => {
+                const { error, stdout, stderr } = res;
+                if (stdout) {
+                    try {
+                        const { addedItems, removedItems } = await installedItemsStore.initInstalledItems(stdout);
+                        if (addedItems.length > 0 || removedItems.length > 0) {
+                            const { visitorId, clientIp } = systemConfigStore;
+                            const params = {
+                                url: `${import.meta.env.VITE_SERVER_URL}/app/saveInstalledRecord`,
+                                visitorId,
+                                clientIp,
+                                addedItems,
+                                removedItems
+                            };
+                            ipcRenderer.send('visit', JSON.parse(JSON.stringify(params)));
+                        }
+                        resolve();
+                    } catch (err) {
+                        handleError(err, {
+                            level: ErrorLevel.ERROR,
+                            logToMain: true,
+                        });
+                        resolve();
+                    }
+                } else {
+                    handleError(`"ll-cli --json list --type=all"命令执行异常::${error || stderr}`, {
+                        level: ErrorLevel.ERROR,
+                        logToMain: true,
+                    });
+                    resolve();
+                }
+            });
+            ipcRenderer.send('linyaps-list', { command: 'll-cli --json list --type=all' });
+        } else {
+            resolve();
+        }
+    });
+};
+
+// 导出刷新函数（用于手动调用，使用防抖）
+export const reflushInstalledItems = debouncedReflushInstalledItems;
+
+// 启动定时器
+startInstalledTimer();
+
 export const cancelInstalledTimer = () => {
     if (installedTimer) {
         clearInterval(installedTimer);
+        installedTimer = null;
     }
 }

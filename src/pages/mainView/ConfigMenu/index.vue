@@ -49,7 +49,7 @@
       </div>
       <hr>
     </div>
-    <div v-if="compareVersions(systemConfigStore.llVersion, '1.7.0') >= 0">
+    <div v-if="compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.UPDATE_LIST_SUPPORT) >= 0">
       <li><a class="title">清除缓存</a></li>
       <div style="margin-left: 30px;">
         <el-button type="success" @click="pruneLinyaps" style="height: 24px;" :disabled="clearBtnStatus">清除废弃基础服务</el-button>
@@ -63,6 +63,7 @@ import { onMounted, ref, watch } from "vue";
 import { ipcRenderer } from "electron";
 import { ElNotification } from 'element-plus'
 import { compareVersions } from '@/util/checkVersion';
+import { VERSION_THRESHOLDS } from '@/constants';
 import { useSystemConfigStore } from "@/store/systemConfig";
 
 const systemConfigStore = useSystemConfigStore();

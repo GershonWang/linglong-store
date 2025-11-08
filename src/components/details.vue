@@ -91,6 +91,7 @@ import { InstalledEntity } from '@/interface';
 import { ElNotification } from 'element-plus'
 import { ArrowRight, ArrowLeft } from '@element-plus/icons-vue'
 import { compareVersions } from "@/util/checkVersion";
+import { VERSION_THRESHOLDS } from '@/constants';
 import { ParseRef } from "@/util/refParam";
 import { loading, searchLinyapsByAppId } from '@/util/WorkerSearch';
 import { StartLoading } from '@/util/ReflushLoading';
@@ -181,7 +182,7 @@ const installApp = async (item: any) => {
         return;
     }
     // 大于等于1.7.0版本后，安装低版本会进行校验
-    if (compareVersions(systemConfigStore.llVersion, "1.7.0") >= 0) {
+    if (compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.UPDATE_LIST_SUPPORT) >= 0) {
         let tempList = installedItemsStore.installedItemList;
         let theAppIdList = tempList.filter(it => it.appId == item.appId);
         if (theAppIdList.length > 0) {

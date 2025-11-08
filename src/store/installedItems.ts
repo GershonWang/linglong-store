@@ -4,6 +4,7 @@ import { InstalledEntity } from "@/interface";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { getAppDetails } from "@/api";
 import { ipcRenderer } from "electron";
+import { handleError, ErrorLevel } from '@/util/errorHandler';
 
 const systemConfigStore = useSystemConfigStore();
 
@@ -104,11 +105,19 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
                         }
                     } else {
                         retryCount.value++;
-                        ipcRenderer.send('logger', 'error', `获取应用详情失败: ${response.msg}, 重试次数: ${retryCount.value}`);
+                        handleError(`获取应用详情失败: ${response.msg}, 重试次数: ${retryCount.value}`, {
+                            level: ErrorLevel.ERROR,
+                            logToMain: true,
+                            showMessage: false,
+                        });
                     }
                 } catch (error) {
                     retryCount.value++;
-                    ipcRenderer.send('logger', 'error', `获取应用详情异常: ${error}, 重试次数: ${retryCount.value}`);
+                    handleError(`获取应用详情异常: ${error}, 重试次数: ${retryCount.value}`, {
+                        level: ErrorLevel.ERROR,
+                        logToMain: true,
+                        showMessage: false,
+                    });
                 }
             }
         }

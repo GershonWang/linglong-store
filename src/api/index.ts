@@ -1,10 +1,17 @@
 import { commentItem, InstalledEntity, pageResult, Result } from '@/interface';
 import request from '@/api/request';
+import type { 
+  SearchAppListParams, 
+  SearchAppVersionListParams, 
+  GetAppDetailsParams,
+  SaveAppCommentParams,
+  GetAppCommentListParams
+} from '@/types/api';
 
 /**
  * 推荐页面-获取轮播图列表
  */
-export const getWelcomeCarouselList = (data: any) => {
+export const getWelcomeCarouselList = (data: Record<string, any>) => {
     return request<Result>({ method: 'POST', url: '/visit/getWelcomeCarouselList', data })
 }
 
@@ -13,8 +20,8 @@ export const getWelcomeCarouselList = (data: any) => {
  * @param data 入参条件(分页参数)
  * @returns 
  */
-export const getWelcomeAppList = (data: any) => {
-    return request<Result>({ method: 'POST', url: '/visit/getWelcomeAppList', data })
+export const getWelcomeAppList = (data: Record<string, any>) => {
+    return request<Result<InstalledEntity[]>>({ method: 'POST', url: '/visit/getWelcomeAppList', data })
 }
 
 /**
@@ -22,8 +29,8 @@ export const getWelcomeAppList = (data: any) => {
  * @param data 入参条件
  * @returns 
  */
-export const getNewAppList = (data: any) => {
-    return request<Result>({ method: 'POST', url: '/visit/getNewAppList', data })
+export const getNewAppList = (data: Record<string, any>) => {
+    return request<Result<InstalledEntity[]>>({ method: 'POST', url: '/visit/getNewAppList', data })
 }
 
 /**
@@ -31,15 +38,15 @@ export const getNewAppList = (data: any) => {
  * @param data 入参条件
  * @returns 
  */
-export const getInstallAppList = (data: any) => {
-    return request<Result>({ method: 'POST', url: '/visit/getInstallAppList', data })
+export const getInstallAppList = (data: Record<string, any>) => {
+    return request<Result<InstalledEntity[]>>({ method: 'POST', url: '/visit/getInstallAppList', data })
 }
 
 /**
  * 获取程序的详细信息
  */
-export const getAppDetails = (data: InstalledEntity[]) => {
-    return request<Result> ({ method: 'POST', url: '/visit/getAppDetails', data })
+export const getAppDetails = (data: GetAppDetailsParams) => {
+    return request<Result<InstalledEntity[]>>({ method: 'POST', url: '/visit/getAppDetails', data })
 }
 
 /**
@@ -47,30 +54,30 @@ export const getAppDetails = (data: InstalledEntity[]) => {
  * @param data 查询条件
  * @returns 
  */
-export const getSearchAppList = (data: any) => {
-    return request<pageResult>({ method: 'POST', url: '/visit/getSearchAppList', data })
+export const getSearchAppList = (data: SearchAppListParams) => {
+    return request<pageResult<InstalledEntity[]>>({ method: 'POST', url: '/visit/getSearchAppList', data })
 }
 
 /**
  * 获取应用分类
  */
 export const getDisCategoryList = () => {
-    return request<any[]>({ method: 'GET', url: '/visit/getDisCategoryList' })
+    return request<Result<Array<{ categoryId: string; categoryName: string }>>>({ method: 'GET', url: '/visit/getDisCategoryList' })
 }
 
 /**
  * 根据appid获取程序列表
  */
-export const getSearchAppVersionList = (data: any) => {
-    return request<Result>({ method: 'POST', url: '/visit/getSearchAppVersionList', data })
+export const getSearchAppVersionList = (data: SearchAppVersionListParams) => {
+    return request<Result<InstalledEntity[]>>({ method: 'POST', url: '/visit/getSearchAppVersionList', data })
 }
 
 /**
  * 获取应用评论列表
- * @param data 入参条件
+ * @param params 入参条件
  * @returns 应用评论列表
  */
-export const getAppCommentList = (params: { appId: string }): Promise<Result<commentItem[]>> => {
+export const getAppCommentList = (params: GetAppCommentListParams): Promise<Result<commentItem[]>> => {
   return request({ url: '/app/getAppCommentList', method: 'POST', data: params });
 };
 
@@ -79,6 +86,6 @@ export const getAppCommentList = (params: { appId: string }): Promise<Result<com
  * @param data 入参条件
  * @returns 
  */
-export const saveAppComment = (data: any) => {
+export const saveAppComment = (data: SaveAppCommentParams) => {
     return request<Result>({ method: 'POST', url: '/app/saveAppComment', data })
 }

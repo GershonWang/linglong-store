@@ -30,6 +30,8 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { categoryItem, execEntity } from '@/interface';
 import { compareVersions } from '@/util/checkVersion';
+import { VERSION_THRESHOLDS } from '@/constants';
+import { handleError, ErrorLevel } from '@/util/errorHandler';
 
 const systemConfigStore = useSystemConfigStore();
 
@@ -110,7 +112,11 @@ const startEnvCheck = async () => {
             const { stdout, stderr, error } = res;
             if (error || stderr) {
                 message.value = "系统架构检测异常,当前非Linux环境...";
-                ipcRenderer.send('logger', 'error', "系统架构检测异常,当前非Linux环境...");
+                handleError("系统架构检测异常,当前非Linux环境...", {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                    showMessage: false,
+                });
                 reject(new Error(error || stderr));
                 return;
             }
@@ -161,7 +167,11 @@ const startEnvCheck = async () => {
             const { stdout, stderr, error } = res;
             if ( error || stderr) {
                 message.value = "检测玲珑基础环境不存在...";
-                ipcRenderer.send('logger', 'error', `检测玲珑基础环境不存在...${error || stderr}`);
+                handleError(`检测玲珑基础环境不存在...${error || stderr}`, {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                    showMessage: false,
+                });
                 centerDialogVisible.value = true; // 显示弹窗
                 reject(new Error(error || stderr));
                 return;
@@ -179,7 +189,11 @@ const startEnvCheck = async () => {
             const { stdout, stderr, error } = res;
             if ( error || stderr) {
                 message.value = "检测玲珑仓库信息异常...";
-                ipcRenderer.send('logger', 'error', `检测玲珑仓库信息异常...${error || stderr}`);
+                handleError(`检测玲珑仓库信息异常...${error || stderr}`, {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                    showMessage: false,
+                });
                 centerDialogVisible.value = true; // 显示弹窗
                 reject(new Error(error || stderr));
                 return;
@@ -205,16 +219,24 @@ const startEnvCheck = async () => {
             const { stdout, stderr, error } = res;
             if (error || stderr) {
                 message.value = "检测玲珑基础环境版本号异常...";
-                ipcRenderer.send('logger', 'error', `检测玲珑基础环境版本号异常...${error || stderr}`);
+                handleError(`检测玲珑基础环境版本号异常...${error || stderr}`, {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                    showMessage: false,
+                });
                 centerDialogVisible.value = true; // 显示弹窗
                 reject(new Error(error || stderr));
                 return;
             }
             ipcRenderer.send('logger', 'info', `检测玲珑基础环境版本号...${stdout}`);
             systemConfigStore.changeLlVersion(stdout);
-            if (!systemConfigStore.llVersion || compareVersions(systemConfigStore.llVersion, "1.5.0") < 0) {
-                message.value = "当前玲珑基础环境版本号过低(<1.5.0)或不存在，请安装最新版本的玲珑环境！";
-                ipcRenderer.send('logger', 'error', "当前玲珑基础环境版本号过低(<1.5.0)或不存在，请安装最新版本的玲珑环境！");
+            if (!systemConfigStore.llVersion || compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.MIN_SUPPORTED) < 0) {
+                message.value = `当前玲珑基础环境版本号过低(<${VERSION_THRESHOLDS.MIN_SUPPORTED})或不存在，请安装最新版本的玲珑环境！`;
+                handleError(`当前玲珑基础环境版本号过低(<${VERSION_THRESHOLDS.MIN_SUPPORTED})或不存在，请安装最新版本的玲珑环境！`, {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                    showMessage: false,
+                });
                 centerDialogVisible.value = true; // 显示弹窗
                 reject(new Error('版本过低'));
                 return;
@@ -280,7 +302,11 @@ onMounted(async () => {
                 const categoriesByIpc = (res.data as categoryItem[]).map(({ categoryId, categoryName }) => ({ categoryId, categoryName }));
                 categories.push(...categoriesByIpc);
             } else {
-                ipcRenderer.send('logger', 'error', "获取分类列表的接口状态异常...");
+                handleError("获取分类列表的接口状态异常...", {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                    showMessage: false,
+                });
             }
             localStorage.setItem('categories', JSON.stringify(categories));
             resolve(res);
