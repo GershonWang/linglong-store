@@ -31,4 +31,11 @@ app.use(VueLazyload, { preLoad: 1.3, loading: loadimage, error: errorimage, atte
 // 注册挂载路由
 app.use(router);
 
+// 初始化性能监控查看器（仅在开发环境）
+if (import.meta.env.DEV) {
+    import('@/util/performanceViewer').then(({ setupPerformanceViewer }) => {
+        setupPerformanceViewer();
+    });
+}
+
 app.mount('#app').$nextTick(() => postMessage({ payload: 'removeLoading' }, '*'))
