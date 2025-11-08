@@ -41,6 +41,7 @@ import { installingItems, setupIpcListeners, cleanupIpcListeners } from "@/util/
 import { removeCustomProtocol, setupCustomProtocol } from '@/util/customProtocol';
 import { StopLoading } from '@/util/ReflushLoading';
 import { deepClone } from '@/util/clone';
+import { useCleanup } from '@/composables';
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useInstalledItemsStore } from '@/store/installedItems';
 import { useUpdateItemsStore } from '@/store/updateItems';
@@ -95,6 +96,9 @@ watch(() => installingItemsStore.installingItemList, async (newQueue) => {
         }
     }, { deep: true, immediate: true }
 );
+
+// 使用清理机制
+const { addCleanup } = useCleanup();
 
 // 页面初始化时执行
 onMounted(() => {

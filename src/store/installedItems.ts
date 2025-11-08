@@ -1,12 +1,13 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { InstalledEntity } from "@/interface";
-import { useSystemConfigStore } from "@/store/systemConfig";
 import { getAppDetails } from "@/api";
 import { ipcRenderer } from "electron";
 import { handleError, ErrorLevel } from '@/util/errorHandler';
+import { useSystemConfigStore } from "@/store/systemConfig";
 
-const systemConfigStore = useSystemConfigStore();
+// 使用依赖注入模式，在需要时获取 Store 实例（延迟初始化）
+const getSystemConfigStore = () => useSystemConfigStore();
 
 /**
  * 已安装的全部应用
@@ -38,6 +39,7 @@ export const useInstalledItemsStore = defineStore("installedItems", () => {
             return { installedItemList, addedItems, removedItems };
         }
         // 拆解并处理数据
+        const systemConfigStore = getSystemConfigStore();
         datas.forEach(item => {
             item.appId = item.id ? item.id : item.appid ? item.appid : item.appId; // 设定appId
             item.arch = typeof item.arch === 'string' ? item.arch : Array.isArray(item.arch) ? item.arch[0] : ''; // 设定arch架构

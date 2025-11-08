@@ -43,6 +43,7 @@ import { useAllAppItemsStore } from "@/store/allAppItems";
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { getSearchAppList } from '@/api';
 import { logger } from '@/util/logger';
+import { useInfiniteScroll } from '@/composables';
 import loadingGIF from "@/assets/loading.gif";
 
 // 通过路由router对象获取相关数据
@@ -75,7 +76,7 @@ const loadMore = async () => {
     try {
         const res = await getSearchAppList(params.value);
         if (res.code == 200) {
-            res.data.records.forEach(item => {
+            res.data.records.forEach((item: any) => {
                 item.isInstalled = installedItemsStore.installedItemList.find(it => it.appId == item.appId) ? true : false;
                 allAppItemsStore.addItem(item);
             })

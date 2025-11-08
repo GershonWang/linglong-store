@@ -1,18 +1,16 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { compareVersions } from "@/util/checkVersion";
-import { useInstalledItemsStore } from "@/store/installedItems";
-import { useSystemConfigStore } from "@/store/systemConfig";
 import { InstalledEntity } from "@/interface";
 import { getSearchAppVersionList } from "@/api";
 import { logger } from "@/util/logger";
 import { createBaseStoreActions } from "./baseStore";
+import { useInstalledItemsStore } from "@/store/installedItems";
+import { useSystemConfigStore } from "@/store/systemConfig";
 
-const installedItemsStore = useInstalledItemsStore();
-const systemConfigStore = useSystemConfigStore();
-
-let arch = systemConfigStore.arch;
-let repoName = systemConfigStore.defaultRepoName;
+// 使用依赖注入模式，在需要时获取 Store 实例（延迟初始化）
+const getInstalledItemsStore = () => useInstalledItemsStore();
+const getSystemConfigStore = () => useSystemConfigStore();
 
 /**
  * 不同版本列表
@@ -33,6 +31,10 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
         if (data.length < 1) {
             return difVersionItemList;
         }
+        // 获取系统配置
+        const systemConfigStore = getSystemConfigStore();
+        const arch = systemConfigStore.arch;
+        const repoName = systemConfigStore.defaultRepoName;
         // 赋值默认属性
         data.forEach(item => {
             item.appId = item.id ? item.id : item.appid ? item.appid : item.appId; // 设定appId
@@ -51,6 +53,7 @@ export const useDifVersionItemsStore = defineStore("difVersionItems", () => {
             return difVersionItemList;
         }
         // 2.填充已安装应用到查询结果，然后判断数组是否为空
+        const installedItemsStore = getInstalledItemsStore();
         for (let item of installedItemsStore.installedItemList) {
             if (item.appId == appId) {
                 const idx = data.findIndex(it => it.version === item.version && it.module === item.module);
