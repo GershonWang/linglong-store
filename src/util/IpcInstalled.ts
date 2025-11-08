@@ -11,12 +11,14 @@ import { useDifVersionItemsStore } from "@/store/difVersionItems";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useUpdateItemsStore } from "@/store/updateItems";
+import { useUpdateStatusStore } from "@/store/updateStatus";
 
 const allAppItemsStore = useAllAppItemsStore();
 const difVersionItemsStore = useDifVersionItemsStore();
 const installingItemsStore = useInstallingItemsStore();
 const systemConfigStore = useSystemConfigStore();
 const updateItemsStore = useUpdateItemsStore();
+const updateStatusStore = useUpdateStatusStore();
 
 export let installingItems = installingItemsStore.installingItemList; // 安装队列
 
@@ -40,6 +42,8 @@ const handleLinyapsInstallResult = (_event: any, res: any) => {
     } else if (code == 'close') {
         installingItemsStore.removeItem(params); // 1.从加载列表中移除
         StopLoading(params); // 停用按钮的加载状态
+        // 重置下载队列状态，允许处理下一个安装任务
+        updateStatusStore.changeDownloadQueueStatus(false);
         if (result == '0') {
             allAppItemsStore.updateItemInstallStatus(params, true);
             difVersionItemsStore.updateItemInstallStatus(params, true);
@@ -53,6 +57,15 @@ const handleLinyapsInstallResult = (_event: any, res: any) => {
             const msg = downloadLogMsg.length > 2 ? downloadLogMsg[downloadLogMsg.length - 2] : '';
             ElNotification({ title: '操作异常!', message: `<span style="color: red;">${msg}</span><br>`, type: 'error', duration: 5000, dangerouslyUseHTMLString: true });
         }
+        downloadLogMsg = []; // 清除当前程序安装的日志记录
+    } else if (code == 'error' || code == 'stderr') {
+        // 处理安装错误，重置状态并移除失败的应用
+        installingItemsStore.removeItem(params); // 从加载列表中移除
+        StopLoading(params); // 停用按钮的加载状态
+        // 重置下载队列状态，允许处理下一个安装任务
+        updateStatusStore.changeDownloadQueueStatus(false);
+        const msg = downloadLogMsg.length > 0 ? downloadLogMsg[downloadLogMsg.length - 1] : result;
+        ElNotification({ title: '安装失败!', message: `<span style="color: red;">${msg}</span><br>`, type: 'error', duration: 5000, dangerouslyUseHTMLString: true });
         downloadLogMsg = []; // 清除当前程序安装的日志记录
     }
 }

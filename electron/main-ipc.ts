@@ -213,9 +213,22 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
     });
 
     /* ****************** 命令 ll-cli list ******************* */
+    // 存储上次查询结果，用于比较变化
+    let lastListResult: string | null = null;
+    let isFirstListQuery = true;
+    
     ipcMain.on("linyaps-list", (_event, params) => {
         exec(params.command, (error, stdout, stderr) => {
-            ipcLog.info(`${params.command} >> `, { error, stdout: stdout ? JSON.parse(stdout).length : 0, stderr });
+            const resultStr = stdout ? stdout.trim() : '';
+            const resultLength = stdout ? JSON.parse(stdout).length : 0;
+            
+            // 第一次查询或结果发生变化时才打印日志
+            if (isFirstListQuery || lastListResult !== resultStr) {
+                ipcLog.info(`${params.command} >> `, { error, stdout: resultLength, stderr });
+                lastListResult = resultStr;
+                isFirstListQuery = false;
+            }
+            
             mainWin.webContents.send("linyaps-list-result", { error, stdout, stderr });
         });
     });
@@ -229,28 +242,95 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
     });
 
     /* ****************** 命令 ll-cli update ******************* */
+    // 存储上次查询结果，用于比较变化
+    let lastUpdateResult: string | null = null;
+    let isFirstUpdateQuery = true;
+    
     ipcMain.on("linyaps-update", (_event, params) => {
         exec(params.command, (error, stdout, stderr) => {
-            ipcLog.info(`${params.command} >> `, { error, stdout: stdout ? JSON.parse(stdout).length : 0, stderr });
+            const resultStr = stdout ? stdout.trim() : '';
+            const resultLength = stdout ? JSON.parse(stdout).length : 0;
+            
+            // 第一次查询或结果发生变化时才打印日志
+            if (isFirstUpdateQuery || lastUpdateResult !== resultStr) {
+                ipcLog.info(`${params.command} >> `, { error, stdout: resultLength, stderr });
+                lastUpdateResult = resultStr;
+                isFirstUpdateQuery = false;
+            }
+            
             mainWin.webContents.send("linyaps-update-result", { error, stdout, stderr });
         });
     });
 
     /* ****************** 命令 ll-cli install xxx ******************* */
-    ipcMain.on("linyaps-install", (_event, params) => {
+    // 存储 sudo 验证状态
+    let sudoVerified = false;
+    let sudoVerifyTime = 0;
+    const SUDO_TIMEOUT = 5 * 60 * 1000; // 5分钟超时
+
+    // 验证 sudo 密码
+    const verifySudo = (password: string): Promise<boolean> => {
+        return new Promise((resolve) => {
+            const verifyProcess = spawn("sudo", ["-S", "-v"]);
+            verifyProcess.stdin.write(password + "\n");
+            verifyProcess.stdin.end();
+            
+            let errorOutput = '';
+            verifyProcess.stderr.on("data", (data) => {
+                errorOutput += data.toString();
+            });
+            
+            verifyProcess.on("close", (code) => {
+                if (code === 0) {
+                    sudoVerified = true;
+                    sudoVerifyTime = Date.now();
+                    ipcLog.info('sudo 密码验证成功');
+                    resolve(true);
+                } else {
+                    sudoVerified = false;
+                    ipcLog.error('sudo 密码验证失败:', errorOutput);
+                    resolve(false);
+                }
+            });
+            
+            verifyProcess.on("error", (error) => {
+                sudoVerified = false;
+                ipcLog.error('sudo 验证过程出错:', error);
+                resolve(false);
+            });
+        });
+    };
+
+    ipcMain.on("linyaps-install", async (_event, params) => {
         const { password, appId, version, newVersion } = params;
         // 判断最新版本号是否有值,如果有值代表更新
         const updateVersion = newVersion ? newVersion : version;
         let currentProcess: ChildProcessWithoutNullStreams;
+        
         if (!password) {
-            ipcLog.error('linyaps-install：密码为空, 使用非 sudo 安装应用');
+            ipcLog.info('linyaps-install：密码为空, 使用非 sudo 安装应用');
             currentProcess = spawn("ll-cli", ["install", `${appId}/${updateVersion}`]);
         } else {
-            ipcLog.info('linyaps-install：使用 sudo 安装应用');
-            currentProcess = spawn("sudo", ["-S", "ll-cli", "install", `${appId}/${updateVersion}`]);
-            // 自动输入密码到 sudo 的标准输入
-            currentProcess.stdin.write(password + "\n");
+            // 检查 sudo 验证状态和超时
+            const now = Date.now();
+            if (!sudoVerified || (now - sudoVerifyTime) > SUDO_TIMEOUT) {
+                ipcLog.info('linyaps-install：验证 sudo 密码');
+                const verified = await verifySudo(password);
+                if (!verified) {
+                    mainWin.webContents.send(`linyaps-install-result`, { 
+                        code: 'error', 
+                        params, 
+                        result: 'sudo 密码验证失败' 
+                    });
+                    return;
+                }
+            }
+            
+            // 使用 sudo -n (非交互模式) 执行安装，不需要再次输入密码
+            ipcLog.info('linyaps-install：使用 sudo -n 安装应用（无需再次鉴权）');
+            currentProcess = spawn("sudo", ["-n", "ll-cli", "install", `${appId}/${updateVersion}`]);
         }
+        
         // 捕获标准输出
         currentProcess.stdout.on("data", (data) => {
             ipcLog.info(`linyaps-install stdout: ${data}`);
@@ -263,6 +343,11 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
             ipcLog.error(`linyaps-install stderr: ${data}`);
             // 使用 stripAnsi 去除 ANSI 转义序列
             let result = stripAnsi(data.toString());
+            // 如果 sudo -n 失败（需要密码），重置验证状态
+            if (password && result.includes('sudo: a password is required')) {
+                sudoVerified = false;
+                ipcLog.warn('sudo 验证已过期，需要重新验证');
+            }
             mainWin.webContents.send(`linyaps-install-result`, { code: 'stderr', params, result });
         });
         // 捕获错误事件
