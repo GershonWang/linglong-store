@@ -4,7 +4,6 @@ import { debounce } from './debounce';
 import { handleError, ErrorLevel } from './errorHandler';
 import { logger } from './logger';
 import { deepClone } from './clone';
-import { measurePerformanceAsync } from './performance';
 import { VERSION_THRESHOLDS, TIMER_INTERVALS } from '@/constants';
 import { useInstalledItemsStore } from "@/store/installedItems";
 import { useSystemConfigStore } from "@/store/systemConfig";
@@ -17,35 +16,33 @@ const systemConfigStore = useSystemConfigStore();
 const _reflushInstalledItems = () => {
     if (compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.MIN_SUPPORTED) >= 0) {
         ipcRenderer.once('linyaps-list-result', async (_event: unknown, res: LinyapsListResult) => {
-            await measurePerformanceAsync('刷新已安装列表', async () => {
-                const { error, stdout, stderr } = res;
-                if (stdout) {
-                    try {
-                        const { addedItems, removedItems } = await installedItemsStore.initInstalledItems(stdout);
-                        if (addedItems.length > 0 || removedItems.length > 0) {
-                            const { visitorId, clientIp } = systemConfigStore;
-                            const params = {
-                                url: `${import.meta.env.VITE_SERVER_URL}/app/saveInstalledRecord`,
-                                visitorId,
-                                clientIp,
-                                addedItems,
-                                removedItems
-                            };
-                            ipcRenderer.send('visit', deepClone(params));
-                        }
-                    } catch (err) {
-                        handleError(err, {
-                            level: ErrorLevel.ERROR,
-                            logToMain: true,
-                        });
+            const { error, stdout, stderr } = res;
+            if (stdout) {
+                try {
+                    const { addedItems, removedItems } = await installedItemsStore.initInstalledItems(stdout);
+                    if (addedItems.length > 0 || removedItems.length > 0) {
+                        const { visitorId, clientIp } = systemConfigStore;
+                        const params = {
+                            url: `${import.meta.env.VITE_SERVER_URL}/app/saveInstalledRecord`,
+                            visitorId,
+                            clientIp,
+                            addedItems,
+                            removedItems
+                        };
+                        ipcRenderer.send('visit', deepClone(params));
                     }
-                } else {
-                    handleError(`"ll-cli --json list --type=all"命令执行异常::${error || stderr}`, {
+                } catch (err) {
+                    handleError(err, {
                         level: ErrorLevel.ERROR,
                         logToMain: true,
                     });
                 }
-            });
+            } else {
+                handleError(`"ll-cli --json list --type=all"命令执行异常::${error || stderr}`, {
+                    level: ErrorLevel.ERROR,
+                    logToMain: true,
+                });
+            }
         });
         ipcRenderer.send('linyaps-list', { command: 'll-cli --json list --type=all' });
     } else {
@@ -72,38 +69,36 @@ export const reflushInstalledItemsImmediate = (): Promise<void> => {
     return new Promise((resolve) => {
         if (compareVersions(systemConfigStore.llVersion, VERSION_THRESHOLDS.MIN_SUPPORTED) >= 0) {
             ipcRenderer.once('linyaps-list-result', async (_event: unknown, res: LinyapsListResult) => {
-                await measurePerformanceAsync('立即刷新已安装列表', async () => {
-                    const { error, stdout, stderr } = res;
-                    if (stdout) {
-                        try {
-                            const { addedItems, removedItems } = await installedItemsStore.initInstalledItems(stdout);
-                            if (addedItems.length > 0 || removedItems.length > 0) {
-                                const { visitorId, clientIp } = systemConfigStore;
-                                const params = {
-                                    url: `${import.meta.env.VITE_SERVER_URL}/app/saveInstalledRecord`,
-                                    visitorId,
-                                    clientIp,
-                                    addedItems,
-                                    removedItems
-                                };
-                                ipcRenderer.send('visit', deepClone(params));
-                            }
-                            resolve();
-                        } catch (err) {
-                            handleError(err, {
-                                level: ErrorLevel.ERROR,
-                                logToMain: true,
-                            });
-                            resolve();
+                const { error, stdout, stderr } = res;
+                if (stdout) {
+                    try {
+                        const { addedItems, removedItems } = await installedItemsStore.initInstalledItems(stdout);
+                        if (addedItems.length > 0 || removedItems.length > 0) {
+                            const { visitorId, clientIp } = systemConfigStore;
+                            const params = {
+                                url: `${import.meta.env.VITE_SERVER_URL}/app/saveInstalledRecord`,
+                                visitorId,
+                                clientIp,
+                                addedItems,
+                                removedItems
+                            };
+                            ipcRenderer.send('visit', deepClone(params));
                         }
-                    } else {
-                        handleError(`"ll-cli --json list --type=all"命令执行异常::${error || stderr}`, {
+                        resolve();
+                    } catch (err) {
+                        handleError(err, {
                             level: ErrorLevel.ERROR,
                             logToMain: true,
                         });
                         resolve();
                     }
-                });
+                } else {
+                    handleError(`"ll-cli --json list --type=all"命令执行异常::${error || stderr}`, {
+                        level: ErrorLevel.ERROR,
+                        logToMain: true,
+                    });
+                    resolve();
+                }
             });
             ipcRenderer.send('linyaps-list', { command: 'll-cli --json list --type=all' });
         } else {
