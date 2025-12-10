@@ -16,6 +16,21 @@ export enum ErrorLevel {
   SUCCESS = 'success',
 }
 
+const mapToMessageType = (level: ErrorLevel): 'success' | 'warning' | 'info' | 'error' => {
+  switch (level) {
+    case ErrorLevel.SUCCESS:
+      return 'success';
+    case ErrorLevel.WARNING:
+      return 'warning';
+    case ErrorLevel.ERROR:
+      return 'error';
+    case ErrorLevel.INFO:
+    case ErrorLevel.DEBUG:
+    default:
+      return 'info';
+  }
+};
+
 /**
  * 错误处理选项
  */
@@ -65,7 +80,7 @@ export function handleError(
   if (showMessage) {
     ElMessage({
       message: errorMessage,
-      type: level,
+      type: mapToMessageType(level),
       duration,
     });
   }
@@ -76,7 +91,7 @@ export function handleError(
     ElNotification({
       title: notificationTitle,
       message: errorMessage,
-      type: level,
+      type: mapToMessageType(level),
       duration,
     });
   }

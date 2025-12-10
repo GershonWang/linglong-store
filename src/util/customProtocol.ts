@@ -6,12 +6,17 @@ import { VERSION_THRESHOLDS } from '@/constants';
 import { useSystemConfigStore } from "@/store/systemConfig";
 import { useInstallingItemsStore } from "@/store/installingItems";
 import { StartLoading } from "./ReflushLoading";
+import type { InstalledEntity } from "@/interface";
 import type { LinyapsSearchResult } from '@/types/ipc';
 
 const systemConfigStore = useSystemConfigStore();
 const installingItemsStore = useInstallingItemsStore();
 // 玲珑组件版本
 let llVersion = systemConfigStore.llVersion;
+
+const isInstalledEntity = (value: unknown): value is InstalledEntity => {
+    return !!value && typeof value === 'object' && 'version' in value;
+};
 
 const customProtocolResult = (_event: IpcRendererEvent, res: string) => {
     // 玲珑本地包安装
@@ -73,7 +78,18 @@ const customProtocolResult = (_event: IpcRendererEvent, res: string) => {
                         }
                     }
                     if (Array.isArray(searchVersionItemList) && searchVersionItemList.length > 0) {
-                        const arr = searchVersionItemList.sort((a: any, b: any) => compareVersions(b.version, a.version));
+                        const validItems = searchVersionItemList.filter(isInstalledEntity);
+                        if (validItems.length === 0) {
+                            ElNotification({ 
+                                title: '提示', 
+                                message: `未找到${appId}的最新版本`, 
+                                type: 'warning', 
+                                duration: 1000 
+                            });
+                            return;
+                        }
+
+                        const arr = validItems.sort((a, b) => compareVersions(b.version, a.version));
                         const item = arr[0];
                         StartLoading(item); // 启动按钮的加载状态
                         // 新增到加载中列表

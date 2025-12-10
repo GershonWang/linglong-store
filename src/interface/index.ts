@@ -69,11 +69,11 @@ export interface Result<T = any> {
 /**
  * 分页响应体对象
  */
-export interface pageResult {
+export interface pageResult<T = any[]> {
     current: number,
     size: number,
     total: number,
-    records: any[]
+    records: T
     pages: number
 }
 
