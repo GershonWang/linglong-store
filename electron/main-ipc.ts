@@ -391,7 +391,8 @@ const IpcHandler = (mainWin: BrowserWindow, otherWin: BrowserWindow) => {
     /* ****************** 命令 ll-cli run xxx ******************* */
     ipcMain.on('linyaps-run', (_event, params) => {
         const { appId, version } = params;
-        let currentProcess = spawn("ll-cli", ["run", `${appId}/${version}`]);
+        // let currentProcess = spawn("ll-cli", ["run", `${appId}/${version}`]);
+        let currentProcess = spawn("ll-cli", ["run", `${appId}`]);
         // 捕获标准输出
         currentProcess.stdout.on("data", (data) => {
             ipcLog.info(`linyaps-run stdout: ${data}`);
